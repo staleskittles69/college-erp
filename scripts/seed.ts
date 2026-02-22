@@ -1,0 +1,75 @@
+/**
+ * Seed script: creates a default admin user and an optional student.
+ * Run: npm run seed
+ * Requires MONGODB_URI and JWT_SECRET in .env.local (or env).
+ */
+import { config } from "dotenv";
+import { resolve } from "path";
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+
+// Load .env.local file
+config({ path: resolve(process.cwd(), ".env.local") });
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error("Error: MONGODB_URI not found in .env.local");
+  process.exit(1);
+}
+
+async function seed() {
+  await mongoose.connect(MONGODB_URI!);
+
+  const User = (await import("../src/models/User")).default;
+  const Student = (await import("../src/models/Student")).default;
+
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@college.edu";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? "admin123";
+
+  const existingAdmin = await User.findOne({ email: adminEmail });
+  if (existingAdmin) {
+    console.log("Admin user already exists:", adminEmail);
+  } else {
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    await User.create({
+      email: adminEmail,
+      password: hashedPassword,
+      role: "admin",
+    });
+    console.log("Created admin:", adminEmail, "(password:", adminPassword + ")");
+  }
+
+  const studentEmail = process.env.SEED_STUDENT_EMAIL ?? "student@college.edu";
+  const studentPassword = process.env.SEED_STUDENT_PASSWORD ?? "student123";
+
+  const existingUser = await User.findOne({ email: studentEmail });
+  if (existingUser) {
+    console.log("Student user already exists:", studentEmail);
+  } else {
+    const hashedPassword = await bcrypt.hash(studentPassword, 10);
+    const user = await User.create({
+      email: studentEmail,
+      password: hashedPassword,
+      role: "student",
+    });
+    const student = await Student.create({
+      userId: user._id,
+      name: "Sample Student",
+      rollNo: "001",
+      branch: "CSE",
+      semester: 3,
+      section: "A",
+    });
+    await User.findByIdAndUpdate(user._id, { studentId: student._id });
+    console.log("Created student:", studentEmail, "(password:", studentPassword + ")");
+  }
+
+  await mongoose.disconnect();
+  console.log("Seed done.");
+}
+
+seed().catch((err) => {
+  console.error("Seed failed:", err);
+  process.exit(1);
+});
