@@ -5,7 +5,7 @@ import { getAuth, requireAdmin } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const payload = getAuth(request);
+    const payload = await getAuth(request);
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     if (payload.role === "student" && payload.studentId) {
       const Student = (await import("@/models/Student")).default;
-      const student = await Student.findById(payload.studentId).lean();
+      const student = await Student.findById(payload.studentId).lean() as { branch: string; semester: number; section: string; } | null;
       if (student) {
         const filter = {
           branch: student.branch,
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         const rows = await Timetable.find(filter).sort({ dayOfWeek: 1 }).lean();
         return NextResponse.json(
           rows.map((r) => ({
-            _id: r._id.toString(),
+            _id: (r._id as { toString: () => string }).toString(),
             branch: r.branch,
             semester: r.semester,
             section: r.section,
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     const rows = await Timetable.find(filter).sort({ dayOfWeek: 1 }).lean();
     return NextResponse.json(
       rows.map((r) => ({
-        _id: r._id.toString(),
+        _id: (r._id as { toString: () => string }).toString(),
         branch: r.branch,
         semester: r.semester,
         section: r.section,
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = getAuth(request);
+    const payload = await getAuth(request);
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

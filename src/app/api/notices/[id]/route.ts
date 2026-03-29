@@ -13,7 +13,7 @@ export async function PATCH(
   const { id } = await context.params;
 
   try {
-    const payload = getAuth(request);
+    const payload = await getAuth(request);
 
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -71,7 +71,7 @@ export async function DELETE(
   const { id } = await context.params;
 
   try {
-    const payload = getAuth(request);
+    const payload = await getAuth(request);
 
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -9,7 +9,7 @@ export function getToken(request: NextRequest): string | null {
   return null;
 }
 
-export function getAuth(request: NextRequest): JwtPayload | null {
+export async function getAuth(request: NextRequest): Promise<JwtPayload | null> {
   const token = getToken(request);
   if (!token) return null;
   return verifyToken(token);
@@ -17,4 +17,12 @@ export function getAuth(request: NextRequest): JwtPayload | null {
 
 export function requireAdmin(payload: JwtPayload | null): boolean {
   return payload?.role === "admin";
+}
+
+export function requireTeacher(payload: JwtPayload | null): boolean {
+  return payload?.role === "teacher";
+}
+
+export function requireAdminOrTeacher(payload: JwtPayload | null): boolean {
+  return payload?.role === "admin" || payload?.role === "teacher";
 }

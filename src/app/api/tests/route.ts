@@ -6,7 +6,7 @@ import { getAuth, requireAdmin } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const payload = getAuth(request);
+    const payload = await getAuth(request);
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     let filter: Record<string, unknown> = {};
     if (payload.role === "student" && payload.studentId) {
-      const student = await Student.findById(payload.studentId).lean();
+      const student = await Student.findById(payload.studentId).lean() as { branch: string; semester: number; } | null;
       if (student) {
         filter.branch = student.branch;
         filter.semester = student.semester;
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     const tests = await Test.find(filter).sort({ date: 1 }).lean();
     return NextResponse.json(
       tests.map((t) => ({
-        _id: t._id.toString(),
+        _id: (t._id as { toString: () => string }).toString(),
         subject: t.subject,
         title: t.title,
         date: t.date,
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = getAuth(request);
+    const payload = await getAuth(request);
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

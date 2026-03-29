@@ -7,7 +7,7 @@ import { hashPassword } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const payload = getAuth(request);
+    const payload = await getAuth(request);
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       .lean();
 
     const result = students.map((s) => ({
-      _id: s._id.toString(),
+      _id: (s._id as { toString: () => string }).toString(),
       userId: (s.userId as { _id: string; email: string })?._id?.toString(),
       email: (s.userId as { email?: string })?.email,
       name: s.name,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = getAuth(request);
+    const payload = await getAuth(request);
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

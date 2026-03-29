@@ -1,15 +1,18 @@
-export type UserRole = "student" | "admin";
+export type UserRole = "student" | "teacher" | "admin";
 
 export interface ApiUser {
   id: string;
   email: string;
   role: UserRole;
   studentId?: string;
+  teacherId?: string;
   name?: string;
   rollNo?: string;
   branch?: string;
   semester?: number;
   section?: string;
+  department?: string;
+  subjects?: string[];
 }
 
 export interface TimetableSlot {

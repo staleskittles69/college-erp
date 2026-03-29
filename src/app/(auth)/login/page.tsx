@@ -30,7 +30,7 @@ export default function LoginPage() {
         return;
       }
       const role = data.user?.role;
-      router.push(role === "admin" ? "/dashboard/admin" : "/dashboard/student");
+      router.push("/dashboard");
       router.refresh();
     } catch {
       setError("Network error");

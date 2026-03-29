@@ -37,3 +37,13 @@ next-env.d.ts
 # IDE
 .idea
 .vscode
+
+# Claude
+.claude/
+
+# Logs
+lint.log
+lint_output.txt
+tsc.log
+tsc_output.txt
+files.txt

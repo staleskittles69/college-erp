@@ -4,15 +4,19 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 
+type Role = "student" | "teacher" | "admin";
+
 interface User {
   id: string;
   email: string;
-  role: "student" | "admin";
+  role: Role;
   name?: string;
-  rollNo?: string;
-  branch?: string;
-  semester?: number;
-  section?: string;
+}
+
+function dashboardHome(role: Role): string {
+  if (role === "admin") return "/dashboard/admin";
+  if (role === "teacher") return "/dashboard/teacher";
+  return "/dashboard/student";
 }
 
 export function DashboardLayout({
@@ -20,7 +24,7 @@ export function DashboardLayout({
   role,
 }: {
   children: React.ReactNode;
-  role: "student" | "admin";
+  role: Role;
 }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -39,9 +43,7 @@ export function DashboardLayout({
         if (data) {
           setUser(data);
           if (data.role !== role) {
-            router.replace(
-              data.role === "admin" ? "/dashboard/admin" : "/dashboard/student"
-            );
+            router.replace(dashboardHome(data.role));
           }
         }
         setLoading(false);
@@ -60,14 +62,14 @@ export function DashboardLayout({
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar role={user.role} userEmail={user.email} />
-      <main className="flex-1 overflow-auto p-6 lg:p-8">{children}</main>
+      <main className="flex-1 overflow-auto p-6 lg:p-8 ml-64 transition-all duration-300">
+        {children}
+      </main>
     </div>
   );
 }
