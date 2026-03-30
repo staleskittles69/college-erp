@@ -65,6 +65,22 @@ async function seed() {
     console.log("Created student:", studentEmail, "(password:", studentPassword + ")");
   }
 
+  const teacherEmail = process.env.SEED_TEACHER_EMAIL ?? "teacher@college.edu";
+  const teacherPassword = process.env.SEED_TEACHER_PASSWORD ?? "teacher123";
+
+  const existingTeacher = await User.findOne({ email: teacherEmail });
+  if (existingTeacher) {
+    console.log("Teacher user already exists:", teacherEmail);
+  } else {
+    const hashedPassword = await bcrypt.hash(teacherPassword, 10);
+    await User.create({
+      email: teacherEmail,
+      password: hashedPassword,
+      role: "teacher",
+    });
+    console.log("Created teacher:", teacherEmail, "(password:", teacherPassword + ")");
+  }
+
   await mongoose.disconnect();
   console.log("Seed done.");
 }

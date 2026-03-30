@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TeacherGrid from "@/components/admin/teachers/TeacherGrid";
 import {
   Users,
   GitBranch,
@@ -63,7 +64,7 @@ export default function AdminDashboard() {
       {/* Branch Selection */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-gray-800">Select Branch</h2>
+          <h2 className="text-base font-semibold text-gray-800">Manage Students</h2>
           <Link
             href="/admin/branches"
             className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
@@ -94,6 +95,12 @@ export default function AdminDashboard() {
             </Link>
           ))}
         </div>
+      </div>
+
+      {/* Manage Teachers */}
+      <div>
+        <h2 className="text-base font-semibold text-gray-800 mb-4">Manage Teachers</h2>
+        <TeacherGrid />
       </div>
 
       {/* Quick Actions */}

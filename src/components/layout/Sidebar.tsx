@@ -45,11 +45,12 @@ const studentNav: NavItem[] = [
 ];
 
 const teacherNav: NavItem[] = [
-  { href: "/dashboard/teacher", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/teacher/attendance", label: "Attendance", icon: <CalendarCheck size={20} /> },
-  { href: "/dashboard/teacher/grades", label: "Grades", icon: <GraduationCap size={20} /> },
-  { href: "/dashboard/teacher/notices", label: "Notices", icon: <Bell size={20} /> },
-  { href: "/dashboard/teacher/timetable", label: "Timetable", icon: <CalendarDays size={20} /> },
+  { href: "/dashboard/admin", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
+  { href: "/dashboard/admin/students", label: "Students", icon: <Users size={20} /> },
+  { href: "/dashboard/admin/attendance", label: "Attendance", icon: <CalendarCheck size={20} /> },
+  { href: "/dashboard/admin/timetable", label: "Timetable", icon: <CalendarDays size={20} /> },
+  { href: "/dashboard/admin/tests", label: "Tests", icon: <FileText size={20} /> },
+  { href: "/dashboard/admin/notices", label: "Notices", icon: <Bell size={20} /> },
 ];
 
 const adminNav: NavItem[] = [
