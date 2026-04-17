@@ -10,6 +10,7 @@ import {
   Bell,
   Calendar,
   Settings,
+  ClipboardList,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const navItems = [
   { href: "/admin/features/students", label: "Students", icon: Users },
   { href: "/admin/features/announcements", label: "Announcements", icon: Bell },
   { href: "/admin/features/timetable", label: "Timetable", icon: Calendar },
+  { href: "/admin/audit-logs", label: "Audit Logs", icon: ClipboardList },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

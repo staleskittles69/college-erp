@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -15,17 +17,19 @@ export function SidebarItem({ icon, label, href, isCollapsed }: SidebarItemProps
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all group ${
-        isActive 
-          ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
-          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50'
-      } ${isCollapsed ? 'justify-center' : ''}`}
       title={isCollapsed ? label : undefined}
+      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all group ${
+        isActive
+          ? 'bg-blue-600 text-white shadow-sm'
+          : 'text-white/65 hover:bg-white/10 hover:text-white'
+      } ${isCollapsed ? 'justify-center' : ''}`}
     >
-      <div className={`flex items-center justify-center w-6 h-6 transition-transform group-hover:scale-110 ${isActive ? 'text-blue-700 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>
+      <span className="flex items-center justify-center w-[18px] h-[18px] shrink-0 transition-transform group-hover:scale-110">
         {icon}
-      </div>
-      {!isCollapsed && <span className="font-medium text-sm">{label}</span>}
+      </span>
+      {!isCollapsed && (
+        <span className="font-medium text-sm truncate">{label}</span>
+      )}
     </Link>
   );
 }

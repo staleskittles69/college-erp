@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Attendance from "@/models/Attendance";
-import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -20,10 +19,7 @@ export async function GET(request: NextRequest) {
     const to = searchParams.get("to");
 
     if (payload.role === "student") {
-      if (!payload.studentId) {
-        return NextResponse.json({ error: "Student profile not found" }, { status: 403 });
-      }
-      studentId = payload.studentId;
+      studentId = payload.userId;
     } else if (!studentId && payload.role === "admin") {
       return NextResponse.json(
         { error: "studentId required for admin" },

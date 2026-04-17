@@ -26,3 +26,7 @@ export function requireTeacher(payload: JwtPayload | null): boolean {
 export function requireAdminOrTeacher(payload: JwtPayload | null): boolean {
   return payload?.role === "admin" || payload?.role === "teacher";
 }
+
+export function requireStudent(payload: JwtPayload | null): boolean {
+  return payload?.role === "student" || payload?.role === "admin";
+}

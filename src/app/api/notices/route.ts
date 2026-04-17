@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       notices.map((n) => ({
-        _id: (n._id as { toString: () => string }).toString(),
+        _id: String(n._id),
         title: n.title,
         body: n.body,
         pinned: n.pinned,

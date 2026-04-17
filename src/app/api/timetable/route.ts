@@ -17,16 +17,15 @@ export async function GET(request: NextRequest) {
     const semester = searchParams.get("semester");
     const section = searchParams.get("section");
 
-    if (payload.role === "student" && payload.studentId) {
-      const Student = (await import("@/models/Student")).default;
-      const student = await Student.findById(payload.studentId).lean() as { branch: string; semester: number; section: string; } | null;
-      if (student) {
-        const filter = {
-          branch: student.branch,
-          semester: student.semester,
-          section: student.section,
-        };
-        const rows = await Timetable.find(filter).sort({ dayOfWeek: 1 }).lean();
+    if (payload.role === "student") {
+      const User = (await import("@/models/User")).default;
+      const user = await User.findById(payload.userId).lean() as { branch?: string; year?: number; section?: string; } | null;
+      if (user?.branch && user?.year && user?.section) {
+        const rows = await Timetable.find({
+          branch: user.branch,
+          semester: user.year,
+          section: user.section,
+        }).sort({ dayOfWeek: 1 }).lean();
         return NextResponse.json(
           rows.map((r) => ({
             _id: (r._id as { toString: () => string }).toString(),

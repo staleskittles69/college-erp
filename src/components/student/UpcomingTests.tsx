@@ -11,6 +11,33 @@ interface TestItem {
   maxMarks?: number;
 }
 
+function formatDate(d: string) {
+  try {
+    return new Date(d).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+    });
+  } catch {
+    return d;
+  }
+}
+
+function formatYear(d: string) {
+  try {
+    return new Date(d).getFullYear().toString();
+  } catch {
+    return "";
+  }
+}
+
+const BADGE_COLORS = [
+  "bg-blue-600",
+  "bg-indigo-600",
+  "bg-purple-600",
+  "bg-cyan-600",
+  "bg-teal-600",
+];
+
 export function UpcomingTests() {
   const [tests, setTests] = useState<TestItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,52 +52,54 @@ export function UpcomingTests() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Upcoming tests</CardTitle>
-        </CardHeader>
+      <Card className="animate-pulse">
+        <CardHeader><CardTitle>Upcoming tests</CardTitle></CardHeader>
         <CardContent>
-          <p className="text-gray-500">Loading…</p>
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="flex gap-3">
+                <div className="w-12 h-12 bg-gray-100 rounded-xl shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-4 bg-gray-100 rounded w-3/4" />
+                  <div className="h-3 bg-gray-100 rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     );
   }
 
-  const formatDate = (d: string) => {
-    try {
-      return new Date(d).toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    } catch {
-      return d;
-    }
-  };
-
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-shadow duration-200">
       <CardHeader>
         <CardTitle>Upcoming tests</CardTitle>
       </CardHeader>
       <CardContent>
         {tests.length === 0 ? (
-          <p className="text-gray-500">No upcoming tests.</p>
+          <p className="text-gray-500 text-sm">No upcoming tests.</p>
         ) : (
           <ul className="space-y-3">
-            {tests.map((t) => (
-              <li
-                key={t._id}
-                className="flex justify-between items-start border-b border-gray-100 pb-2 last:border-0"
-              >
-                <div>
-                  <p className="font-medium">{t.title}</p>
-                  <p className="text-sm text-gray-500">{t.subject}</p>
+            {tests.map((t, i) => (
+              <li key={t._id} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                {/* Date chip */}
+                <div className={`shrink-0 w-12 rounded-xl text-white text-center py-1.5 ${BADGE_COLORS[i % BADGE_COLORS.length]}`}>
+                  <p className="text-xs font-bold leading-tight">{formatDate(t.date)}</p>
+                  <p className="text-xs opacity-75 leading-tight">{formatYear(t.date)}</p>
                 </div>
-                <span className="text-sm text-gray-600 whitespace-nowrap ml-2">
-                  {formatDate(t.date)}
-                  {t.maxMarks != null && ` · ${t.maxMarks} marks`}
-                </span>
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-gray-800 truncate">{t.title}</p>
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    <span className="text-xs text-gray-500">{t.subject}</span>
+                    {t.maxMarks != null && (
+                      <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                        {t.maxMarks} marks
+                      </span>
+                    )}
+                  </div>
+                </div>
               </li>
             ))}
           </ul>

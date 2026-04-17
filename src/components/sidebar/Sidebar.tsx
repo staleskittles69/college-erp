@@ -1,20 +1,20 @@
 "use client";
 
 import { SidebarItem } from './SidebarItem';
-import { 
-  LayoutDashboard, 
-  BookOpen, 
-  ClipboardList, 
-  CalendarCheck, 
-  GraduationCap, 
-  Bell, 
+import {
+  LayoutDashboard,
+  BookOpen,
+  ClipboardList,
+  CalendarCheck,
+  GraduationCap,
+  Bell,
   CalendarDays,
   MessageSquare,
   Library,
   User,
   Settings,
   Menu,
-  ChevronLeft
+  ChevronLeft,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -24,47 +24,77 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   const menuItems = [
-    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', href: '/student/dashboard' },
-    { icon: <BookOpen size={20} />, label: 'Courses', href: '/student/courses' },
-    { icon: <ClipboardList size={20} />, label: 'Assignments', href: '/student/assignments' },
-    { icon: <CalendarCheck size={20} />, label: 'Attendance', href: '/student/attendance' },
-    { icon: <GraduationCap size={20} />, label: 'Grades', href: '/student/grades' },
-    { icon: <Bell size={20} />, label: 'Announcements', href: '/student/announcements' },
-    { icon: <CalendarDays size={20} />, label: 'Timetable', href: '/student/timetable' },
-    { icon: <MessageSquare size={20} />, label: 'Messages', href: '/student/messages' },
-    { icon: <Library size={20} />, label: 'Resources', href: '/student/resources' },
-    { icon: <User size={20} />, label: 'Profile', href: '/student/profile' },
-    { icon: <Settings size={20} />, label: 'Settings', href: '/student/settings' },
+    { icon: <LayoutDashboard size={18} />, label: 'Dashboard', href: '/student/dashboard' },
+    { icon: <BookOpen size={18} />, label: 'Courses', href: '/student/courses' },
+    { icon: <ClipboardList size={18} />, label: 'Assignments', href: '/student/assignments' },
+    { icon: <CalendarCheck size={18} />, label: 'Attendance', href: '/student/attendance' },
+    { icon: <GraduationCap size={18} />, label: 'Grades', href: '/student/grades' },
+    { icon: <Bell size={18} />, label: 'Announcements', href: '/student/announcements' },
+    { icon: <CalendarDays size={18} />, label: 'Timetable', href: '/student/timetable' },
+    { icon: <MessageSquare size={18} />, label: 'Messages', href: '/student/messages' },
+    { icon: <Library size={18} />, label: 'Resources', href: '/student/resources' },
+    { icon: <User size={18} />, label: 'Profile', href: '/student/profile' },
+    { icon: <Settings size={18} />, label: 'Settings', href: '/student/settings' },
   ];
 
   return (
-    <aside 
-      className={`fixed left-0 top-0 z-40 h-screen border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-800 dark:bg-gray-950 flex flex-col ${
+    <aside
+      className={`fixed left-0 top-0 z-40 h-screen bg-[#0a1f44] transition-all duration-300 flex flex-col shadow-xl ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4 dark:border-gray-800 shrink-0">
-        {!isCollapsed && <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Portal</span>}
-        <button 
-          onClick={toggleSidebar}
-          className={`rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white transition-colors ${isCollapsed ? 'mx-auto' : ''}`}
-          aria-label="Toggle sidebar"
-        >
-          {isCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
-        </button>
+      {/* Logo / header */}
+      <div className="flex h-16 items-center shrink-0 border-b border-white/10 px-4">
+        {isCollapsed ? (
+          <button
+            onClick={toggleSidebar}
+            className="mx-auto rounded-lg p-1.5 text-white/60 hover:bg-white/10 hover:text-white transition-colors"
+            aria-label="Expand sidebar"
+          >
+            <Menu size={20} />
+          </button>
+        ) : (
+          <div className="flex items-center w-full">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+                <GraduationCap size={14} className="text-white" />
+              </div>
+              <span className="text-white font-bold text-base tracking-tight truncate">EduPortal</span>
+            </div>
+            <button
+              onClick={toggleSidebar}
+              className="rounded-lg p-1.5 text-white/60 hover:bg-white/10 hover:text-white transition-colors shrink-0"
+              aria-label="Collapse sidebar"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto py-6 px-3 custom-scrollbar">
-        <nav className="space-y-1">
+      {/* Nav items */}
+      <div className="flex-1 overflow-y-auto py-4 px-3 sidebar-scroll">
+        <nav className="space-y-0.5">
           {menuItems.map((item) => (
-            <SidebarItem 
-              key={item.href}
-              {...item}
-              isCollapsed={isCollapsed}
-            />
+            <SidebarItem key={item.href} {...item} isCollapsed={isCollapsed} />
           ))}
         </nav>
       </div>
+
+      {/* User footer */}
+      {!isCollapsed && (
+        <div className="px-4 py-4 border-t border-white/10 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+              S
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-white text-sm font-medium truncate">Student</p>
+              <p className="text-white/40 text-xs truncate">student@college.edu</p>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

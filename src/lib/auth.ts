@@ -6,6 +6,7 @@ export type JwtPayload = {
   role: "student" | "teacher" | "admin";
   studentId?: string;
   teacherId?: string;
+  rollNumber?: number;
 };
 
 const JWT_SECRET = process.env.JWT_SECRET as string;

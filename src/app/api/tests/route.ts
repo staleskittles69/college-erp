@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Test from "@/models/Test";
-import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -19,11 +18,12 @@ export async function GET(request: NextRequest) {
     const upcoming = searchParams.get("upcoming");
 
     let filter: Record<string, unknown> = {};
-    if (payload.role === "student" && payload.studentId) {
-      const student = await Student.findById(payload.studentId).lean() as { branch: string; semester: number; } | null;
-      if (student) {
-        filter.branch = student.branch;
-        filter.semester = student.semester;
+    if (payload.role === "student") {
+      const User = (await import("@/models/User")).default;
+      const user = await User.findById(payload.userId).lean() as { branch?: string; year?: number; } | null;
+      if (user?.branch && user?.year) {
+        filter.branch = user.branch;
+        filter.semester = user.year;
       }
     } else {
       if (branch) filter.branch = branch;

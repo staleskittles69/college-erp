@@ -1,10 +1,52 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { Bell, User, LogOut, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+const STUDENTS = [
+  { roll: "CS001", name: "Rahul Sharma", branch: "CSE", year: "1st Year", section: "A" },
+  { roll: "CS002", name: "Priya Patel", branch: "CSE", year: "1st Year", section: "A" },
+  { roll: "CS003", name: "Amit Kumar", branch: "CSE", year: "2nd Year", section: "B" },
+  { roll: "EC001", name: "Sneha Reddy", branch: "ECE", year: "1st Year", section: "A" },
+  { roll: "ME001", name: "Vikram Singh", branch: "MECH", year: "3rd Year", section: "A" },
+];
+
 export default function AdminNavbar() {
   const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const results = query.trim()
+    ? STUDENTS.filter(
+        (s) =>
+          s.roll.toLowerCase().includes(query.toLowerCase()) ||
+          s.name.toLowerCase().includes(query.toLowerCase())
+      )
+    : [];
+
+  function handleSelect(roll: string) {
+    setQuery("");
+    setShowDropdown(false);
+    router.push(`/admin/student/${roll}`);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && results.length > 0) {
+      handleSelect(results[0].roll);
+    }
+  }
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -14,7 +56,7 @@ export default function AdminNavbar() {
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0 z-10">
       {/* Search */}
-      <div className="flex-1 max-w-sm">
+      <div className="flex-1 max-w-sm relative" ref={wrapperRef}>
         <div className="relative">
           <Search
             size={14}
@@ -22,10 +64,35 @@ export default function AdminNavbar() {
           />
           <input
             type="text"
-            placeholder="Search students, branches..."
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setShowDropdown(true);
+            }}
+            onFocus={() => setShowDropdown(true)}
+            onKeyDown={handleKeyDown}
+            placeholder="Search by name or roll no..."
             className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
           />
         </div>
+
+        {/* Dropdown */}
+        {showDropdown && results.length > 0 && (
+          <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+            {results.map((s) => (
+              <button
+                key={s.roll}
+                onClick={() => handleSelect(s.roll)}
+                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+              >
+                <p className="text-sm font-medium text-gray-800">{s.name}</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {s.branch} · {s.year} · Section {s.section}
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Actions */}

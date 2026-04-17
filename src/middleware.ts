@@ -10,7 +10,7 @@ type Role = "student" | "teacher" | "admin";
 
 function dashboardHome(role: Role): string {
   if (role === "admin") return "/admin";
-  if (role === "teacher") return "/dashboard/admin";
+  if (role === "teacher") return "/teacher/dashboard";
   return "/student/dashboard";
 }
 
@@ -33,7 +33,12 @@ async function verifyTokenEdge(
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/_next") || pathname.startsWith("/api/auth/login")) {
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api/auth/login") ||
+    pathname.startsWith("/api/setup-initial-data") ||
+    pathname.startsWith("/api/debug-users")
+  ) {
     return NextResponse.next();
   }
 
@@ -81,7 +86,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect all /dashboard routes
+  // Protect all /teacher routes (teacher role only)
+  if (pathname.startsWith("/teacher")) {
+    const token = request.cookies.get("token")?.value;
+    const payload = token ? await verifyTokenEdge(token) : null;
+
+    if (!payload) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    if (payload.role !== "teacher") {
+      return NextResponse.redirect(new URL(dashboardHome(payload.role), request.url));
+    }
+
+    return NextResponse.next();
+  }
+
+  // Protect all /dashboard routes (legacy — redirect to role home)
   if (pathname.startsWith("/dashboard")) {
     const token = request.cookies.get("token")?.value;
     const payload = token ? await verifyTokenEdge(token) : null;
@@ -90,26 +111,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    // Role-segment enforcement: each role can only access their own segment
-    const roleSegmentMap: Record<Role, string> = {
-      admin: "/admin",
-      teacher: "/dashboard/admin",
-      student: "/dashboard/student",
-    };
-
-    for (const [role, segment] of Object.entries(roleSegmentMap) as [Role, string][]) {
-      if (pathname.startsWith(segment) && payload.role !== role) {
-        // Wrong segment for this role — redirect to their own home
-        return NextResponse.redirect(new URL(dashboardHome(payload.role), request.url));
-      }
-    }
-
-    // /dashboard with no segment → redirect to role home
-    if (pathname === "/dashboard") {
-      return NextResponse.redirect(new URL(dashboardHome(payload.role), request.url));
-    }
-
-    return NextResponse.next();
+    return NextResponse.redirect(new URL(dashboardHome(payload.role), request.url));
   }
 
   // Protect all /api routes (except login, handled above)
@@ -131,5 +133,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/dashboard/:path*", "/admin/:path*", "/student/:path*", "/api/:path*"],
+  matcher: ["/", "/login", "/dashboard/:path*", "/admin/:path*", "/student/:path*", "/teacher/:path*", "/api/:path*"],
 };
