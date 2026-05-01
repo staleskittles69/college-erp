@@ -1,41 +1,66 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Bell, User, LogOut, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-const STUDENTS = [
-  { roll: "CS001", name: "Rahul Sharma", branch: "CSE", year: "1st Year", section: "A" },
-  { roll: "CS002", name: "Priya Patel", branch: "CSE", year: "1st Year", section: "A" },
-  { roll: "CS003", name: "Amit Kumar", branch: "CSE", year: "2nd Year", section: "B" },
-  { roll: "EC001", name: "Sneha Reddy", branch: "ECE", year: "1st Year", section: "A" },
-  { roll: "ME001", name: "Vikram Singh", branch: "MECH", year: "3rd Year", section: "A" },
-];
+interface StudentResult {
+  _id: string;
+  name: string;
+  rollNo: string;
+  branch: string;
+  semester: number;
+  section: string;
+}
+
+function toStudentUrl(s: StudentResult) {
+  const branch = s.branch.toLowerCase();
+  const year = ["1st-year", "2nd-year", "3rd-year", "4th-year"][Math.ceil(s.semester / 2) - 1] ?? "1st-year";
+  const section = s.section.toLowerCase().replace(/\s+/g, "-");
+  return `/admin/${branch}/${year}/${section}/${s._id}`;
+}
 
 export default function AdminNavbar() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState<StudentResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [profile, setProfile] = useState<{ name: string; email: string } | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const results = query.trim()
-    ? STUDENTS.filter(
-        (s) =>
-          s.roll.toLowerCase().includes(query.toLowerCase()) ||
-          s.name.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
+  useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.email) setProfile({ name: data.name ?? "Admin", email: data.email }); })
+      .catch(() => {});
+  }, []);
 
-  function handleSelect(roll: string) {
+  const fetchResults = useCallback((q: string) => {
+    if (!q.trim()) { setResults([]); return; }
+    fetch(`/api/students?search=${encodeURIComponent(q)}`, { credentials: "include" })
+      .then((r) => r.ok ? r.json() : [])
+      .then(setResults)
+      .catch(() => setResults([]));
+  }, []);
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const q = e.target.value;
+    setQuery(q);
+    setShowDropdown(true);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchResults(q), 300);
+  }
+
+  function handleSelect(s: StudentResult) {
     setQuery("");
+    setResults([]);
     setShowDropdown(false);
-    router.push(`/admin/student/${roll}`);
+    router.push(toStudentUrl(s));
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && results.length > 0) {
-      handleSelect(results[0].roll);
-    }
+    if (e.key === "Enter" && results.length > 0) handleSelect(results[0]);
   }
 
   useEffect(() => {
@@ -65,10 +90,7 @@ export default function AdminNavbar() {
           <input
             type="text"
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setShowDropdown(true);
-            }}
+            onChange={handleChange}
             onFocus={() => setShowDropdown(true)}
             onKeyDown={handleKeyDown}
             placeholder="Search by name or roll no..."
@@ -81,13 +103,13 @@ export default function AdminNavbar() {
           <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
             {results.map((s) => (
               <button
-                key={s.roll}
-                onClick={() => handleSelect(s.roll)}
+                key={s._id}
+                onClick={() => handleSelect(s)}
                 className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
               >
                 <p className="text-sm font-medium text-gray-800">{s.name}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {s.branch} · {s.year} · Section {s.section}
+                  {s.rollNo} · {s.branch} · {s.section}
                 </p>
               </button>
             ))}
@@ -111,8 +133,8 @@ export default function AdminNavbar() {
             <User size={15} className="text-indigo-600" />
           </div>
           <div className="hidden sm:block leading-none">
-            <p className="text-sm font-semibold text-gray-800">Admin</p>
-            <p className="text-xs text-gray-400 mt-0.5">admin@college.edu</p>
+            <p className="text-sm font-semibold text-gray-800">{profile?.name ?? "Admin"}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{profile?.email ?? "admin@college.edu"}</p>
           </div>
         </div>
 

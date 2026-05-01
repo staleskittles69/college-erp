@@ -28,6 +28,8 @@ export async function GET(request: NextRequest) {
         title: n.title,
         body: n.body,
         pinned: n.pinned,
+        targetBranch: n.targetBranch ?? null,
+        targetYear: n.targetYear ?? null,
         createdAt: n.createdAt,
       }))
     );
@@ -46,12 +48,12 @@ export async function POST(request: NextRequest) {
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (!requireAdmin(payload)) {
+    if (payload.role !== "teacher" && !requireAdmin(payload)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await request.json();
-    const { title, body: bodyText, pinned } = body;
+    const { title, body: bodyText, pinned, targetBranch, targetYear } = body;
 
     if (!title || !bodyText) {
       return NextResponse.json(
@@ -66,7 +68,9 @@ export async function POST(request: NextRequest) {
       title,
       body: bodyText,
       createdBy: payload.userId,
-      pinned: Boolean(pinned),
+      pinned: payload.role === "admin" ? Boolean(pinned) : false,
+      targetBranch: targetBranch ?? null,
+      targetYear: targetYear ? Number(targetYear) : null,
     });
 
     return NextResponse.json({
@@ -74,6 +78,8 @@ export async function POST(request: NextRequest) {
       title: notice.title,
       body: notice.body,
       pinned: notice.pinned,
+      targetBranch: notice.targetBranch ?? null,
+      targetYear: notice.targetYear ?? null,
       createdAt: notice.createdAt,
     });
   } catch (err) {

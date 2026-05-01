@@ -12,6 +12,20 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function quickLogin(e: string, p: string) {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: e, password: p }),
+      });
+      if (res.ok) { router.push("/"); router.refresh(); }
+      else { const d = await res.json(); setError(d.error ?? "Login failed."); setLoading(false); }
+    } catch { setError("Network error."); setLoading(false); }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -66,12 +80,24 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="flex gap-3">
-            {['Admin', 'Teacher', 'Student'].map((role) => (
-              <span key={role} className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/80">
-                {role}
-              </span>
-            ))}
+          <div className="space-y-2">
+            <p className="text-xs text-white/50 mb-2">Quick login (dev)</p>
+            <div className="flex gap-2">
+              {[
+                { label: "Admin",   email: "admin@college.edu",   password: "admin123"   },
+                { label: "Teacher", email: "teacher@college.edu", password: "teacher123" },
+                { label: "Student", email: "student@college.edu", password: "student123" },
+              ].map(({ label, email: e, password: p }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => quickLogin(e, p)}
+                  className="rounded-full border border-white/30 bg-white/10 hover:bg-white/20 px-3 py-1 text-xs font-medium text-white transition-colors"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

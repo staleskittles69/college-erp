@@ -16,16 +16,18 @@ import {
 interface TeacherSidebarProps {
   isCollapsed: boolean;
   toggleSidebar: () => void;
+  name: string;
+  email: string;
 }
 
-export function TeacherSidebar({ isCollapsed, toggleSidebar }: TeacherSidebarProps) {
+export function TeacherSidebar({ isCollapsed, toggleSidebar, name, email }: TeacherSidebarProps) {
   const menuItems = [
-    { icon: <LayoutDashboard size={18} />, label: 'Dashboard',   href: '/teacher/dashboard' },
-    { icon: <Users size={18} />,           label: 'Students',    href: '/teacher/students' },
-    { icon: <CalendarCheck size={18} />,   label: 'Attendance',  href: '/teacher/attendance' },
-    { icon: <CalendarDays size={18} />,    label: 'Timetable',   href: '/teacher/timetable' },
-    { icon: <ClipboardList size={18} />,   label: 'Assignments', href: '/teacher/assignments' },
-    { icon: <Bell size={18} />,            label: 'Notices',     href: '/teacher/notices' },
+    { icon: <LayoutDashboard size={18} />, label: 'Dashboard',   href: '/teachers' },
+    { icon: <Users size={18} />,           label: 'Students',    href: '/teachers/students' },
+    { icon: <CalendarCheck size={18} />,   label: 'Attendance',  href: '/teachers/attendance' },
+    { icon: <CalendarDays size={18} />,    label: 'Timetable',   href: '/teachers/timetable' },
+    { icon: <ClipboardList size={18} />,   label: 'Assignments', href: '/teachers/assignments' },
+    { icon: <Bell size={18} />,            label: 'Notices',     href: '/teachers/notices' },
   ];
 
   return (
@@ -77,11 +79,11 @@ export function TeacherSidebar({ isCollapsed, toggleSidebar }: TeacherSidebarPro
         <div className="px-4 py-4 border-t border-white/10 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-              T
+              {name ? name.charAt(0).toUpperCase() : "T"}
             </div>
             <div className="overflow-hidden">
-              <p className="text-white text-sm font-medium truncate">Teacher</p>
-              <p className="text-white/40 text-xs truncate">teacher@college.edu</p>
+              <p className="text-white text-sm font-medium truncate">{name || "Teacher"}</p>
+              <p className="text-white/40 text-xs truncate">{email || "—"}</p>
             </div>
           </div>
         </div>

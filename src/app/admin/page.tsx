@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import TeacherGrid from "@/components/admin/teachers/TeacherGrid";
 import {
@@ -10,19 +13,28 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-const STATS = [
-  { label: "Total Students", value: "1,240", icon: Users, color: "bg-indigo-50 text-indigo-600" },
-  { label: "Branches", value: "4", icon: GitBranch, color: "bg-blue-50 text-blue-600" },
-  { label: "Active Notices", value: "8", icon: Bell, color: "bg-amber-50 text-amber-600" },
-  { label: "Tests Scheduled", value: "5", icon: ClipboardList, color: "bg-green-50 text-green-600" },
-];
+interface Branch {
+  slug: string;
+  name: string;
+  label: string;
+  color: string;
+  students: number;
+}
 
-const BRANCHES = [
-  { name: "CSE", slug: "cse", label: "Computer Science & Engineering", students: 320, color: "border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50" },
-  { name: "ECE", slug: "ece", label: "Electronics & Communication", students: 280, color: "border-blue-200 hover:border-blue-400 hover:bg-blue-50" },
-  { name: "MECH", slug: "mech", label: "Mechanical Engineering", students: 340, color: "border-orange-200 hover:border-orange-400 hover:bg-orange-50" },
-  { name: "CIVIL", slug: "civil", label: "Civil Engineering", students: 300, color: "border-green-200 hover:border-green-400 hover:bg-green-50" },
-];
+interface Stats {
+  totalStudents: number;
+  totalBranches: number;
+  noticeCount: number;
+  branches: Branch[];
+}
+
+const BRANCH_COLORS: Record<string, string> = {
+  CSE: "border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50",
+  ECE: "border-blue-200 hover:border-blue-400 hover:bg-blue-50",
+  ME:  "border-orange-200 hover:border-orange-400 hover:bg-orange-50",
+  CE:  "border-green-200 hover:border-green-400 hover:bg-green-50",
+  EEE: "border-purple-200 hover:border-purple-400 hover:bg-purple-50",
+};
 
 const QUICK_LINKS = [
   { label: "Manage Marks", href: "/admin/features/marks", icon: TrendingUp },
@@ -33,9 +45,24 @@ const QUICK_LINKS = [
 ];
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState<Stats | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/stats")
+      .then((r) => r.json())
+      .then((data) => setStats(data))
+      .catch(console.error);
+  }, []);
+
+  const statCards = [
+    { label: "Total Students", value: stats ? stats.totalStudents.toLocaleString() : "—", icon: Users, color: "bg-indigo-50 text-indigo-600" },
+    { label: "Branches", value: stats ? String(stats.totalBranches) : "—", icon: GitBranch, color: "bg-blue-50 text-blue-600" },
+    { label: "Active Notices", value: stats ? String(stats.noticeCount) : "—", icon: Bell, color: "bg-amber-50 text-amber-600" },
+    { label: "Tests Scheduled", value: "—", icon: ClipboardList, color: "bg-green-50 text-green-600" },
+  ];
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-sm text-gray-500 mt-1">
@@ -45,7 +72,7 @@ export default function AdminDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {STATS.map((stat) => (
+        {statCards.map((stat) => (
           <div
             key={stat.label}
             className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center gap-4"
@@ -73,27 +100,29 @@ export default function AdminDashboard() {
           </Link>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {BRANCHES.map((branch) => (
+          {stats?.branches.map((branch) => (
             <Link
               key={branch.slug}
               href={`/admin/${branch.slug}`}
-              className={`bg-white rounded-xl border-2 px-5 py-5 block transition-all duration-150 group ${branch.color}`}
+              className={`bg-white rounded-xl border-2 px-5 py-5 block transition-all duration-150 group ${BRANCH_COLORS[branch.name] ?? "border-gray-200 hover:border-gray-400 hover:bg-gray-50"}`}
             >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xl font-bold text-gray-900">{branch.name}</p>
                   <p className="text-xs text-gray-500 mt-1 leading-snug">{branch.label}</p>
                 </div>
-                <ArrowRight
-                  size={16}
-                  className="text-gray-300 group-hover:text-gray-500 mt-0.5 transition-colors"
-                />
+                <ArrowRight size={16} className="text-gray-300 group-hover:text-gray-500 mt-0.5 transition-colors" />
               </div>
               <p className="text-sm font-semibold text-gray-700 mt-4">
-                {branch.students} <span className="font-normal text-gray-400 text-xs">students</span>
+                {branch.students.toLocaleString()} <span className="font-normal text-gray-400 text-xs">students</span>
               </p>
             </Link>
           ))}
+          {!stats && (
+            <div className="col-span-4 h-24 rounded-xl border border-dashed border-gray-300 flex items-center justify-center text-sm text-gray-400">
+              Loading...
+            </div>
+          )}
         </div>
       </div>
 

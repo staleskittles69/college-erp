@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "seed:students": "tsx scripts/seed-students.ts"
   },
   "dependencies": {
     "ajv": "^8.18.0",

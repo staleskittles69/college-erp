@@ -14,12 +14,13 @@ const TABS = [
 ];
 
 interface StudentData {
-  id: string;
+  _id: string;
   name: string;
-  rollNumber: number;
+  rollNo: string;
   branch: string;
-  year: number;
+  semester: number;
   section: string;
+  email?: string;
 }
 
 function fmt(s: string) {
@@ -40,19 +41,12 @@ export default function StudentDetailPage() {
   const [activeTab, setActiveTab] = useState("marks");
 
   useEffect(() => {
-    fetch(`/api/student/profile`, { credentials: "include" })
-      .catch(() => null);
-
-    // Fetch the specific student by their User ID
-    fetch(`/api/admin/students?branch=${branchLabel}`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : []))
-      .then((students: StudentData[]) => {
-        const found = students.find((s) => s.id === studentId);
-        setStudent(found ?? null);
-      })
+    fetch(`/api/students/${studentId}`, { credentials: "include" })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => setStudent(data))
       .catch(() => setStudent(null))
       .finally(() => setLoading(false));
-  }, [studentId, branchLabel]);
+  }, [studentId]);
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -82,7 +76,7 @@ export default function StudentDetailPage() {
               <>
                 <h1 className="text-xl font-bold text-gray-900">{student.name}</h1>
                 <p className="text-sm text-gray-500 mt-0.5">
-                  Roll No: <span className="font-mono text-gray-700">{student.rollNumber}</span>
+                  Roll No: <span className="font-mono text-gray-700">{student.rollNo}</span>
                   <span className="mx-2 text-gray-300">·</span>
                   {context}
                 </p>

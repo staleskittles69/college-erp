@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (!requireAdmin(payload)) {
+    if (payload.role !== "teacher" && !requireAdmin(payload)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

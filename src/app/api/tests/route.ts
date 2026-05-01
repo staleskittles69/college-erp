@@ -61,12 +61,12 @@ export async function POST(request: NextRequest) {
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (!requireAdmin(payload)) {
+    if (payload.role !== "teacher" && !requireAdmin(payload)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const body = await request.json();
-    const { subject, title, date, branch, semester, maxMarks } = body;
+    const { subject, title, date, branch, semester, maxMarks, dueTime, attachmentUrl } = body;
 
     if (!subject || !title || !date) {
       return NextResponse.json(
@@ -84,6 +84,8 @@ export async function POST(request: NextRequest) {
       branch: branch ?? null,
       semester: semester != null ? Number(semester) : null,
       maxMarks: maxMarks != null ? Number(maxMarks) : null,
+      dueTime: dueTime ?? null,
+      attachmentUrl: attachmentUrl ?? null,
     });
 
     return NextResponse.json({
@@ -94,6 +96,8 @@ export async function POST(request: NextRequest) {
       branch: test.branch,
       semester: test.semester,
       maxMarks: test.maxMarks,
+      dueTime: test.dueTime,
+      attachmentUrl: test.attachmentUrl,
     });
   } catch (err) {
     console.error("Tests POST error:", err);

@@ -2,11 +2,10 @@ import Link from "next/link";
 import Breadcrumb from "@/components/admin/Breadcrumb";
 import { ArrowRight, Users } from "lucide-react";
 
-const SECTIONS = [
-  { label: "Section A", slug: "section-a", students: 60 },
-  { label: "Section B", slug: "section-b", students: 58 },
-  { label: "Section C", slug: "section-c", students: 62 },
-];
+const SECTIONS = Array.from({ length: 30 }, (_, i) => ({
+  label: `Section ${i + 1}`,
+  slug: `section-${i + 1}`,
+}));
 
 function formatBranch(s: string) {
   return s.toUpperCase();
@@ -47,28 +46,28 @@ export default function SectionSelectionPage({ params }: Props) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {SECTIONS.map((section) => (
           <Link
             key={section.slug}
             href={`/admin/${branch}/${year}/${section.slug}`}
-            className="bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30 px-6 py-6 flex flex-col group transition-all"
+            className="bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30 px-4 py-5 flex flex-col group transition-all"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <span className="text-indigo-700 font-bold text-sm">
+            <div className="flex items-start justify-between mb-3">
+              <div className="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <span className="text-indigo-700 font-bold text-xs">
                   {section.label.split(" ")[1]}
                 </span>
               </div>
               <ArrowRight
-                size={15}
+                size={14}
                 className="text-gray-300 group-hover:text-indigo-400 transition-colors mt-0.5"
               />
             </div>
-            <h3 className="font-semibold text-gray-800 mb-1">{section.label}</h3>
-            <div className="flex items-center gap-1.5 text-sm text-gray-500">
-              <Users size={13} className="text-gray-400" />
-              <span>{section.students} students</span>
+            <h3 className="font-semibold text-gray-800 text-sm mb-1">{section.label}</h3>
+            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <Users size={11} className="text-gray-400" />
+              <span>60 students</span>
             </div>
           </Link>
         ))}

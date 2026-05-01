@@ -10,8 +10,8 @@ type Role = "student" | "teacher" | "admin";
 
 function dashboardHome(role: Role): string {
   if (role === "admin") return "/admin";
-  if (role === "teacher") return "/teacher/dashboard";
-  return "/student/dashboard";
+  if (role === "teacher") return "/teachers";
+  return "/students";
 }
 
 async function verifyTokenEdge(
@@ -54,7 +54,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect all /student routes (student role only)
+  // Protect all /student and /students routes (student role only)
   if (pathname.startsWith("/student")) {
     const token = request.cookies.get("token")?.value;
     const payload = token ? await verifyTokenEdge(token) : null;
@@ -86,7 +86,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protect all /teacher routes (teacher role only)
+  // Protect all /teacher and /teachers routes (teacher role only)
   if (pathname.startsWith("/teacher")) {
     const token = request.cookies.get("token")?.value;
     const payload = token ? await verifyTokenEdge(token) : null;
@@ -133,5 +133,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/dashboard/:path*", "/admin/:path*", "/student/:path*", "/teacher/:path*", "/api/:path*"],
+  matcher: ["/", "/login", "/dashboard/:path*", "/admin/:path*", "/student/:path*", "/students/:path*", "/students", "/teacher/:path*", "/teachers/:path*", "/teachers", "/api/:path*"],
 };

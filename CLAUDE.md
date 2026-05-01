@@ -9,8 +9,8 @@ A college ERP system with three user roles, each with their own portal:
 | Role | Portal URL | Status |
 |------|-----------|--------|
 | Admin | `/admin` | Built ✅ |
-| Teacher | `/dashboard/admin` | Old UI — needs redesign |
-| Student | `/student/dashboard` | Built ✅ (modern blue UI) |
+| Teacher | `/teachers` | Built ✅ (redesigned with hierarchical student nav) |
+| Student | `/students` | Built ✅ (modern blue UI) |
 
 Single login at `/login` → middleware auto-routes each role to their portal.
 
@@ -23,31 +23,34 @@ Single login at `/login` → middleware auto-routes each role to their portal.
 - **lucide-react** — icons
 
 ## Project phases
-- **Phase 1 (current): UI only** — build all pages as placeholders, no real data, no API calls
-- **Phase 2 (not started): Backend** — connect APIs to real MongoDB data, sync everything
+- **Phase 1 (complete): UI only** — all pages built as placeholders with mock data
+- **Phase 2 (current): Backend** — connecting pages to real MongoDB APIs, feature by feature
 
-> Do NOT add API calls, database queries, or real data to any page until the user explicitly says Phase 2 has started.
+> Phase 2 is active. Add real API calls and database connections when working on any feature.
 
 ## Folder structure
 ```
 src/
 ├── app/
 │   ├── (auth)/login/       ← login page
-│   ├── admin/              ← admin portal (new)
-│   ├── student/            ← student portal (new modern UI)
-│   ├── dashboard/
-│   │   ├── admin/          ← teacher portal (old UI, needs redesign)
-│   │   ├── student/        ← OLD student portal (replaced, ignore)
-│   │   └── teacher/        ← unused
+│   ├── admin/              ← admin portal
+│   │   └── teachers/       ← teacher management (dept → teacher list → detail)
+│   ├── teachers/           ← teacher portal (dashboard, attendance, notices, timetable, assignments)
+│   │   └── students/       ← hierarchical student nav (branch → year → section)
+│   ├── students/           ← student portal (dashboard at root)
+│   ├── student/            ← student sub-pages (attendance, grades, timetable, etc.)
+│   ├── dashboard/          ← LEGACY — middleware redirects here to role portal; do not use
 │   └── api/                ← backend API routes
 ├── components/
-│   ├── admin/              ← admin components + FeaturePanels/
+│   ├── admin/              ← admin components + FeaturePanels/ + teachers/
+│   ├── teacher/            ← TeacherSidebar, TeacherNavbar
 │   ├── sidebar/            ← modern student sidebar
 │   ├── navbar/             ← modern student navbar
 │   ├── student/            ← student widget components
-│   ├── layout/             ← DashboardLayout (old), Sidebar (old)
+│   ├── layout/             ← DashboardLayout + Sidebar (legacy, used by /dashboard only)
 │   └── ui/                 ← Button, Card, Input, Table
-├── lib/                    ← auth.ts, db.ts, api-auth.ts, utils.ts
+├── contexts/               ← React context providers (teacher state, etc.)
+├── lib/                    ← auth.ts, db.ts, api-auth.ts, utils.ts, teachersData.ts
 ├── models/                 ← Mongoose schemas (User, Student, Attendance, etc.)
 └── middleware.ts           ← JWT auth + role-based routing
 ```
@@ -57,7 +60,7 @@ src/
 - **Tailwind only** — no inline styles, no CSS modules, no new CSS files
 - **No new packages** — lucide-react for icons, everything else already installed
 - **Keep components isolated** — admin, student, and teacher code must not mix
-- **Don't touch** `src/app/dashboard/student/` — replaced by `/student/`, leave it alone
+- **Don't touch** `src/app/dashboard/` — legacy routes kept for redirect fallback only
 
 ## Auth flow
 1. User logs in → `/api/auth/login` sets JWT cookie
@@ -67,6 +70,7 @@ src/
 
 ## Design system
 - **Admin portal**: dark slate sidebar (`bg-slate-900`), indigo accents (`indigo-600`)
+- **Teacher portal**: dark slate sidebar (`bg-slate-800`), teal/slate accents
 - **Student portal**: white sidebar, blue accents (`blue-600`), supports dark mode
 - **Spacing**: `p-6` for page padding, `gap-4` or `gap-6` for grids
 - **Cards**: `rounded-xl border border-gray-200 bg-white`

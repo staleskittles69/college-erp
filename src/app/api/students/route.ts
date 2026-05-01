@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    if (!requireAdmin(payload)) {
+    if (payload.role !== "admin" && payload.role !== "teacher") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -20,14 +20,31 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const branch = searchParams.get("branch");
     const semester = searchParams.get("semester");
+    const year = searchParams.get("year");
+    const section = searchParams.get("section");
+
+    const search = searchParams.get("search");
 
     const filter: Record<string, unknown> = {};
-    if (branch) filter.branch = branch;
-    if (semester) filter.semester = parseInt(semester, 10);
+    if (search) {
+      filter.$or = [
+        { rollNo: { $regex: search, $options: "i" } },
+        { name: { $regex: search, $options: "i" } },
+      ];
+    } else {
+      if (branch) filter.branch = branch;
+      if (section) filter.section = section;
+      if (semester) filter.semester = parseInt(semester, 10);
+      else if (year) {
+        const y = parseInt(year, 10);
+        filter.semester = { $in: [y * 2 - 1, y * 2] };
+      }
+    }
 
     const students = await Student.find(filter)
       .populate("userId", "email")
       .sort({ rollNo: 1 })
+      .limit(search ? 10 : 0)
       .lean();
 
     const result = students.map((s) => ({

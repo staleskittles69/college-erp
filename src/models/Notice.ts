@@ -6,6 +6,8 @@ export interface INotice {
   body: string;
   createdBy: mongoose.Types.ObjectId;
   pinned: boolean;
+  targetBranch?: string;
+  targetYear?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,6 +18,8 @@ const NoticeSchema = new Schema<INotice>(
     body: { type: String, required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     pinned: { type: Boolean, default: false },
+    targetBranch: { type: String, default: null },
+    targetYear: { type: Number, default: null },
   },
   { timestamps: true }
 );

@@ -8,6 +8,8 @@ export interface ITest {
   branch?: string;
   semester?: number;
   maxMarks?: number;
+  dueTime?: string;
+  attachmentUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,6 +22,8 @@ const TestSchema = new Schema<ITest>(
     branch: { type: String, default: null },
     semester: { type: Number, default: null },
     maxMarks: { type: Number, default: null },
+    dueTime: { type: String, default: null },
+    attachmentUrl: { type: String, default: null },
   },
   { timestamps: true }
 );

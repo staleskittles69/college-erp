@@ -7,7 +7,8 @@ export interface ITeacher {
   employeeId: string;
   department: string;
   subjects: string[];
-  branch?: string;
+  teaching: { branch: string; year: number; sections: string[] }[];
+  plainPassword: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,7 +20,11 @@ const TeacherSchema = new Schema<ITeacher>(
     employeeId: { type: String, required: true },
     department: { type: String, required: true },
     subjects: { type: [String], default: [] },
-    branch: { type: String },
+    teaching: {
+      type: [{ branch: String, year: Number, sections: [String] }],
+      default: [],
+    },
+    plainPassword: { type: String, default: "" },
   },
   { timestamps: true }
 );

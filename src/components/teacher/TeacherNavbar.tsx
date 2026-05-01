@@ -11,7 +11,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/teacher/assignments': 'Assignments',
 };
 
-export function TeacherNavbar() {
+export function TeacherNavbar({ name }: { name: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const pageTitle = PAGE_TITLES[pathname] ?? 'Teacher Portal';
@@ -38,7 +38,7 @@ export function TeacherNavbar() {
         </button>
 
         <div className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold ml-1">
-          T
+          {name ? name.charAt(0).toUpperCase() : "T"}
         </div>
 
         <button
