@@ -1,72 +1,85 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const INITIAL_NOTICES = [
-  {
-    id: 1,
-    title: "Mid-Semester Examination Schedule Released",
-    body: "The mid-semester examination timetable has been published. Students are advised to check the schedule.",
-    date: "2026-03-28",
-    pinned: true,
-    target: "All Students",
-  },
-  {
-    id: 2,
-    title: "Sports Day Registration Open",
-    body: "Students can register for Sports Day events through the admin office by 5th April.",
-    date: "2026-03-26",
-    pinned: false,
-    target: "All Students",
-  },
-  {
-    id: 3,
-    title: "Library Maintenance Notice",
-    body: "The library will remain closed on 1st April for maintenance work.",
-    date: "2026-03-25",
-    pinned: false,
-    target: "All Students",
-  },
-];
-
-const TARGETS = [
-  "All Students",
-  "CSE", "ECE", "MECH", "CIVIL",
-  "1st Year", "2nd Year", "3rd Year", "4th Year",
-];
-
-interface AnnouncementsPanelProps {
-  context?: string;
+interface Notice {
+  _id: string;
+  title: string;
+  body: string;
+  pinned: boolean;
+  targetBranch: string | null;
+  targetYear: number | null;
+  createdAt: string;
 }
 
-export default function AnnouncementsPanel({ context }: AnnouncementsPanelProps) {
-  const [notices, setNotices] = useState(INITIAL_NOTICES);
+function formatDate(d: string) {
+  try { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
+  catch { return d; }
+}
+
+function targetLabel(n: Notice) {
+  if (n.targetBranch && n.targetYear) return `${n.targetBranch} · Year ${n.targetYear}`;
+  if (n.targetBranch) return n.targetBranch;
+  if (n.targetYear) return `Year ${n.targetYear}`;
+  return "All Students";
+}
+
+const BRANCHES = ["CSE", "ECE", "ME", "CE", "EEE"];
+
+export default function AnnouncementsPanel() {
+  const [notices, setNotices] = useState<Notice[]>([]);
+  const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-  const [target, setTarget] = useState("All Students");
+  const [targetBranch, setTargetBranch] = useState("");
+  const [targetYear, setTargetYear] = useState("");
   const [pinned, setPinned] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [deleting, setDeleting] = useState<string | null>(null);
 
-  function handlePublish() {
-    if (!title.trim() || !body.trim()) return;
-    setNotices((prev) => [
-      {
-        id: Date.now(),
-        title,
-        body,
-        date: new Date().toISOString().split("T")[0],
-        pinned,
-        target,
-      },
-      ...prev,
-    ]);
-    setTitle("");
-    setBody("");
-    setTarget("All Students");
-    setPinned(false);
+  function fetchNotices() {
+    return fetch("/api/notices", { credentials: "include" })
+      .then((r) => r.ok ? r.json() : [])
+      .then(setNotices)
+      .catch(() => setNotices([]))
+      .finally(() => setLoading(false));
   }
 
-  function handleDelete(id: number) {
-    setNotices((prev) => prev.filter((n) => n.id !== id));
+  useEffect(() => { fetchNotices(); }, []);
+
+  async function handlePublish() {
+    if (!title.trim() || !body.trim()) { setError("Title and body are required."); return; }
+    setSaving(true);
+    setError("");
+    const res = await fetch("/api/notices", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: title.trim(),
+        body: body.trim(),
+        pinned,
+        targetBranch: targetBranch || null,
+        targetYear: targetYear ? Number(targetYear) : null,
+      }),
+    });
+    if (!res.ok) {
+      const d = await res.json();
+      setError(d.error ?? "Failed to publish.");
+    } else {
+      setTitle(""); setBody(""); setTargetBranch(""); setTargetYear(""); setPinned(false);
+      fetchNotices();
+    }
+    setSaving(false);
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this announcement?")) return;
+    setDeleting(id);
+    await fetch(`/api/notices/${id}`, { method: "DELETE", credentials: "include" });
+    setDeleting(null);
+    fetchNotices();
   }
 
   return (
@@ -89,79 +102,93 @@ export default function AnnouncementsPanel({ context }: AnnouncementsPanelProps)
             placeholder="Write your announcement here..."
             className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
           />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <label className="text-xs font-medium text-gray-600">Target:</label>
-                <select
-                  value={target}
-                  onChange={(e) => setTarget(e.target.value)}
-                  className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none"
-                >
-                  {TARGETS.map((t) => (
-                    <option key={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-              <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={pinned}
-                  onChange={(e) => setPinned(e.target.checked)}
-                  className="rounded text-indigo-600"
-                />
-                Pin announcement
-              </label>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-gray-600">Branch:</label>
+              <select
+                value={targetBranch}
+                onChange={(e) => setTargetBranch(e.target.value)}
+                className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              >
+                <option value="">All Branches</option>
+                {BRANCHES.map((b) => <option key={b} value={b}>{b}</option>)}
+              </select>
             </div>
-            <button
-              onClick={handlePublish}
-              className="px-5 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-            >
-              Publish
-            </button>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-medium text-gray-600">Year:</label>
+              <select
+                value={targetYear}
+                onChange={(e) => setTargetYear(e.target.value)}
+                className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              >
+                <option value="">All Years</option>
+                {[1, 2, 3, 4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+              </select>
+            </div>
+            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={pinned}
+                onChange={(e) => setPinned(e.target.checked)}
+                className="rounded text-indigo-600"
+              />
+              Pin announcement
+            </label>
+            <div className="ml-auto flex items-center gap-3">
+              {error && <p className="text-xs text-red-500">{error}</p>}
+              <button
+                onClick={handlePublish}
+                disabled={saving}
+                className="px-5 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-60"
+              >
+                {saving ? "Publishing…" : "Publish"}
+              </button>
+            </div>
           </div>
         </div>
-        {context && (
-          <p className="mt-3 text-xs text-gray-400">Context: {context}</p>
-        )}
       </div>
 
       {/* Existing Announcements */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-semibold text-gray-800">All Announcements</h3>
+          {!loading && <span className="text-xs text-gray-400">{notices.length} total</span>}
         </div>
-        <div className="divide-y divide-gray-100">
-          {notices.map((notice) => (
-            <div key={notice.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    {notice.pinned && (
-                      <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-semibold rounded uppercase tracking-wide">
-                        Pinned
-                      </span>
-                    )}
-                    <h4 className="font-medium text-gray-800 text-sm">{notice.title}</h4>
+        {loading ? (
+          <div className="px-6 py-10 text-sm text-gray-400 text-center">Loading…</div>
+        ) : notices.length === 0 ? (
+          <div className="px-6 py-10 text-sm text-gray-400 text-center">No announcements yet. Post one above.</div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {notices.map((notice) => (
+              <div key={notice._id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      {notice.pinned && (
+                        <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-semibold rounded uppercase tracking-wide">
+                          Pinned
+                        </span>
+                      )}
+                      <h4 className="font-medium text-gray-800 text-sm">{notice.title}</h4>
+                    </div>
+                    <p className="text-sm text-gray-500 line-clamp-2">{notice.body}</p>
+                    <p className="text-xs text-gray-400 mt-1.5">
+                      {formatDate(notice.createdAt)} · 📢 {targetLabel(notice)}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-500 line-clamp-2">{notice.body}</p>
-                  <p className="text-xs text-gray-400 mt-1.5">
-                    {notice.date} · 📢 {notice.target}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button className="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Edit</button>
                   <button
-                    onClick={() => handleDelete(notice.id)}
-                    className="text-xs text-red-500 hover:text-red-700 font-medium"
+                    onClick={() => handleDelete(notice._id)}
+                    disabled={deleting === notice._id}
+                    className="text-xs text-red-500 hover:text-red-700 font-medium flex-shrink-0 disabled:opacity-40"
                   >
-                    Delete
+                    {deleting === notice._id ? "Deleting…" : "Delete"}
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

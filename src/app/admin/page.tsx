@@ -47,9 +47,6 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [adminName, setAdminName] = useState<string>("Admin");
   const [testCount, setTestCount] = useState<number | null>(null);
-  const [seedStatus, setSeedStatus] = useState<string | null>(null);
-  const [seeding, setSeeding] = useState(false);
-
   useEffect(() => {
     fetch("/api/admin/stats", { credentials: "include" })
       .then((r) => r.json())
@@ -66,25 +63,6 @@ export default function AdminDashboard() {
       .then((data: unknown[]) => setTestCount(Array.isArray(data) ? data.length : 0))
       .catch(() => setTestCount(0));
   }, []);
-
-  async function seedTestLogins() {
-    setSeeding(true);
-    setSeedStatus(null);
-    try {
-      const res = await fetch("/api/admin/seed-logins", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ branch: "CSE", year: 1, sections: ["Section 1", "Section 2"] }),
-        credentials: "include",
-      });
-      const data = await res.json();
-      setSeedStatus(data.message ?? "Done");
-    } catch {
-      setSeedStatus("Something went wrong.");
-    } finally {
-      setSeeding(false);
-    }
-  }
 
   const statCards = [
     { label: "Total Students", value: stats ? stats.totalStudents.toLocaleString() : "—", icon: Users, color: "bg-indigo-50 text-indigo-600" },
@@ -172,20 +150,7 @@ export default function AdminDashboard() {
               {link.label}
             </Link>
           ))}
-          <button
-            onClick={seedTestLogins}
-            disabled={seeding}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-amber-300 rounded-lg text-sm text-amber-700 hover:bg-amber-50 transition-colors font-medium disabled:opacity-50"
-          >
-            <Users size={15} />
-            {seeding ? "Creating logins…" : "Seed Test Logins (CSE Y1 S1+S2)"}
-          </button>
         </div>
-        {seedStatus && (
-          <p className="mt-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-2">
-            {seedStatus} — Login with <strong>roll&#123;number&#125;@college.edu</strong> / <strong>student123</strong>
-          </p>
-        )}
       </div>
     </div>
   );

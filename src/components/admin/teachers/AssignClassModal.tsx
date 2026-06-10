@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
-import { Assignment } from "@/lib/teachersData";
+import { Assignment } from "@/contexts/TeachersContext";
 
 const BRANCHES: Assignment["branch"][] = ["CSE", "ECE", "MECH", "CIVIL"];
 const YEARS: Assignment["year"][] = [1, 2, 3, 4];

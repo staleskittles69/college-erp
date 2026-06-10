@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
-import { Department } from "@/lib/teachersData";
+import { Department } from "@/contexts/TeachersContext";
 
 const COLOR_SEQUENCE = [
   "border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50",

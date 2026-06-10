@@ -1,7 +1,27 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { Teacher, Department, Assignment } from "@/lib/teachersData";
+export interface Department {
+  slug: string;
+  name: string;
+  label: string;
+  color: string;
+}
+
+export interface Assignment {
+  branch: "CSE" | "ECE" | "MECH" | "CIVIL";
+  year: 1 | 2 | 3 | 4;
+  sections: ("A" | "B" | "C")[];
+}
+
+export interface Teacher {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  teaching: Assignment[];
+  plainPassword?: string;
+}
 
 interface TeachersContextType {
   teachers: Teacher[];

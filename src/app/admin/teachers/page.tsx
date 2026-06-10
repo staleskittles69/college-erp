@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
-import { Department } from "@/lib/teachersData";
+import { Department } from "@/contexts/TeachersContext";
 import DepartmentCard from "@/components/admin/teachers/DepartmentCard";
 import DepartmentFormModal from "@/components/admin/teachers/DepartmentFormModal";
 

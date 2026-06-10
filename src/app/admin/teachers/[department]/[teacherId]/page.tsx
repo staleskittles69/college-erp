@@ -4,15 +4,14 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { X, Calendar, Eye, EyeOff, Copy, Check } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
-import { DEPARTMENTS } from "@/lib/teachersData";
 import Breadcrumb from "@/components/admin/Breadcrumb";
 import AssignClassModal from "@/components/admin/teachers/AssignClassModal";
 import TeacherTimetableModal from "@/components/admin/teachers/TeacherTimetableModal";
 
 export default function TeacherDetailsPage() {
   const { department: slug, teacherId } = useParams() as { department: string; teacherId: string };
-  const dept = DEPARTMENTS.find((d) => d.slug === slug);
-  const { teachers, removeSection } = useTeachers();
+  const { teachers, departments, removeSection } = useTeachers();
+  const dept = departments.find((d) => d.slug === slug);
   const teacher = teachers.find((t) => t.id === teacherId);
   const [showTimetable, setShowTimetable] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
