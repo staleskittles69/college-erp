@@ -24,8 +24,8 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/teachers").then((r) => r.json()),
-      fetch("/api/departments").then((r) => r.json()),
+      fetch("/api/teachers", { credentials: "include" }).then((r) => r.json()),
+      fetch("/api/departments", { credentials: "include" }).then((r) => r.json()),
     ])
       .then(([teachersData, deptsData]) => {
         if (Array.isArray(teachersData)) setTeachers(teachersData);

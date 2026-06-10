@@ -22,11 +22,8 @@ Single login at `/login` → middleware auto-routes each role to their portal.
 - **JWT (jose)** — auth via HTTP-only cookie named `token`
 - **lucide-react** — icons
 
-## Project phases
-- **Phase 1 (complete): UI only** — all pages built as placeholders with mock data
-- **Phase 2 (current): Backend** — connecting pages to real MongoDB APIs, feature by feature
-
-> Phase 2 is active. Add real API calls and database connections when working on any feature.
+## How we build
+Every feature is built full-stack from the start — UI and API together. No placeholder pages, no mock data. When adding anything new, wire it to the real database immediately.
 
 ## Folder structure
 ```
@@ -75,3 +72,7 @@ src/
 - **Spacing**: `p-6` for page padding, `gap-4` or `gap-6` for grids
 - **Cards**: `rounded-xl border border-gray-200 bg-white`
 - **Placeholder empty states**: `rounded-xl border border-dashed border-gray-300`
+
+## Skills policy
+
+Do not invoke any skills unless explicitly asked. No automatic skill loading.  

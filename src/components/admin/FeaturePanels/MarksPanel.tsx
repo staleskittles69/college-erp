@@ -11,7 +11,7 @@ interface MarkRecord {
 }
 
 interface MarksPanelProps {
-  studentId: string;
+  studentId?: string;
   context?: string;
 }
 
@@ -38,7 +38,7 @@ function calcGrade(obtained: number, max: number) {
   return "D";
 }
 
-export default function MarksPanel({ studentId, context }: MarksPanelProps) {
+export default function MarksPanel({ studentId = "", context }: MarksPanelProps) {
   const [marks, setMarks] = useState<MarkRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -47,6 +47,7 @@ export default function MarksPanel({ studentId, context }: MarksPanelProps) {
   const [error, setError] = useState("");
 
   function loadMarks() {
+    if (!studentId) { setLoading(false); return; }
     setLoading(true);
     fetch(`/api/admin/marks?studentId=${studentId}`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : []))
@@ -57,7 +58,7 @@ export default function MarksPanel({ studentId, context }: MarksPanelProps) {
 
   useEffect(() => {
     loadMarks();
-  }, [studentId]);
+  }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleAdd() {
     if (!form.subject.trim() || !form.obtained || !form.max) return;

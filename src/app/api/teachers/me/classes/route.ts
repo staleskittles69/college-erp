@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
-import Teacher from "@/models/Teacher";
+import Teacher, { ITeacher } from "@/models/Teacher";
 import { getAuth } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   if (payload.role !== "teacher") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   await connectDB();
-  const teacher = await Teacher.findOne({ userId: payload.userId }).lean();
+  const teacher = await Teacher.findOne({ userId: payload.userId }).lean() as ITeacher | null;
   if (!teacher) return NextResponse.json({ teaching: [], subjects: [] });
 
   return NextResponse.json({

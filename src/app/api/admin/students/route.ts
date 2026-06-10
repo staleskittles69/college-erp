@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       students.map((s) => {
-        const u = s as {
+        const u = s as unknown as {
           _id: { toString: () => string };
           name: string;
           rollNumber?: number;

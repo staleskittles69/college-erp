@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       teachers.map((t) => ({
-        id: t._id.toString(),
+        id: (t._id as { toString: () => string }).toString(),
         name: t.name,
         email: (t.userId as { email?: string })?.email ?? "",
         department: t.department,

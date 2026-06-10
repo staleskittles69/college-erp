@@ -25,36 +25,32 @@ export async function GET(request: NextRequest) {
 
     const search = searchParams.get("search");
 
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = { role: "student" };
     if (search) {
       filter.$or = [
-        { rollNo: { $regex: search, $options: "i" } },
         { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
       ];
     } else {
       if (branch) filter.branch = branch;
       if (section) filter.section = section;
-      if (semester) filter.semester = parseInt(semester, 10);
-      else if (year) {
-        const y = parseInt(year, 10);
-        filter.semester = { $in: [y * 2 - 1, y * 2] };
-      }
+      if (year) filter.year = parseInt(year, 10);
+      else if (semester) filter.year = Math.ceil(parseInt(semester, 10) / 2);
     }
 
-    const students = await Student.find(filter)
-      .populate("userId", "email")
-      .sort({ rollNo: 1 })
+    const students = await User.find(filter)
+      .select("-password")
+      .sort({ rollNumber: 1 })
       .limit(search ? 10 : 0)
       .lean();
 
     const result = students.map((s) => ({
       _id: (s._id as { toString: () => string }).toString(),
-      userId: (s.userId as { _id: string; email: string })?._id?.toString(),
-      email: (s.userId as { email?: string })?.email,
       name: s.name,
-      rollNo: s.rollNo,
+      rollNo: s.rollNumber != null ? String(s.rollNumber) : "",
+      email: s.email,
       branch: s.branch,
-      semester: s.semester,
+      year: s.year,
       section: s.section,
     }));
 

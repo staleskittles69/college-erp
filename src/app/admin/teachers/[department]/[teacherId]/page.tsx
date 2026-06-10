@@ -6,7 +6,7 @@ import { X, Calendar, Eye, EyeOff, Copy, Check } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
 import { DEPARTMENTS } from "@/lib/teachersData";
 import Breadcrumb from "@/components/admin/Breadcrumb";
-import AssignmentForm from "@/components/admin/teachers/AssignmentForm";
+import AssignClassModal from "@/components/admin/teachers/AssignClassModal";
 import TeacherTimetableModal from "@/components/admin/teachers/TeacherTimetableModal";
 
 export default function TeacherDetailsPage() {
@@ -15,6 +15,7 @@ export default function TeacherDetailsPage() {
   const { teachers, removeSection } = useTeachers();
   const teacher = teachers.find((t) => t.id === teacherId);
   const [showTimetable, setShowTimetable] = useState(false);
+  const [showAssign, setShowAssign] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(false);
@@ -55,11 +56,17 @@ export default function TeacherDetailsPage() {
         <p className="text-sm text-gray-500 mt-1">{teacher.email}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Teacher Info */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-800">Teacher Info</h2>
+      {/* Teacher Info */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-gray-800">Teacher Info</h2>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAssign(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              + Assign Class
+            </button>
             <button
               onClick={() => setShowTimetable(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors"
@@ -67,24 +74,18 @@ export default function TeacherDetailsPage() {
               <Calendar size={13} /> Edit Timetable
             </button>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-2xl flex-shrink-0">
-              {teacher.name.charAt(0)}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-gray-900">{teacher.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{teacher.email}</p>
-              <span className="inline-block mt-1.5 px-2 py-0.5 text-xs font-medium bg-indigo-50 text-indigo-600 rounded-full">
-                {dept?.name ?? teacher.department}
-              </span>
-            </div>
-          </div>
         </div>
-
-        {/* Assign New Class */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-800">Assign New Class</h2>
-          <AssignmentForm teacherId={teacher.id} />
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-2xl flex-shrink-0">
+            {teacher.name.charAt(0)}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900">{teacher.name}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{teacher.email}</p>
+            <span className="inline-block mt-1.5 px-2 py-0.5 text-xs font-medium bg-indigo-50 text-indigo-600 rounded-full">
+              {dept?.name ?? teacher.department}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -179,6 +180,13 @@ export default function TeacherDetailsPage() {
         <TeacherTimetableModal
           teacherName={teacher.name}
           onClose={() => setShowTimetable(false)}
+        />
+      )}
+
+      {showAssign && (
+        <AssignClassModal
+          teacherId={teacher.id}
+          onClose={() => setShowAssign(false)}
         />
       )}
     </div>

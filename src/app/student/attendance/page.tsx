@@ -18,6 +18,42 @@ function formatDate(d: string) {
   }
 }
 
+function CircularProgress({ present, total, subject }: { present: number; total: number; subject: string }) {
+  const pct = total > 0 ? Math.round((present / total) * 100) : 0;
+  const r = 38;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - pct / 100);
+  const color = pct >= 75 ? "#22c55e" : pct >= 50 ? "#f59e0b" : "#ef4444";
+  const bg = pct >= 75 ? "#f0fdf4" : pct >= 50 ? "#fffbeb" : "#fef2f2";
+  const badge = pct >= 75 ? "bg-green-100 text-green-700" : pct >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700";
+
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="relative" style={{ width: 100, height: 100, background: bg, borderRadius: "50%" }}>
+        <svg width="100" height="100" style={{ transform: "rotate(-90deg)" }}>
+          <circle cx="50" cy="50" r={r} fill="none" stroke="#e5e7eb" strokeWidth="10" />
+          <circle
+            cx="50" cy="50" r={r} fill="none"
+            stroke={color} strokeWidth="10"
+            strokeDasharray={circ}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{ transition: "stroke-dashoffset 0.8s ease" }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-lg font-bold text-gray-800">{pct}%</span>
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-sm font-semibold text-gray-800 leading-tight">{subject || "General"}</p>
+        <p className="text-xs text-gray-400 mt-0.5">{present}/{total} classes</p>
+      </div>
+      <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${badge}`}>{pct}%</span>
+    </div>
+  );
+}
+
 export default function AttendancePage() {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,13 +70,17 @@ export default function AttendancePage() {
   const present = records.filter((r) => r.status === "present").length;
   const pct = total > 0 ? Math.round((present / total) * 100) : 0;
 
-  // Group by subject
   const bySubject: Record<string, { present: number; total: number }> = {};
   records.forEach((r) => {
-    if (!bySubject[r.subject]) bySubject[r.subject] = { present: 0, total: 0 };
-    bySubject[r.subject].total += 1;
-    if (r.status === "present") bySubject[r.subject].present += 1;
+    const key = r.subject || "General";
+    if (!bySubject[key]) bySubject[key] = { present: 0, total: 0 };
+    bySubject[key].total += 1;
+    if (r.status === "present") bySubject[key].present += 1;
   });
+
+  const lowSubjects = Object.entries(bySubject).filter(
+    ([, { present: p, total: t }]) => Math.round((p / t) * 100) < 75
+  );
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -60,12 +100,12 @@ export default function AttendancePage() {
           </div>
           <div className="text-center">
             <p className="font-semibold text-gray-700">No attendance records</p>
-            <p className="text-sm text-gray-400 mt-1">Your records will appear here once marked by the admin.</p>
+            <p className="text-sm text-gray-400 mt-1">Your records will appear here once marked by the teacher.</p>
           </div>
         </div>
       ) : (
         <>
-          {/* Summary */}
+          {/* Overall summary strip */}
           <div className="grid grid-cols-3 gap-4">
             {[
               { label: "Present", value: present, color: "bg-green-50 text-green-700" },
@@ -79,31 +119,34 @@ export default function AttendancePage() {
             ))}
           </div>
 
-          {/* Subject-wise */}
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h2 className="font-semibold text-gray-800">Subject-wise Breakdown</h2>
+          {/* Warning */}
+          {lowSubjects.length > 0 && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+              <p className="text-sm font-semibold text-amber-800 mb-2">Attendance Warning</p>
+              <ul className="space-y-1">
+                {lowSubjects.map(([subject, { present: p, total: t }]) => {
+                  const subPct = Math.round((p / t) * 100);
+                  const needed = Math.ceil(t * 0.75 - p);
+                  return (
+                    <li key={subject} className="flex items-center gap-2 text-xs text-amber-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+                      <span>
+                        <strong>{subject}</strong>: {subPct}% — attend {needed} more class{needed !== 1 ? "es" : ""} to reach 75%
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            <div className="divide-y divide-gray-100">
-              {Object.entries(bySubject).map(([subject, { present: p, total: t }]) => {
-                const subPct = Math.round((p / t) * 100);
-                const barColor = subPct >= 75 ? "from-green-500 to-emerald-400" : subPct >= 50 ? "from-amber-500 to-yellow-400" : "from-red-500 to-rose-400";
-                const badge = subPct >= 75 ? "bg-green-100 text-green-700" : subPct >= 50 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700";
-                return (
-                  <div key={subject} className="px-6 py-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-gray-800">{subject}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-400">{p}/{t} classes</span>
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge}`}>{subPct}%</span>
-                      </div>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-1.5">
-                      <div className={`h-1.5 rounded-full bg-gradient-to-r ${barColor} transition-all duration-700`} style={{ width: `${subPct}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
+          )}
+
+          {/* Circular graphs per subject */}
+          <div>
+            <h2 className="font-semibold text-gray-800 mb-3">Subject-wise Attendance</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {Object.entries(bySubject).map(([subject, { present: p, total: t }]) => (
+                <CircularProgress key={subject} subject={subject} present={p} total={t} />
+              ))}
             </div>
           </div>
 
@@ -123,7 +166,7 @@ export default function AttendancePage() {
               <tbody className="divide-y divide-gray-100">
                 {records.slice(0, 20).map((r) => (
                   <tr key={r._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-3 font-medium text-gray-800">{r.subject}</td>
+                    <td className="px-6 py-3 font-medium text-gray-800">{r.subject || "General"}</td>
                     <td className="px-6 py-3 text-gray-500 text-xs">{formatDate(r.date)}</td>
                     <td className="px-6 py-3">
                       <span className={`px-2.5 py-0.5 rounded text-xs font-semibold ${r.status === "present" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>

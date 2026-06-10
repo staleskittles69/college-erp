@@ -10,7 +10,7 @@ interface AttendanceRecord {
 }
 
 interface AttendancePanelProps {
-  studentId: string;
+  studentId?: string;
   context?: string;
 }
 
@@ -20,7 +20,7 @@ const EMPTY_FORM = {
   status: "present" as "present" | "absent",
 };
 
-export default function AttendancePanel({ studentId, context }: AttendancePanelProps) {
+export default function AttendancePanel({ studentId = "", context }: AttendancePanelProps) {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -29,6 +29,7 @@ export default function AttendancePanel({ studentId, context }: AttendancePanelP
   const [error, setError] = useState("");
 
   function loadRecords() {
+    if (!studentId) { setLoading(false); return; }
     setLoading(true);
     fetch(`/api/attendance?studentId=${studentId}`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : []))
@@ -37,7 +38,7 @@ export default function AttendancePanel({ studentId, context }: AttendancePanelP
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { loadRecords(); }, [studentId]);
+  useEffect(() => { loadRecords(); }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Summary stats
   const total = records.length;

@@ -20,19 +20,30 @@ export async function GET(request: NextRequest) {
 
     if (payload.role === "student") {
       studentId = payload.userId;
-    } else if (!studentId && payload.role === "admin") {
-      return NextResponse.json(
-        { error: "studentId required for admin" },
-        { status: 400 }
-      );
     }
 
-    const filter: Record<string, unknown> = { studentId };
+    const branch = searchParams.get("branch");
+    const semester = searchParams.get("semester");
+    const section = searchParams.get("section");
+
+    const filter: Record<string, unknown> = {};
+    if (studentId) filter.studentId = studentId;
     if (subject) filter.subject = subject;
     if (from || to) {
       filter.date = {};
       if (from) (filter.date as Record<string, Date>).$gte = new Date(from);
       if (to) (filter.date as Record<string, Date>).$lte = new Date(to);
+    }
+
+    // branch/semester/section are not stored on Attendance — resolve via Student
+    if ((branch || semester || section) && !filter.studentId) {
+      const StudentModel = (await import("@/models/Student")).default;
+      const sFilter: Record<string, unknown> = {};
+      if (branch) sFilter.branch = branch;
+      if (semester) sFilter.semester = Number(semester);
+      if (section) sFilter.section = section;
+      const matching = await StudentModel.find(sFilter).select("_id").lean();
+      filter.studentId = { $in: matching.map((s) => (s._id as { toString(): string }).toString()) };
     }
 
     const records = await Attendance.find(filter)
@@ -73,7 +84,7 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    if (bulk && Array.isArray(bulk) && subject && date) {
+    if (bulk && Array.isArray(bulk) && date) {
       const dateObj = new Date(date);
       const ops = bulk.map((b) => ({
         updateOne: {

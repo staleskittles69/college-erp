@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Check, X } from "lucide-react";
+import { Users } from "lucide-react";
 
 interface Teaching { branch: string; year: number; sections: string[]; }
-interface Student { _id: string; name: string; rollNumber: string; }
+interface Student { _id: string; name: string; rollNo: string; }
 type Status = "present" | "absent";
 
 export default function AttendancePage() {
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
-  const todayISO = new Date().toISOString().split("T")[0];
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
 
   const [teaching, setTeaching] = useState<Teaching[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -37,12 +37,12 @@ export default function AttendancePage() {
         const s: string[] = data.subjects ?? [];
         setTeaching(t);
         setSubjects(s);
+        if (s.length === 1) setSubject(s[0]);
         if (t.length === 1) {
           setBranch(t[0].branch);
           setYear(t[0].year);
           if (t[0].sections?.length === 1) setSection(t[0].sections[0]);
         }
-        if (s.length === 1) setSubject(s[0]);
       })
       .catch(() => {});
   }, []);
@@ -51,33 +51,40 @@ export default function AttendancePage() {
   const yearsForBranch = teaching.filter((t) => t.branch === branch).map((t) => t.year);
   const sectionsForClass = teaching.find((t) => t.branch === branch && t.year === year)?.sections ?? [];
 
-  function handleBranchChange(v: string) { setBranch(v); setYear(""); setSection(""); setStudents([]); setSubmitted(false); }
-  function handleYearChange(v: number) { setYear(v); setSection(""); setStudents([]); setSubmitted(false); }
-  function handleSectionChange(v: string) { setSection(v); setStudents([]); setSubmitted(false); }
+  function markAll(status: Status) {
+    const next: Record<string, Status> = {};
+    students.forEach((s) => { next[s._id] = status; });
+    setAttendance(next);
+  }
 
-  function loadStudents() {
-    if (!branch || !year || !section) return;
+  useEffect(() => {
+    if (!branch || !year || !section) { setStudents([]); setAttendance({}); return; }
     setLoadingStudents(true);
     setSubmitted(false);
     setSubmitError("");
-    fetch(`/api/students?branch=${branch}&year=${year}&section=${section}`, { credentials: "include" })
+    fetch(`/api/students?branch=${encodeURIComponent(branch)}&year=${year}&section=${encodeURIComponent(section)}`, { credentials: "include" })
       .then((r) => r.ok ? r.json() : [])
       .then((data: Student[]) => {
-        setStudents(data);
+        const sorted = [...data].sort((a, b) => a.name.localeCompare(b.name));
+        setStudents(sorted);
         const init: Record<string, Status> = {};
-        data.forEach((s) => { init[s._id] = "present"; });
+        sorted.forEach((s) => { init[s._id] = "present"; });
         setAttendance(init);
       })
       .catch(() => setStudents([]))
       .finally(() => setLoadingStudents(false));
-  }
+  }, [branch, year, section]);
+
+  function handleBranchChange(v: string) { setBranch(v); setYear(""); setSection(""); setSubmitted(false); }
+  function handleYearChange(v: number) { setYear(v); setSection(""); setSubmitted(false); }
+  function handleSectionChange(v: string) { setSection(v); setSubmitted(false); }
 
   function toggle(id: string) {
     setAttendance((prev) => ({ ...prev, [id]: prev[id] === "present" ? "absent" : "present" }));
   }
 
   async function handleSubmit() {
-    if (!subject) { setSubmitError("Please select a subject before submitting."); return; }
+    if (subjects.length > 0 && !subject) { setSubmitError("Please select a subject before submitting."); return; }
     setSubmitting(true);
     setSubmitError("");
     const bulk = students.map((s) => ({ studentId: s._id, status: attendance[s._id] ?? "present" }));
@@ -85,7 +92,7 @@ export default function AttendancePage() {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bulk, subject, date: todayISO }),
+      body: JSON.stringify({ bulk, subject, date }),
     });
     if (res.ok) setSubmitted(true);
     else setSubmitError("Failed to save attendance. Please try again.");
@@ -141,26 +148,18 @@ export default function AttendancePage() {
             </select>
           </div>
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Subject</label>
-            <select
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+            <label className="text-xs text-gray-500 mb-1 block">Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => { setDate(e.target.value); setSubmitted(false); }}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select</option>
-              {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
+            />
           </div>
         </div>
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={loadStudents}
-            disabled={!branch || !year || !section || loadingStudents}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {loadingStudents ? "Loading…" : "Load Students"}
-          </button>
-        </div>
+        {loadingStudents && (
+          <p className="mt-3 text-xs text-gray-400">Loading students…</p>
+        )}
       </div>
 
       {/* No teaching assigned */}
@@ -180,45 +179,72 @@ export default function AttendancePage() {
       {students.length > 0 && (
         <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
           <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
-            <span className="text-sm font-semibold text-gray-700">{students.length} students</span>
-            <span className="text-xs text-gray-500">
-              {presentCount} present · {students.length - presentCount} absent
+            <span className="text-sm font-semibold text-gray-700">
+              {students.length} students &nbsp;·&nbsp; {presentCount} present &nbsp;·&nbsp; {students.length - presentCount} absent
             </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => markAll("present")}
+                className="text-xs px-3 py-1 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 font-medium"
+              >
+                All Present
+              </button>
+              <button
+                onClick={() => markAll("absent")}
+                className="text-xs px-3 py-1 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 font-medium"
+              >
+                All Absent
+              </button>
+            </div>
           </div>
           <div className="divide-y divide-gray-100">
-            {students.map((student) => {
+            {students.map((student, index) => {
               const isPresent = attendance[student._id] === "present";
               return (
                 <div key={student._id} className="px-5 py-3 flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-800">{student.name}</p>
-                    <p className="text-xs text-gray-400">{student.rollNumber}</p>
+                    <p className="text-xs text-gray-400">{index + 1}</p>
                   </div>
-                  <button
-                    onClick={() => toggle(student._id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                      isPresent
-                        ? "bg-green-100 text-green-700 hover:bg-green-200"
-                        : "bg-red-100 text-red-600 hover:bg-red-200"
-                    }`}
-                  >
-                    {isPresent ? <><Check size={12} /> Present</> : <><X size={12} /> Absent</>}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-medium w-11 text-right ${isPresent ? "text-green-600" : "text-red-500"}`}>
+                      {isPresent ? "Present" : "Absent"}
+                    </span>
+                    <button
+                      onClick={() => toggle(student._id)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none ${isPresent ? "bg-green-500" : "bg-red-400"}`}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${isPresent ? "translate-x-6" : "translate-x-1"}`} />
+                    </button>
+                  </div>
                 </div>
               );
             })}
           </div>
-          <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-4">
-            {submitError && <p className="text-xs text-red-500">{submitError}</p>}
+          <div className="px-5 py-4 border-t border-gray-100 flex items-center gap-3">
+            {subjects.length > 1 && (
+              <select
+                value={subject}
+                onChange={(e) => { setSubject(e.target.value); setSubmitError(""); }}
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select subject</option>
+                {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            )}
+            {subjects.length === 1 && (
+              <span className="flex-1 text-sm text-gray-700 font-medium px-1">{subject}</span>
+            )}
+            {submitError && <p className="text-xs text-red-500 shrink-0">{submitError}</p>}
             {submitted ? (
-              <p className="text-xs text-green-600 font-semibold ml-auto">✓ Attendance saved for today</p>
+              <p className="text-xs text-green-600 font-semibold shrink-0">✓ Saved</p>
             ) : (
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="ml-auto bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-60"
+                className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
-                {submitting ? "Saving…" : "Submit Attendance"}
+                {submitting ? "Saving…" : "Submit"}
               </button>
             )}
           </div>

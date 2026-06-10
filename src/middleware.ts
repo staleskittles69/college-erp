@@ -42,8 +42,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect logged-in users away from login/root
-  if (pathname === "/" || pathname === "/login") {
+  // Redirect logged-in users away from root only; /login always stays accessible so users can switch accounts
+  if (pathname === "/") {
     const token = request.cookies.get("token")?.value;
     if (token) {
       const payload = await verifyTokenEdge(token);

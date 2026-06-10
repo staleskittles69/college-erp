@@ -45,15 +45,16 @@ export async function GET(request: NextRequest) {
       section?: string;
     } = {
       id: user._id.toString(),
-      email: user.email,
+      email: user.email ?? "",
       role: user.role,
+      name: user.name,
     };
 
     if (user.role === "student" && user.studentId) {
       const student = await Student.findById(user.studentId);
       if (student) {
         result.studentId = student._id.toString();
-        result.name = student.name;
+        result.name = student.name ?? user.name;
         result.rollNo = student.rollNo;
         result.branch = student.branch;
         result.semester = student.semester;

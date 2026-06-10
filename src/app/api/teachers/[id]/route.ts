@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
-import Teacher from "@/models/Teacher";
+import Teacher, { ITeacher } from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import mongoose from "mongoose";
 
@@ -31,7 +31,7 @@ export async function PATCH(
     if (body.department != null) teacher.department = body.department;
     await teacher.save();
 
-    const populated = await Teacher.findById(id).populate("userId", "email").lean();
+    const populated = await Teacher.findById(id).populate("userId", "email").lean() as (ITeacher & { userId: { email?: string } }) | null;
     return NextResponse.json({
       id: populated!._id.toString(),
       name: populated!.name,

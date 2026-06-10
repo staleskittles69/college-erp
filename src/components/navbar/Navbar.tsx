@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 
 const PAGE_TITLES: Record<string, string> = {
-  '/student/dashboard':     'Dashboard',
+  '/students':              'Dashboard',
   '/student/courses':       'Courses',
   '/student/assignments':   'Assignments',
   '/student/attendance':    'Attendance',

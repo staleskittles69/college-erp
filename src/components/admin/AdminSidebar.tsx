@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Bell,
   Calendar,
+  CalendarCheck,
   Settings,
   ClipboardList,
   ChevronLeft,
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/admin/teachers", label: "Teachers", icon: GraduationCap },
   { href: "/admin/features/announcements", label: "Announcements", icon: Bell },
   { href: "/admin/features/timetable", label: "Timetable", icon: Calendar },
+  { href: "/admin/attendance", label: "Attendance", icon: CalendarCheck },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ClipboardList },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

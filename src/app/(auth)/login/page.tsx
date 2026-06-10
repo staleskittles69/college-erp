@@ -31,7 +31,7 @@ export default function LoginPage() {
     setError("");
 
     if (!email.trim()) { setError("Email is required"); return; }
-    if (!password)      { setError("Password is required"); return; }
+    if (!password) { setError("Password is required"); return; }
 
     setLoading(true);
     try {
@@ -84,8 +84,8 @@ export default function LoginPage() {
             <p className="text-xs text-white/50 mb-2">Quick login (dev)</p>
             <div className="flex gap-2">
               {[
-                { label: "Admin",   email: "admin@college.edu",   password: "admin123"   },
-                { label: "Teacher", email: "teacher@college.edu", password: "teacher123" },
+                { label: "Admin", email: "admin@college.edu", password: "admin123" },
+                { label: "Teacher", email: "praful@college.edu", password: "asdfghjkl" },
                 { label: "Student", email: "student@college.edu", password: "student123" },
               ].map(({ label, email: e, password: p }) => (
                 <button

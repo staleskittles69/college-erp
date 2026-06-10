@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { SidebarItem } from './SidebarItem';
 import {
   LayoutDashboard,
@@ -23,8 +24,22 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setUserName(data.name || data.email?.split('@')[0] || 'Student');
+          setUserEmail(data.email || '');
+        }
+      })
+      .catch(() => {});
+  }, []);
   const menuItems = [
-    { icon: <LayoutDashboard size={18} />, label: 'Dashboard', href: '/student/dashboard' },
+    { icon: <LayoutDashboard size={18} />, label: 'Dashboard', href: '/students' },
     { icon: <BookOpen size={18} />, label: 'Courses', href: '/student/courses' },
     { icon: <ClipboardList size={18} />, label: 'Assignments', href: '/student/assignments' },
     { icon: <CalendarCheck size={18} />, label: 'Attendance', href: '/student/attendance' },
@@ -86,11 +101,11 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         <div className="px-4 py-4 border-t border-white/10 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-              S
+              {userName ? userName[0].toUpperCase() : 'S'}
             </div>
             <div className="overflow-hidden">
-              <p className="text-white text-sm font-medium truncate">Student</p>
-              <p className="text-white/40 text-xs truncate">student@college.edu</p>
+              <p className="text-white text-sm font-medium truncate">{userName || 'Student'}</p>
+              <p className="text-white/40 text-xs truncate">{userEmail || ''}</p>
             </div>
           </div>
         </div>

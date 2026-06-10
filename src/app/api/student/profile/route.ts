@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const u = user as {
+    const u = user as unknown as {
       _id: { toString: () => string };
       name: string;
       rollNumber?: number;
