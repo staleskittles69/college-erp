@@ -12,17 +12,17 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function quickLogin(e: string, p: string) {
+  async function quickLogin(quickEmail: string, quickPassword: string) {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: e, password: p }),
+        body: JSON.stringify({ email: quickEmail, password: quickPassword }),
       });
-      if (res.ok) { router.push("/"); router.refresh(); }
-      else { const d = await res.json(); setError(d.error ?? "Login failed."); setLoading(false); }
+      if (response.ok) { router.push("/"); router.refresh(); }
+      else { const result = await response.json(); setError(result.error ?? "Login failed."); setLoading(false); }
     } catch { setError("Network error."); setLoading(false); }
   }
 
@@ -35,15 +35,15 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
       });
-      const data = await res.json();
+      const result = await response.json();
 
-      if (!res.ok) {
-        setError(data.error ?? "Login failed. Please try again.");
+      if (!response.ok) {
+        setError(result.error ?? "Login failed. Please try again.");
         setLoading(false);
         return;
       }
@@ -87,11 +87,11 @@ export default function LoginPage() {
                 { label: "Admin", email: "admin@college.edu", password: "admin123" },
                 { label: "Teacher", email: "praful@college.edu", password: "asdfghjkl" },
                 { label: "Student", email: "student@college.edu", password: "student123" },
-              ].map(({ label, email: e, password: p }) => (
+              ].map(({ label, email: quickEmail, password: quickPassword }) => (
                 <button
                   key={label}
                   type="button"
-                  onClick={() => quickLogin(e, p)}
+                  onClick={() => quickLogin(quickEmail, quickPassword)}
                   className="rounded-full border border-white/30 bg-white/10 hover:bg-white/20 px-3 py-1 text-xs font-medium text-white transition-colors"
                 >
                   {label}
