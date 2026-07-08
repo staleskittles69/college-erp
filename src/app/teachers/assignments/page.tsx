@@ -36,7 +36,7 @@ export default function AssignmentsPage() {
 
   function fetchTests() {
     return fetch("/api/tests", { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then(setTests)
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -45,16 +45,16 @@ export default function AssignmentsPage() {
   useEffect(() => {
     fetchTests();
     fetch("/api/departments", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then(setDepts)
       .catch(() => {});
     fetch("/api/teachers/me/classes", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : { subjects: [] })
-      .then((d) => setSubjects(d.subjects ?? []))
+      .then((response) => response.ok ? response.json() : { subjects: [] })
+      .then((classesData) => setSubjects(classesData.subjects ?? []))
       .catch(() => {});
   }, []);
 
-  function handleBranchChange(v: string) { setForm((f) => ({ ...f, branch: v, semester: "" })); }
+  function handleBranchChange(value: string) { setForm((prev) => ({ ...prev, branch: value, semester: "" })); }
 
   async function handleCreate() {
     if (!form.title.trim() || !form.subject.trim() || !form.date) {
@@ -67,12 +67,12 @@ export default function AssignmentsPage() {
     let attachmentUrl: string | null = null;
 
     if (file) {
-      const fd = new FormData();
-      fd.append("file", file);
-      const uploadRes = await fetch("/api/upload", { method: "POST", credentials: "include", body: fd });
-      if (uploadRes.ok) {
-        const data = await uploadRes.json();
-        attachmentUrl = data.url;
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadResponse = await fetch("/api/upload", { method: "POST", credentials: "include", body: formData });
+      if (uploadResponse.ok) {
+        const uploadResult = await uploadResponse.json();
+        attachmentUrl = uploadResult.url;
       } else {
         setFormError("File upload failed. Try again.");
         setSaving(false);
@@ -80,7 +80,7 @@ export default function AssignmentsPage() {
       }
     }
 
-    const res = await fetch("/api/tests", {
+    const response = await fetch("/api/tests", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -95,9 +95,9 @@ export default function AssignmentsPage() {
       }),
     });
 
-    if (!res.ok) {
-      const data = await res.json();
-      setFormError(data.error ?? "Failed to create assignment.");
+    if (!response.ok) {
+      const result = await response.json();
+      setFormError(result.error ?? "Failed to create assignment.");
       setSaving(false);
       return;
     }
@@ -129,8 +129,8 @@ export default function AssignmentsPage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-xl border border-gray-200 bg-white p-5 animate-pulse">
+          {[1, 2, 3].map((skeletonIdx) => (
+            <div key={skeletonIdx} className="rounded-xl border border-gray-200 bg-white p-5 animate-pulse">
               <div className="h-4 bg-gray-100 rounded w-1/3 mb-2" />
               <div className="h-3 bg-gray-100 rounded w-1/2" />
             </div>
@@ -198,7 +198,7 @@ export default function AssignmentsPage() {
                 <label className="block text-xs font-medium text-gray-700 mb-1">Assignment Title <span className="text-red-400">*</span></label>
                 <input
                   value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g. Chapter 3 Assignment"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -209,16 +209,16 @@ export default function AssignmentsPage() {
                 {subjects.length > 0 ? (
                   <select
                     value={form.subject}
-                    onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
+                    onChange={(e) => setForm((prev) => ({ ...prev, subject: e.target.value }))}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select subject</option>
-                    {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+                    {subjects.map((subjectOption) => <option key={subjectOption} value={subjectOption}>{subjectOption}</option>)}
                   </select>
                 ) : (
                   <input
                     value={form.subject}
-                    onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
+                    onChange={(e) => setForm((prev) => ({ ...prev, subject: e.target.value }))}
                     placeholder="e.g. Data Structures"
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -234,19 +234,19 @@ export default function AssignmentsPage() {
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">All branches</option>
-                    {depts.map((d) => <option key={d.slug} value={d.name}>{d.name}</option>)}
+                    {depts.map((dept) => <option key={dept.slug} value={dept.name}>{dept.name}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Year</label>
                   <select
                     value={form.semester}
-                    onChange={(e) => setForm((f) => ({ ...f, semester: e.target.value }))}
+                    onChange={(e) => setForm((prev) => ({ ...prev, semester: e.target.value }))}
                     disabled={!form.branch}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-gray-50"
                   >
                     <option value="">{form.branch ? "All years" : "Select branch first"}</option>
-                    {form.branch && [1, 2, 3, 4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+                    {form.branch && [1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
                   </select>
                 </div>
               </div>
@@ -256,7 +256,7 @@ export default function AssignmentsPage() {
                 <input
                   type="date"
                   value={form.date}
-                  onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, date: e.target.value }))}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -266,7 +266,7 @@ export default function AssignmentsPage() {
                 <input
                   type="number"
                   value={form.maxMarks}
-                  onChange={(e) => setForm((f) => ({ ...f, maxMarks: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, maxMarks: e.target.value }))}
                   placeholder="e.g. 100"
                   min={0}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

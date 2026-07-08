@@ -4,12 +4,12 @@ import Breadcrumb from "@/components/admin/Breadcrumb";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function formatYear(s: string) {
-  return s.split("-").map((w, i) => (i === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1))).join(" ");
+function formatYear(yearSlug: string) {
+  return yearSlug.split("-").map((word, wordIdx) => (wordIdx === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1))).join(" ");
 }
 
-function formatSection(s: string) {
-  return s.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+function formatSection(sectionSlug: string) {
+  return sectionSlug.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 }
 
 const YEAR_TO_NUMBER: Record<string, number> = {
@@ -41,10 +41,10 @@ export default function StudentListPage() {
   useEffect(() => {
     const url = `/api/students?branch=${branchLabel}&year=${yearNumber}&section=${encodeURIComponent(sectionLabel)}`;
     fetch(url)
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setStudents(data);
-        else setError(data.error ?? "Failed to load");
+      .then((response) => response.json())
+      .then((result) => {
+        if (Array.isArray(result)) setStudents(result);
+        else setError(result.error ?? "Failed to load");
       })
       .catch(() => setError("Network error"))
       .finally(() => setLoading(false));
@@ -93,11 +93,11 @@ export default function StudentListPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {students.map((s, i) => (
-                    <tr key={s._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-3.5 text-gray-400 text-xs">{i + 1}</td>
-                      <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{s.rollNo}</td>
-                      <td className="px-6 py-3.5 font-medium text-gray-800">{s.name}</td>
+                  {students.map((student, index) => (
+                    <tr key={student._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-3.5 text-gray-400 text-xs">{index + 1}</td>
+                      <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{student.rollNo}</td>
+                      <td className="px-6 py-3.5 font-medium text-gray-800">{student.name}</td>
                     </tr>
                   ))}
                 </tbody>

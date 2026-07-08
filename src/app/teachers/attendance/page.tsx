@@ -31,29 +31,29 @@ export default function AttendancePage() {
 
   useEffect(() => {
     fetch("/api/teachers/me/classes", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : { teaching: [], subjects: [] })
-      .then((data) => {
-        const t: Teaching[] = data.teaching ?? [];
-        const s: string[] = data.subjects ?? [];
-        setTeaching(t);
-        setSubjects(s);
-        if (s.length === 1) setSubject(s[0]);
-        if (t.length === 1) {
-          setBranch(t[0].branch);
-          setYear(t[0].year);
-          if (t[0].sections?.length === 1) setSection(t[0].sections[0]);
+      .then((response) => response.ok ? response.json() : { teaching: [], subjects: [] })
+      .then((classesData) => {
+        const teachingList: Teaching[] = classesData.teaching ?? [];
+        const subjectList: string[] = classesData.subjects ?? [];
+        setTeaching(teachingList);
+        setSubjects(subjectList);
+        if (subjectList.length === 1) setSubject(subjectList[0]);
+        if (teachingList.length === 1) {
+          setBranch(teachingList[0].branch);
+          setYear(teachingList[0].year);
+          if (teachingList[0].sections?.length === 1) setSection(teachingList[0].sections[0]);
         }
       })
       .catch(() => {});
   }, []);
 
-  const branches = [...new Set(teaching.map((t) => t.branch))];
-  const yearsForBranch = teaching.filter((t) => t.branch === branch).map((t) => t.year);
-  const sectionsForClass = teaching.find((t) => t.branch === branch && t.year === year)?.sections ?? [];
+  const branches = [...new Set(teaching.map((teachingItem) => teachingItem.branch))];
+  const yearsForBranch = teaching.filter((teachingItem) => teachingItem.branch === branch).map((teachingItem) => teachingItem.year);
+  const sectionsForClass = teaching.find((teachingItem) => teachingItem.branch === branch && teachingItem.year === year)?.sections ?? [];
 
   function markAll(status: Status) {
     const next: Record<string, Status> = {};
-    students.forEach((s) => { next[s._id] = status; });
+    students.forEach((student) => { next[student._id] = status; });
     setAttendance(next);
   }
 
@@ -63,21 +63,21 @@ export default function AttendancePage() {
     setSubmitted(false);
     setSubmitError("");
     fetch(`/api/students?branch=${encodeURIComponent(branch)}&year=${year}&section=${encodeURIComponent(section)}`, { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then((data: Student[]) => {
-        const sorted = [...data].sort((a, b) => a.name.localeCompare(b.name));
+        const sorted = [...data].sort((studentA, studentB) => studentA.name.localeCompare(studentB.name));
         setStudents(sorted);
         const init: Record<string, Status> = {};
-        sorted.forEach((s) => { init[s._id] = "present"; });
+        sorted.forEach((student) => { init[student._id] = "present"; });
         setAttendance(init);
       })
       .catch(() => setStudents([]))
       .finally(() => setLoadingStudents(false));
   }, [branch, year, section]);
 
-  function handleBranchChange(v: string) { setBranch(v); setYear(""); setSection(""); setSubmitted(false); }
-  function handleYearChange(v: number) { setYear(v); setSection(""); setSubmitted(false); }
-  function handleSectionChange(v: string) { setSection(v); setSubmitted(false); }
+  function handleBranchChange(value: string) { setBranch(value); setYear(""); setSection(""); setSubmitted(false); }
+  function handleYearChange(value: number) { setYear(value); setSection(""); setSubmitted(false); }
+  function handleSectionChange(value: string) { setSection(value); setSubmitted(false); }
 
   function toggle(id: string) {
     setAttendance((prev) => ({ ...prev, [id]: prev[id] === "present" ? "absent" : "present" }));
@@ -87,19 +87,19 @@ export default function AttendancePage() {
     if (subjects.length > 0 && !subject) { setSubmitError("Please select a subject before submitting."); return; }
     setSubmitting(true);
     setSubmitError("");
-    const bulk = students.map((s) => ({ studentId: s._id, status: attendance[s._id] ?? "present" }));
-    const res = await fetch("/api/attendance", {
+    const bulk = students.map((student) => ({ studentId: student._id, status: attendance[student._id] ?? "present" }));
+    const response = await fetch("/api/attendance", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bulk, subject, date }),
     });
-    if (res.ok) setSubmitted(true);
+    if (response.ok) setSubmitted(true);
     else setSubmitError("Failed to save attendance. Please try again.");
     setSubmitting(false);
   }
 
-  const presentCount = Object.values(attendance).filter((v) => v === "present").length;
+  const presentCount = Object.values(attendance).filter((status) => status === "present").length;
 
   return (
     <div className="space-y-6">
@@ -120,7 +120,7 @@ export default function AttendancePage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select</option>
-              {branches.map((b) => <option key={b} value={b}>{b}</option>)}
+              {branches.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
             </select>
           </div>
           <div>
@@ -132,7 +132,7 @@ export default function AttendancePage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
               <option value="">Select</option>
-              {yearsForBranch.map((y) => <option key={y} value={y}>Year {y}</option>)}
+              {yearsForBranch.map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
             </select>
           </div>
           <div>
@@ -144,7 +144,7 @@ export default function AttendancePage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
               <option value="">Select</option>
-              {sectionsForClass.map((s) => <option key={s} value={s}>Section {s}</option>)}
+              {sectionsForClass.map((sectionOption) => <option key={sectionOption} value={sectionOption}>Section {sectionOption}</option>)}
             </select>
           </div>
           <div>
@@ -229,7 +229,7 @@ export default function AttendancePage() {
                 className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select subject</option>
-                {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+                {subjects.map((subjectOption) => <option key={subjectOption} value={subjectOption}>{subjectOption}</option>)}
               </select>
             )}
             {subjects.length === 1 && (

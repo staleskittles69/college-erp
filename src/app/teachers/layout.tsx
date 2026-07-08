@@ -11,10 +11,10 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     fetch("/api/teachers/me")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.name) setTeacherName(data.name);
-        if (data.email) setTeacherEmail(data.email);
+      .then((response) => response.json())
+      .then((profile) => {
+        if (profile.name) setTeacherName(profile.name);
+        if (profile.email) setTeacherEmail(profile.email);
       })
       .catch(() => {});
   }, []);

@@ -15,9 +15,9 @@ interface Notice {
 
 interface Teaching { branch: string; year: number; sections: string[]; }
 
-function formatDate(d: string) {
-  try { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
-  catch { return d; }
+function formatDate(dateString: string) {
+  try { return new Date(dateString).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
+  catch { return dateString; }
 }
 
 const EMPTY_FORM = { title: "", body: "", targetBranch: "", targetYear: "" };
@@ -34,7 +34,7 @@ export default function TeacherNoticesPage() {
 
   function fetchNotices() {
     return fetch("/api/notices", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then(setNotices)
       .catch(() => setNotices([]))
       .finally(() => setLoading(false));
@@ -43,29 +43,29 @@ export default function TeacherNoticesPage() {
   useEffect(() => {
     fetchNotices();
     fetch("/api/teachers/me/classes", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : { teaching: [] })
-      .then((d) => setTeaching(d.teaching ?? []))
+      .then((response) => response.ok ? response.json() : { teaching: [] })
+      .then((classesData) => setTeaching(classesData.teaching ?? []))
       .catch(() => {});
   }, []);
 
   // Build list of branch/year combos teacher is allowed to target
   const targets: { label: string; branch: string; year: number }[] = [];
-  teaching.forEach((t) => {
-    t.sections.length > 0
-      ? targets.push({ label: `${t.branch} · Year ${t.year}`, branch: t.branch, year: t.year })
+  teaching.forEach((teachingItem) => {
+    teachingItem.sections.length > 0
+      ? targets.push({ label: `${teachingItem.branch} · Year ${teachingItem.year}`, branch: teachingItem.branch, year: teachingItem.year })
       : null;
   });
   // If no teaching assigned, fall back: nothing scoped (post as global)
 
-  const yearsForBranch = teaching.filter((t) => t.branch === form.targetBranch).map((t) => t.year);
+  const yearsForBranch = teaching.filter((teachingItem) => teachingItem.branch === form.targetBranch).map((teachingItem) => teachingItem.year);
 
-  function handleBranchChange(v: string) { setForm((f) => ({ ...f, targetBranch: v, targetYear: "" })); }
+  function handleBranchChange(value: string) { setForm((prev) => ({ ...prev, targetBranch: value, targetYear: "" })); }
 
   async function handlePost() {
     if (!form.title.trim() || !form.body.trim()) { setFormError("Title and message are required."); return; }
     setSaving(true);
     setFormError("");
-    const res = await fetch("/api/notices", {
+    const response = await fetch("/api/notices", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -76,7 +76,7 @@ export default function TeacherNoticesPage() {
         targetYear: form.targetYear ? Number(form.targetYear) : null,
       }),
     });
-    if (!res.ok) { const d = await res.json(); setFormError(d.error ?? "Failed to post."); setSaving(false); return; }
+    if (!response.ok) { const result = await response.json(); setFormError(result.error ?? "Failed to post."); setSaving(false); return; }
     setForm(EMPTY_FORM);
     setOpen(false);
     setSaving(false);
@@ -106,7 +106,7 @@ export default function TeacherNoticesPage() {
 
       {loading ? (
         <div className="space-y-3 animate-pulse max-w-2xl">
-          {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}
+          {[1, 2, 3].map((skeletonIdx) => <div key={skeletonIdx} className="h-20 bg-gray-100 rounded-xl" />)}
         </div>
       ) : notices.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-white p-16 flex flex-col items-center justify-center gap-4 text-center max-w-2xl">
@@ -152,7 +152,7 @@ export default function TeacherNoticesPage() {
                 <label className="block text-xs font-medium text-gray-700 mb-1">Title <span className="text-red-400">*</span></label>
                 <input
                   value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g. Assignment deadline reminder"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -161,7 +161,7 @@ export default function TeacherNoticesPage() {
                 <label className="block text-xs font-medium text-gray-700 mb-1">Message <span className="text-red-400">*</span></label>
                 <textarea
                   value={form.body}
-                  onChange={(e) => setForm((f) => ({ ...f, body: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, body: e.target.value }))}
                   placeholder="Write your notice here..."
                   rows={4}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
@@ -176,8 +176,8 @@ export default function TeacherNoticesPage() {
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">All students</option>
-                    {[...new Set(teaching.map((t) => t.branch))].map((b) => (
-                      <option key={b} value={b}>{b}</option>
+                    {[...new Set(teaching.map((teachingItem) => teachingItem.branch))].map((branchOption) => (
+                      <option key={branchOption} value={branchOption}>{branchOption}</option>
                     ))}
                   </select>
                 </div>
@@ -185,12 +185,12 @@ export default function TeacherNoticesPage() {
                   <label className="block text-xs font-medium text-gray-700 mb-1">Target Year</label>
                   <select
                     value={form.targetYear}
-                    onChange={(e) => setForm((f) => ({ ...f, targetYear: e.target.value }))}
+                    onChange={(e) => setForm((prev) => ({ ...prev, targetYear: e.target.value }))}
                     disabled={!form.targetBranch}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-gray-50"
                   >
                     <option value="">{form.targetBranch ? "All years" : "Select branch first"}</option>
-                    {yearsForBranch.map((y) => <option key={y} value={y}>Year {y}</option>)}
+                    {yearsForBranch.map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
                   </select>
                 </div>
               </div>

@@ -24,12 +24,12 @@ export default function TeacherDashboardPage() {
 
   useEffect(() => {
     fetch("/api/teachers/me/stats", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data) setStats(data); })
+      .then((response) => response.ok ? response.json() : null)
+      .then((statsData) => { if (statsData) setStats(statsData); })
       .catch(() => {});
 
     fetch("/api/notices?limit=100", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then((data: unknown[]) => setNoticeCount(Array.isArray(data) ? data.length : 0))
       .catch(() => setNoticeCount(0));
   }, []);

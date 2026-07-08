@@ -15,7 +15,7 @@ export default function TimetablePage() {
 
   useEffect(() => {
     fetch("/api/timetable", { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then(setRows)
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -25,7 +25,7 @@ export default function TimetablePage() {
     (acc[row.dayOfWeek] ??= []).push(row);
     return acc;
   }, {});
-  const activeDays = Object.keys(byDay).map(Number).sort((a, b) => a - b);
+  const activeDays = Object.keys(byDay).map(Number).sort((dayA, dayB) => dayA - dayB);
 
   return (
     <div className="space-y-6">
@@ -36,7 +36,7 @@ export default function TimetablePage() {
 
       {loading ? (
         <div className="rounded-xl border border-gray-200 bg-white p-8 animate-pulse space-y-4">
-          {[1, 2, 3].map((i) => <div key={i} className="h-16 bg-gray-100 rounded" />)}
+          {[1, 2, 3].map((skeletonIdx) => <div key={skeletonIdx} className="h-16 bg-gray-100 rounded" />)}
         </div>
       ) : error ? (
         <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
@@ -61,8 +61,8 @@ export default function TimetablePage() {
               </div>
               <div className="divide-y divide-gray-100">
                 {byDay[day].flatMap((row) =>
-                  row.slots.map((slot, si) => (
-                    <div key={`${row._id}-${si}`} className="px-5 py-3 flex items-center justify-between gap-4">
+                  row.slots.map((slot, slotIdx) => (
+                    <div key={`${row._id}-${slotIdx}`} className="px-5 py-3 flex items-center justify-between gap-4">
                       <div>
                         <p className="text-sm font-medium text-gray-800">{slot.subject}</p>
                         <p className="text-xs text-gray-400 mt-0.5">{row.branch} · Year {row.semester} · {row.section}</p>

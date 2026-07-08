@@ -32,7 +32,7 @@ export default function YearSelectionPage({ params }: Props) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {YEARS.map((year, i) => (
+        {YEARS.map((year, yearIdx) => (
           <Link
             key={year.slug}
             href={`/teachers/students/${branch}/${year.slug}`}
@@ -41,7 +41,7 @@ export default function YearSelectionPage({ params }: Props) {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <span className="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {i + 1}
+                  {yearIdx + 1}
                 </span>
                 <span className="font-semibold text-gray-800">{year.label}</span>
               </div>

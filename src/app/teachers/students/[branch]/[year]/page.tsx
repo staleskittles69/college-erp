@@ -2,13 +2,13 @@ import Link from "next/link";
 import Breadcrumb from "@/components/admin/Breadcrumb";
 import { ArrowRight, Users } from "lucide-react";
 
-const SECTIONS = Array.from({ length: 30 }, (_, i) => ({
-  label: `Section ${i + 1}`,
-  slug: `section-${i + 1}`,
+const SECTIONS = Array.from({ length: 30 }, (_, sectionIdx) => ({
+  label: `Section ${sectionIdx + 1}`,
+  slug: `section-${sectionIdx + 1}`,
 }));
 
-function formatYear(s: string) {
-  return s.split("-").map((w, i) => (i === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1))).join(" ");
+function formatYear(yearSlug: string) {
+  return yearSlug.split("-").map((word, wordIdx) => (wordIdx === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1))).join(" ");
 }
 
 interface Props {
