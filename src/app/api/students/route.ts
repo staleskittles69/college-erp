@@ -44,19 +44,19 @@ export async function GET(request: NextRequest) {
       .limit(search ? 10 : 0)
       .lean();
 
-    const result = students.map((s) => ({
-      _id: (s._id as { toString: () => string }).toString(),
-      name: s.name,
-      rollNo: s.rollNumber != null ? String(s.rollNumber) : "",
-      email: s.email,
-      branch: s.branch,
-      year: s.year,
-      section: s.section,
+    const result = students.map((student) => ({
+      _id: (student._id as { toString: () => string }).toString(),
+      name: student.name,
+      rollNo: student.rollNumber != null ? String(student.rollNumber) : "",
+      email: student.email,
+      branch: student.branch,
+      year: student.year,
+      section: student.section,
     }));
 
     return NextResponse.json(result);
-  } catch (err) {
-    console.error("Students GET error:", err);
+  } catch (error) {
+    console.error("Students GET error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -122,8 +122,8 @@ export async function POST(request: NextRequest) {
       semester: student.semester,
       section: student.section,
     });
-  } catch (err) {
-    console.error("Students POST error:", err);
+  } catch (error) {
+    console.error("Students POST error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

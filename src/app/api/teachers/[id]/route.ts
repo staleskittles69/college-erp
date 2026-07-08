@@ -39,8 +39,8 @@ export async function PATCH(
       department: populated!.department,
       teaching: populated!.teaching ?? [],
     });
-  } catch (err) {
-    console.error("Teacher PATCH error:", err);
+  } catch (error) {
+    console.error("Teacher PATCH error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -68,8 +68,8 @@ export async function DELETE(
     await Teacher.findByIdAndDelete(id);
 
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("Teacher DELETE error:", err);
+  } catch (error) {
+    console.error("Teacher DELETE error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

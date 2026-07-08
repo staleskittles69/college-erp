@@ -21,19 +21,19 @@ export async function GET(request: NextRequest) {
       const User = (await import("@/models/User")).default;
       const user = await User.findById(payload.userId).lean() as { branch?: string; year?: number; section?: string; } | null;
       if (user?.branch && user?.year && user?.section) {
-        const rows = await Timetable.find({
+        const timetableRows = await Timetable.find({
           branch: user.branch,
           semester: user.year,
           section: user.section,
         }).sort({ dayOfWeek: 1 }).lean();
         return NextResponse.json(
-          rows.map((r) => ({
-            _id: (r._id as { toString: () => string }).toString(),
-            branch: r.branch,
-            semester: r.semester,
-            section: r.section,
-            dayOfWeek: r.dayOfWeek,
-            slots: r.slots,
+          timetableRows.map((row) => ({
+            _id: (row._id as { toString: () => string }).toString(),
+            branch: row.branch,
+            semester: row.semester,
+            section: row.section,
+            dayOfWeek: row.dayOfWeek,
+            slots: row.slots,
           }))
         );
       }
@@ -44,19 +44,19 @@ export async function GET(request: NextRequest) {
     if (semester != null) filter.semester = parseInt(semester, 10);
     if (section) filter.section = section;
 
-    const rows = await Timetable.find(filter).sort({ dayOfWeek: 1 }).lean();
+    const timetableRows = await Timetable.find(filter).sort({ dayOfWeek: 1 }).lean();
     return NextResponse.json(
-      rows.map((r) => ({
-        _id: (r._id as { toString: () => string }).toString(),
-        branch: r.branch,
-        semester: r.semester,
-        section: r.section,
-        dayOfWeek: r.dayOfWeek,
-        slots: r.slots,
+      timetableRows.map((row) => ({
+        _id: (row._id as { toString: () => string }).toString(),
+        branch: row.branch,
+        semester: row.semester,
+        section: row.section,
+        dayOfWeek: row.dayOfWeek,
+        slots: row.slots,
       }))
     );
-  } catch (err) {
-    console.error("Timetable GET error:", err);
+  } catch (error) {
+    console.error("Timetable GET error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -92,22 +92,22 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const row = await Timetable.findOneAndUpdate(
+    const timetableRow = await Timetable.findOneAndUpdate(
       { branch, semester: Number(semester), section, dayOfWeek: Number(dayOfWeek) },
       { branch, semester: Number(semester), section, dayOfWeek: Number(dayOfWeek), slots },
       { upsert: true, new: true }
     );
 
     return NextResponse.json({
-      _id: row._id.toString(),
-      branch: row.branch,
-      semester: row.semester,
-      section: row.section,
-      dayOfWeek: row.dayOfWeek,
-      slots: row.slots,
+      _id: timetableRow._id.toString(),
+      branch: timetableRow.branch,
+      semester: timetableRow.semester,
+      section: timetableRow.section,
+      dayOfWeek: timetableRow.dayOfWeek,
+      slots: timetableRow.slots,
     });
-  } catch (err) {
-    console.error("Timetable POST error:", err);
+  } catch (error) {
+    console.error("Timetable POST error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

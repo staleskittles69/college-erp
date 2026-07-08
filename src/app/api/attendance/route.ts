@@ -42,25 +42,27 @@ export async function GET(request: NextRequest) {
       if (branch) sFilter.branch = branch;
       if (semester) sFilter.semester = Number(semester);
       if (section) sFilter.section = section;
-      const matching = await StudentModel.find(sFilter).select("_id").lean();
-      filter.studentId = { $in: matching.map((s) => (s._id as { toString(): string }).toString()) };
+      const matchingStudents = await StudentModel.find(sFilter).select("_id").lean();
+      filter.studentId = {
+        $in: matchingStudents.map((student) => (student._id as { toString(): string }).toString()),
+      };
     }
 
     const records = await Attendance.find(filter)
       .sort({ date: -1 })
       .lean();
 
-    const result = records.map((r) => ({
-      _id: (r._id as { toString: () => string }).toString(),
-      studentId: (r.studentId as { toString: () => string }).toString(),
-      subject: r.subject,
-      date: r.date,
-      status: r.status,
+    const result = records.map((record) => ({
+      _id: (record._id as { toString: () => string }).toString(),
+      studentId: (record.studentId as { toString: () => string }).toString(),
+      subject: record.subject,
+      date: record.date,
+      status: record.status,
     }));
 
     return NextResponse.json(result);
-  } catch (err) {
-    console.error("Attendance GET error:", err);
+  } catch (error) {
+    console.error("Attendance GET error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -80,25 +82,25 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { studentId, subject, date, status } = body;
-    const bulk = body.bulk as Array<{ studentId: string; status: string }> | undefined;
+    const bulkEntries = body.bulk as Array<{ studentId: string; status: string }> | undefined;
 
     await connectDB();
 
-    if (bulk && Array.isArray(bulk) && date) {
+    if (bulkEntries && Array.isArray(bulkEntries) && date) {
       const dateObj = new Date(date);
-      const ops = bulk.map((b) => ({
+      const bulkOps = bulkEntries.map((entry) => ({
         updateOne: {
           filter: {
-            studentId: b.studentId,
+            studentId: entry.studentId,
             subject,
             date: dateObj,
           },
           update: {
             $set: {
-              studentId: b.studentId,
+              studentId: entry.studentId,
               subject,
               date: dateObj,
-              status: b.status === "present" ? "present" : "absent",
+              status: entry.status === "present" ? "present" : "absent",
               markedBy: payload.userId,
             },
           },
@@ -106,8 +108,8 @@ export async function POST(request: NextRequest) {
         },
       }));
       const AttendanceModel = (await import("@/models/Attendance")).default;
-      await AttendanceModel.bulkWrite(ops);
-      return NextResponse.json({ success: true, count: bulk.length });
+      await AttendanceModel.bulkWrite(bulkOps);
+      return NextResponse.json({ success: true, count: bulkEntries.length });
     }
 
     if (!studentId || !subject || !date || !status) {
@@ -137,8 +139,8 @@ export async function POST(request: NextRequest) {
       date: record.date,
       status: record.status,
     });
-  } catch (err) {
-    console.error("Attendance POST error:", err);
+  } catch (error) {
+    console.error("Attendance POST error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -183,8 +185,8 @@ export async function PATCH(request: NextRequest) {
       date: record.date,
       status: record.status,
     });
-  } catch (err) {
-    console.error("Attendance PATCH error:", err);
+  } catch (error) {
+    console.error("Attendance PATCH error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

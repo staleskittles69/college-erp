@@ -52,8 +52,8 @@ export async function PATCH(
       createdAt: notice.createdAt,
     });
 
-  } catch (err) {
-    console.error("Notice PATCH error:", err);
+  } catch (error) {
+    console.error("Notice PATCH error:", error);
 
     return NextResponse.json(
       { error: "Internal server error" },
@@ -95,8 +95,8 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
 
-  } catch (err) {
-    console.error("Notice DELETE error:", err);
+  } catch (error) {
+    console.error("Notice DELETE error:", error);
 
     return NextResponse.json(
       { error: "Internal server error" },

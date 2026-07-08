@@ -24,17 +24,17 @@ export async function GET(request: NextRequest) {
       .lean();
 
     return NextResponse.json(
-      teachers.map((t) => ({
-        id: (t._id as { toString: () => string }).toString(),
-        name: t.name,
-        email: (t.userId as { email?: string })?.email ?? "",
-        department: t.department,
-        teaching: t.teaching ?? [],
-        plainPassword: t.plainPassword ?? "",
+      teachers.map((teacher) => ({
+        id: (teacher._id as { toString: () => string }).toString(),
+        name: teacher.name,
+        email: (teacher.userId as { email?: string })?.email ?? "",
+        department: teacher.department,
+        teaching: teacher.teaching ?? [],
+        plainPassword: teacher.plainPassword ?? "",
       }))
     );
-  } catch (err) {
-    console.error("Teachers GET error:", err);
+  } catch (error) {
+    console.error("Teachers GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -83,8 +83,8 @@ export async function POST(request: NextRequest) {
       teaching: [],
       plainPassword,
     });
-  } catch (err) {
-    console.error("Teachers POST error:", err);
+  } catch (error) {
+    console.error("Teachers POST error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

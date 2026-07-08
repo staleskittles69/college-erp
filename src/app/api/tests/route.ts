@@ -36,18 +36,18 @@ export async function GET(request: NextRequest) {
 
     const tests = await Test.find(filter).sort({ date: 1 }).lean();
     return NextResponse.json(
-      tests.map((t) => ({
-        _id: (t._id as { toString: () => string }).toString(),
-        subject: t.subject,
-        title: t.title,
-        date: t.date,
-        branch: t.branch,
-        semester: t.semester,
-        maxMarks: t.maxMarks,
+      tests.map((test) => ({
+        _id: (test._id as { toString: () => string }).toString(),
+        subject: test.subject,
+        title: test.title,
+        date: test.date,
+        branch: test.branch,
+        semester: test.semester,
+        maxMarks: test.maxMarks,
       }))
     );
-  } catch (err) {
-    console.error("Tests GET error:", err);
+  } catch (error) {
+    console.error("Tests GET error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -99,8 +99,8 @@ export async function POST(request: NextRequest) {
       dueTime: test.dueTime,
       attachmentUrl: test.attachmentUrl,
     });
-  } catch (err) {
-    console.error("Tests POST error:", err);
+  } catch (error) {
+    console.error("Tests POST error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

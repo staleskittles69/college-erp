@@ -15,12 +15,16 @@ export async function GET(request: NextRequest) {
   if (!teacher) return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
 
   const teaching = teacher.teaching ?? [];
-  const sectionCount = teaching.reduce((sum, t) => sum + t.sections.length, 0);
+  const sectionCount = teaching.reduce((total, assignment) => total + assignment.sections.length, 0);
 
   let studentCount = 0;
   if (teaching.length > 0) {
-    const orConditions = teaching.flatMap((t) =>
-      t.sections.map((s) => ({ branch: t.branch, year: t.year, section: s }))
+    const orConditions = teaching.flatMap((assignment) =>
+      assignment.sections.map((section) => ({
+        branch: assignment.branch,
+        year: assignment.year,
+        section,
+      }))
     );
     studentCount = await User.countDocuments({ role: "student", $or: orConditions });
   }

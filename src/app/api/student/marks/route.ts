@@ -22,16 +22,16 @@ export async function GET(request: NextRequest) {
       .lean();
 
     return NextResponse.json(
-      records.map((r) => ({
-        id: (r._id as { toString: () => string }).toString(),
-        subject: r.subject,
-        examType: r.examType,
-        obtained: r.obtained,
-        max: r.max,
+      records.map((record) => ({
+        id: (record._id as { toString: () => string }).toString(),
+        subject: record.subject,
+        examType: record.examType,
+        obtained: record.obtained,
+        max: record.max,
       }))
     );
-  } catch (err) {
-    console.error("student/marks error:", err);
+  } catch (error) {
+    console.error("student/marks error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

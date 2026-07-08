@@ -41,8 +41,8 @@ export async function GET(
       semester: student.semester,
       section: student.section,
     });
-  } catch (err) {
-    console.error("Student GET error:", err);
+  } catch (error) {
+    console.error("Student GET error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -93,8 +93,8 @@ export async function PATCH(
       semester: student.semester,
       section: student.section,
     });
-  } catch (err) {
-    console.error("Student PATCH error:", err);
+  } catch (error) {
+    console.error("Student PATCH error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -131,8 +131,8 @@ export async function DELETE(
     await Student.findByIdAndDelete(id);
 
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("Student DELETE error:", err);
+  } catch (error) {
+    console.error("Student DELETE error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

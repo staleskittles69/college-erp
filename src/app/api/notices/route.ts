@@ -23,18 +23,18 @@ export async function GET(request: NextRequest) {
       .lean();
 
     return NextResponse.json(
-      notices.map((n) => ({
-        _id: String(n._id),
-        title: n.title,
-        body: n.body,
-        pinned: n.pinned,
-        targetBranch: n.targetBranch ?? null,
-        targetYear: n.targetYear ?? null,
-        createdAt: n.createdAt,
+      notices.map((notice) => ({
+        _id: String(notice._id),
+        title: notice.title,
+        body: notice.body,
+        pinned: notice.pinned,
+        targetBranch: notice.targetBranch ?? null,
+        targetYear: notice.targetYear ?? null,
+        createdAt: notice.createdAt,
       }))
     );
-  } catch (err) {
-    console.error("Notices GET error:", err);
+  } catch (error) {
+    console.error("Notices GET error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
       targetYear: notice.targetYear ?? null,
       createdAt: notice.createdAt,
     });
-  } catch (err) {
-    console.error("Notices POST error:", err);
+  } catch (error) {
+    console.error("Notices POST error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

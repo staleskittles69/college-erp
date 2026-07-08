@@ -17,12 +17,12 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const user = await User.findById(payload.userId).select("-password").lean();
-    if (!user) {
+    const userDoc = await User.findById(payload.userId).select("-password").lean();
+    if (!userDoc) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const u = user as unknown as {
+    const user = userDoc as unknown as {
       _id: { toString: () => string };
       name: string;
       rollNumber?: number;
@@ -33,16 +33,16 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json({
-      id: u._id.toString(),
-      name: u.name,
-      rollNumber: u.rollNumber,
-      branch: u.branch,
-      year: u.year,
-      section: u.section,
-      role: u.role,
+      id: user._id.toString(),
+      name: user.name,
+      rollNumber: user.rollNumber,
+      branch: user.branch,
+      year: user.year,
+      section: user.section,
+      role: user.role,
     });
-  } catch (err) {
-    console.error("student profile error:", err);
+  } catch (error) {
+    console.error("student profile error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

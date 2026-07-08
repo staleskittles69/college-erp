@@ -11,15 +11,15 @@ export async function GET(request: NextRequest) {
     await connectDB();
     const departments = await Department.find().sort({ name: 1 }).lean();
     return NextResponse.json(
-      departments.map((d) => ({
-        slug: d.slug,
-        name: d.name,
-        label: d.label,
-        color: d.color,
+      departments.map((department) => ({
+        slug: department.slug,
+        name: department.name,
+        label: department.label,
+        color: department.color,
       }))
     );
-  } catch (err) {
-    console.error("Departments GET error:", err);
+  } catch (error) {
+    console.error("Departments GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -43,10 +43,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Department slug already exists" }, { status: 400 });
     }
 
-    const dept = await Department.create({ slug, name, label, color });
-    return NextResponse.json({ slug: dept.slug, name: dept.name, label: dept.label, color: dept.color });
-  } catch (err) {
-    console.error("Departments POST error:", err);
+    const department = await Department.create({ slug, name, label, color });
+    return NextResponse.json({
+      slug: department.slug,
+      name: department.name,
+      label: department.label,
+      color: department.color,
+    });
+  } catch (error) {
+    console.error("Departments POST error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
