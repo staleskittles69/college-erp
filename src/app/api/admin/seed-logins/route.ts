@@ -35,25 +35,25 @@ export async function POST(request: NextRequest) {
   if (students.length === 0)
     return NextResponse.json({ message: "All students in these sections already have logins.", updated: 0 });
 
-  const updates = students.map((s) => ({
+  const loginUpdates = students.map((student) => ({
     updateOne: {
-      filter: { _id: s._id },
+      filter: { _id: student._id },
       update: {
         $set: {
-          email: `roll${s.rollNumber}@college.edu`,
+          email: `roll${student.rollNumber}@college.edu`,
           password: "student123",
         },
       },
     },
   }));
 
-  await User.bulkWrite(updates);
+  await User.bulkWrite(loginUpdates);
 
-  const sample = students.slice(0, 5).map((s) => ({
-    name: s.name,
-    email: `roll${s.rollNumber}@college.edu`,
+  const sample = students.slice(0, 5).map((student) => ({
+    name: student.name,
+    email: `roll${student.rollNumber}@college.edu`,
     password: "student123",
-    section: s.section,
+    section: student.section,
   }));
 
   return NextResponse.json({

@@ -25,11 +25,11 @@ export async function GET(request: NextRequest) {
     section: { $ne: null, $exists: true },
   });
 
-  const sorted = sections.filter(Boolean).sort((a, b) => {
-    const numA = parseInt(a.replace(/\D/g, ""), 10);
-    const numB = parseInt(b.replace(/\D/g, ""), 10);
+  const sortedSections = sections.filter(Boolean).sort((sectionA, sectionB) => {
+    const numA = parseInt(sectionA.replace(/\D/g, ""), 10);
+    const numB = parseInt(sectionB.replace(/\D/g, ""), 10);
     if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-    return a.localeCompare(b);
+    return sectionA.localeCompare(sectionB);
   });
-  return NextResponse.json(sorted);
+  return NextResponse.json(sortedSections);
 }

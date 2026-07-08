@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
       Notice.countDocuments(),
     ]);
 
-    const branches = branchCounts.map((b) => ({
-      slug: b._id.toLowerCase(),
-      name: b._id,
-      label: BRANCH_LABELS[b._id] ?? b._id,
-      students: b.count,
+    const branches = branchCounts.map((branchCount) => ({
+      slug: branchCount._id.toLowerCase(),
+      name: branchCount._id,
+      label: BRANCH_LABELS[branchCount._id] ?? branchCount._id,
+      students: branchCount.count,
     }));
 
     return NextResponse.json({
@@ -39,8 +39,8 @@ export async function GET(request: NextRequest) {
       noticeCount,
       branches,
     });
-  } catch (err) {
-    console.error("Admin stats error:", err);
+  } catch (error) {
+    console.error("Admin stats error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

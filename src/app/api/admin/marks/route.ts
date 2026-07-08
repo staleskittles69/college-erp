@@ -19,20 +19,20 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const records = await Marks.find({ studentId }).sort({ subject: 1 }).lean();
+    const markRecords = await Marks.find({ studentId }).sort({ subject: 1 }).lean();
 
     return NextResponse.json(
-      records.map((r) => ({
-        id: (r._id as { toString: () => string }).toString(),
-        studentId: (r.studentId as { toString: () => string }).toString(),
-        subject: r.subject,
-        examType: r.examType,
-        obtained: r.obtained,
-        max: r.max,
+      markRecords.map((record) => ({
+        id: (record._id as { toString: () => string }).toString(),
+        studentId: (record.studentId as { toString: () => string }).toString(),
+        subject: record.subject,
+        examType: record.examType,
+        obtained: record.obtained,
+        max: record.max,
       }))
     );
-  } catch (err) {
-    console.error("admin/marks GET error:", err);
+  } catch (error) {
+    console.error("admin/marks GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (err) {
-    console.error("admin/marks POST error:", err);
+  } catch (error) {
+    console.error("admin/marks POST error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -100,8 +100,8 @@ export async function DELETE(request: NextRequest) {
 
     await Marks.findByIdAndDelete(id);
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("admin/marks DELETE error:", err);
+  } catch (error) {
+    console.error("admin/marks DELETE error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

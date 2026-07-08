@@ -18,14 +18,14 @@ export async function POST(request: NextRequest) {
 
   await connectDB();
 
-  const ops = DEFAULT_DEPARTMENTS.map((d) => ({
+  const upsertOps = DEFAULT_DEPARTMENTS.map((department) => ({
     updateOne: {
-      filter: { slug: d.slug },
-      update: { $setOnInsert: d },
+      filter: { slug: department.slug },
+      update: { $setOnInsert: department },
       upsert: true,
     },
   }));
 
-  const result = await Department.bulkWrite(ops);
+  const result = await Department.bulkWrite(upsertOps);
   return NextResponse.json({ added: result.upsertedCount });
 }

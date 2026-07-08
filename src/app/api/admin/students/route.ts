@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
       .lean();
 
     return NextResponse.json(
-      students.map((s) => {
-        const u = s as unknown as {
+      students.map((studentDoc) => {
+        const student = studentDoc as unknown as {
           _id: { toString: () => string };
           name: string;
           rollNumber?: number;
@@ -40,18 +40,18 @@ export async function GET(request: NextRequest) {
           role: string;
         };
         return {
-          id: u._id.toString(),
-          name: u.name,
-          rollNumber: u.rollNumber,
-          branch: u.branch,
-          year: u.year,
-          section: u.section,
-          role: u.role,
+          id: student._id.toString(),
+          name: student.name,
+          rollNumber: student.rollNumber,
+          branch: student.branch,
+          year: student.year,
+          section: student.section,
+          role: student.role,
         };
       })
     );
-  } catch (err) {
-    console.error("admin/students GET error:", err);
+  } catch (error) {
+    console.error("admin/students GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

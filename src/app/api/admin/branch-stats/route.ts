@@ -9,13 +9,15 @@ export async function GET(request: NextRequest) {
 
   await connectDB();
 
-  const rows = await Student.aggregate([
+  const branchSectionCounts = await Student.aggregate([
     { $group: { _id: { branch: "$branch", section: "$section" } } },
     { $group: { _id: "$_id.branch", sections: { $sum: 1 } } },
   ]);
 
-  const map: Record<string, number> = {};
-  rows.forEach((r) => { if (r._id) map[r._id.toLowerCase()] = r.sections; });
+  const sectionCountByBranch: Record<string, number> = {};
+  branchSectionCounts.forEach((entry) => {
+    if (entry._id) sectionCountByBranch[entry._id.toLowerCase()] = entry.sections;
+  });
 
-  return NextResponse.json(map);
+  return NextResponse.json(sectionCountByBranch);
 }

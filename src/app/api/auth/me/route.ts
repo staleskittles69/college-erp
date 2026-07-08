@@ -3,16 +3,9 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Student from "@/models/Student";
 import { verifyToken } from "@/lib/auth";
+import { getToken } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
-
-function getToken(request: NextRequest): string | null {
-  const cookie = request.cookies.get("token");
-  if (cookie?.value) return cookie.value;
-  const auth = request.headers.get("authorization");
-  if (auth?.startsWith("Bearer ")) return auth.slice(7);
-  return null;
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,12 +21,12 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const user = await User.findById(payload.userId).select("-password");
-    if (!user) {
+    const currentUser = await User.findById(payload.userId).select("-password");
+    if (!currentUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const result: {
+    const profile: {
       id: string;
       email: string;
       role: string;
@@ -44,27 +37,27 @@ export async function GET(request: NextRequest) {
       semester?: number;
       section?: string;
     } = {
-      id: user._id.toString(),
-      email: user.email ?? "",
-      role: user.role,
-      name: user.name,
+      id: currentUser._id.toString(),
+      email: currentUser.email ?? "",
+      role: currentUser.role,
+      name: currentUser.name,
     };
 
-    if (user.role === "student" && user.studentId) {
-      const student = await Student.findById(user.studentId);
-      if (student) {
-        result.studentId = student._id.toString();
-        result.name = student.name ?? user.name;
-        result.rollNo = student.rollNo;
-        result.branch = student.branch;
-        result.semester = student.semester;
-        result.section = student.section;
+    if (currentUser.role === "student" && currentUser.studentId) {
+      const studentRecord = await Student.findById(currentUser.studentId);
+      if (studentRecord) {
+        profile.studentId = studentRecord._id.toString();
+        profile.name = studentRecord.name ?? currentUser.name;
+        profile.rollNo = studentRecord.rollNo;
+        profile.branch = studentRecord.branch;
+        profile.semester = studentRecord.semester;
+        profile.section = studentRecord.section;
       }
     }
 
-    return NextResponse.json(result);
-  } catch (err) {
-    console.error("Me error:", err);
+    return NextResponse.json(profile);
+  } catch (error) {
+    console.error("Me error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

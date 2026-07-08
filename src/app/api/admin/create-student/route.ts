@@ -47,8 +47,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (err) {
-    console.error("create-student error:", err);
+  } catch (error) {
+    console.error("create-student error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
