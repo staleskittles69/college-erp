@@ -11,6 +11,7 @@ import {
   Menu,
   ChevronLeft,
   Bell,
+  Settings,
 } from 'lucide-react';
 
 interface TeacherSidebarProps {
@@ -28,6 +29,7 @@ export function TeacherSidebar({ isCollapsed, toggleSidebar, name, email }: Teac
     { icon: <CalendarDays size={18} />,    label: 'Timetable',   href: '/teachers/timetable' },
     { icon: <ClipboardList size={18} />,   label: 'Assignments', href: '/teachers/assignments' },
     { icon: <Bell size={18} />,            label: 'Notices',     href: '/teachers/notices' },
+    { icon: <Settings size={18} />,        label: 'Settings',    href: '/teachers/settings' },
   ];
 
   return (
