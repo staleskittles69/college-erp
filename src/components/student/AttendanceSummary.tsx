@@ -10,10 +10,10 @@ export function AttendanceSummary() {
 
   useEffect(() => {
     fetch("/api/attendance", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : []))
+      .then((response) => (response.ok ? response.json() : []))
       .then((records: Array<{ status: string }>) => {
         const total = records.length;
-        const present = records.filter((r) => r.status === "present").length;
+        const present = records.filter((record) => record.status === "present").length;
         setPercent(total > 0 ? Math.round((present / total) * 100) : 0);
       })
       .catch(() => setPercent(0))
@@ -32,18 +32,18 @@ export function AttendanceSummary() {
     );
   }
 
-  const p = percent ?? 0;
+  const pct = percent ?? 0;
 
-  const colorClass = p >= 75 ? "text-green-600" : p >= 50 ? "text-amber-600" : "text-red-600";
-  const iconBg     = p >= 75 ? "bg-green-100"  : p >= 50 ? "bg-amber-100"  : "bg-red-100";
-  const iconColor  = p >= 75 ? "text-green-600" : p >= 50 ? "text-amber-600" : "text-red-600";
-  const barGradient = p >= 75
+  const colorClass = pct >= 75 ? "text-green-600" : pct >= 50 ? "text-amber-600" : "text-red-600";
+  const iconBg     = pct >= 75 ? "bg-green-100"  : pct >= 50 ? "bg-amber-100"  : "bg-red-100";
+  const iconColor  = pct >= 75 ? "text-green-600" : pct >= 50 ? "text-amber-600" : "text-red-600";
+  const barGradient = pct >= 75
     ? "from-green-500 to-emerald-400"
-    : p >= 50
+    : pct >= 50
     ? "from-amber-500 to-yellow-400"
     : "from-red-500 to-rose-400";
-  const badge = p >= 75 ? { label: "Good Standing", cls: "bg-green-100 text-green-700" }
-    : p >= 50 ? { label: "Needs Attention", cls: "bg-amber-100 text-amber-700" }
+  const badge = pct >= 75 ? { label: "Good Standing", cls: "bg-green-100 text-green-700" }
+    : pct >= 50 ? { label: "Needs Attention", cls: "bg-amber-100 text-amber-700" }
     : { label: "Critical", cls: "bg-red-100 text-red-700" };
 
   return (
@@ -58,14 +58,14 @@ export function AttendanceSummary() {
           </span>
         </div>
 
-        <p className={`text-4xl font-bold ${colorClass} mb-0.5`}>{p}%</p>
+        <p className={`text-4xl font-bold ${colorClass} mb-0.5`}>{pct}%</p>
         <p className="text-sm font-medium text-gray-500 mb-4">Overall Attendance</p>
 
         {/* Progress bar */}
         <div className="w-full bg-gray-100 rounded-full h-2">
           <div
             className={`h-2 rounded-full bg-gradient-to-r ${barGradient} transition-all duration-700`}
-            style={{ width: `${p}%` }}
+            style={{ width: `${pct}%` }}
           />
         </div>
         <p className="text-xs text-gray-400 mt-2">Across all subjects</p>

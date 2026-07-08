@@ -12,15 +12,15 @@ interface NoticeItem {
   createdAt: string;
 }
 
-function formatDate(d: string) {
+function formatDate(dateString: string) {
   try {
-    return new Date(d).toLocaleDateString("en-IN", {
+    return new Date(dateString).toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",
       year: "numeric",
     });
   } catch {
-    return d;
+    return dateString;
   }
 }
 
@@ -30,7 +30,7 @@ export function NoticeBoard() {
 
   useEffect(() => {
     fetch("/api/notices", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : []))
+      .then((response) => (response.ok ? response.json() : []))
       .then(setNotices)
       .catch(() => setNotices([]))
       .finally(() => setLoading(false));
@@ -42,8 +42,8 @@ export function NoticeBoard() {
         <CardHeader><CardTitle>Notice board</CardTitle></CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[1, 2].map((i) => (
-              <div key={i} className="p-3 rounded-xl bg-gray-50 space-y-1.5">
+            {[1, 2].map((skeletonIdx) => (
+              <div key={skeletonIdx} className="p-3 rounded-xl bg-gray-50 space-y-1.5">
                 <div className="h-4 bg-gray-200 rounded w-1/2" />
                 <div className="h-3 bg-gray-100 rounded w-full" />
                 <div className="h-3 bg-gray-100 rounded w-3/4" />
@@ -65,18 +65,18 @@ export function NoticeBoard() {
           <p className="text-gray-500 text-sm">No notices yet.</p>
         ) : (
           <ul className="space-y-3">
-            {notices.map((n) => (
+            {notices.map((notice) => (
               <li
-                key={n._id}
+                key={notice._id}
                 className={`rounded-xl p-4 border transition-colors ${
-                  n.pinned
+                  notice.pinned
                     ? "bg-amber-50 border-amber-200"
                     : "bg-gray-50 border-gray-100 hover:border-gray-200"
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-sm text-gray-800">{n.title}</p>
-                  {n.pinned && (
+                  <p className="font-semibold text-sm text-gray-800">{notice.title}</p>
+                  {notice.pinned && (
                     <span className="flex items-center gap-1 text-xs font-medium bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full shrink-0">
                       <Pin size={10} />
                       Pinned
@@ -84,9 +84,9 @@ export function NoticeBoard() {
                   )}
                 </div>
                 <p className="text-sm text-gray-600 mt-1.5 whitespace-pre-wrap leading-relaxed">
-                  {n.body}
+                  {notice.body}
                 </p>
-                <p className="text-xs text-gray-400 mt-2">{formatDate(n.createdAt)}</p>
+                <p className="text-xs text-gray-400 mt-2">{formatDate(notice.createdAt)}</p>
               </li>
             ))}
           </ul>

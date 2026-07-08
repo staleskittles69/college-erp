@@ -11,20 +11,20 @@ interface TestItem {
   maxMarks?: number;
 }
 
-function formatDate(d: string) {
+function formatDate(dateString: string) {
   try {
-    return new Date(d).toLocaleDateString("en-IN", {
+    return new Date(dateString).toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",
     });
   } catch {
-    return d;
+    return dateString;
   }
 }
 
-function formatYear(d: string) {
+function formatYear(dateString: string) {
   try {
-    return new Date(d).getFullYear().toString();
+    return new Date(dateString).getFullYear().toString();
   } catch {
     return "";
   }
@@ -44,7 +44,7 @@ export function UpcomingTests() {
 
   useEffect(() => {
     fetch("/api/tests?upcoming=true", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : []))
+      .then((response) => (response.ok ? response.json() : []))
       .then(setTests)
       .catch(() => setTests([]))
       .finally(() => setLoading(false));
@@ -56,8 +56,8 @@ export function UpcomingTests() {
         <CardHeader><CardTitle>Upcoming tests</CardTitle></CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[1, 2].map((i) => (
-              <div key={i} className="flex gap-3">
+            {[1, 2].map((skeletonIdx) => (
+              <div key={skeletonIdx} className="flex gap-3">
                 <div className="w-12 h-12 bg-gray-100 rounded-xl shrink-0" />
                 <div className="flex-1 space-y-1.5">
                   <div className="h-4 bg-gray-100 rounded w-3/4" />
@@ -81,21 +81,21 @@ export function UpcomingTests() {
           <p className="text-gray-500 text-sm">No upcoming tests.</p>
         ) : (
           <ul className="space-y-3">
-            {tests.map((t, i) => (
-              <li key={t._id} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+            {tests.map((test, testIdx) => (
+              <li key={test._id} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0">
                 {/* Date chip */}
-                <div className={`shrink-0 w-12 rounded-xl text-white text-center py-1.5 ${BADGE_COLORS[i % BADGE_COLORS.length]}`}>
-                  <p className="text-xs font-bold leading-tight">{formatDate(t.date)}</p>
-                  <p className="text-xs opacity-75 leading-tight">{formatYear(t.date)}</p>
+                <div className={`shrink-0 w-12 rounded-xl text-white text-center py-1.5 ${BADGE_COLORS[testIdx % BADGE_COLORS.length]}`}>
+                  <p className="text-xs font-bold leading-tight">{formatDate(test.date)}</p>
+                  <p className="text-xs opacity-75 leading-tight">{formatYear(test.date)}</p>
                 </div>
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-gray-800 truncate">{t.title}</p>
+                  <p className="font-semibold text-sm text-gray-800 truncate">{test.title}</p>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                    <span className="text-xs text-gray-500">{t.subject}</span>
-                    {t.maxMarks != null && (
+                    <span className="text-xs text-gray-500">{test.subject}</span>
+                    {test.maxMarks != null && (
                       <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                        {t.maxMarks} marks
+                        {test.maxMarks} marks
                       </span>
                     )}
                   </div>

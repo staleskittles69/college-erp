@@ -28,7 +28,7 @@ export function WeeklyTimetable() {
 
   useEffect(() => {
     fetch("/api/timetable", { credentials: "include" })
-      .then((res) => (res.ok ? res.json() : []))
+      .then((response) => (response.ok ? response.json() : []))
       .then(setRows)
       .catch(() => setRows([]))
       .finally(() => setLoading(false));
@@ -46,20 +46,20 @@ export function WeeklyTimetable() {
   }
 
   const byDay = rows.reduce(
-    (acc, r) => { acc[r.dayOfWeek] = r.slots; return acc; },
+    (acc, row) => { acc[row.dayOfWeek] = row.slots; return acc; },
     {} as Record<number, Array<{ subject: string; time: string; room: string }>>
   );
 
   // Build unique subject → color map
   const allSubjects = Array.from(
-    new Set(rows.flatMap((r) => r.slots.map((s) => s.subject)))
+    new Set(rows.flatMap((row) => row.slots.map((slot) => slot.subject)))
   );
   const subjectColor: Record<string, string> = {};
-  allSubjects.forEach((s, i) => {
-    subjectColor[s] = SUBJECT_COLORS[i % SUBJECT_COLORS.length];
+  allSubjects.forEach((subject, subjectIdx) => {
+    subjectColor[subject] = SUBJECT_COLORS[subjectIdx % SUBJECT_COLORS.length];
   });
 
-  const maxSlots = Math.max(...Object.values(byDay).map((s) => s.length), 1);
+  const maxSlots = Math.max(...Object.values(byDay).map((daySlots) => daySlots.length), 1);
 
   return (
     <Card className="hover:shadow-md transition-shadow duration-200">
@@ -75,9 +75,9 @@ export function WeeklyTimetable() {
               <thead>
                 <tr>
                   <th className="text-left p-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 w-16 rounded-tl-lg" />
-                  {DAYS.map((d) => (
-                    <th key={d} className="text-left p-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 last:rounded-tr-lg">
-                      {d}
+                  {DAYS.map((day) => (
+                    <th key={day} className="text-left p-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 last:rounded-tr-lg">
+                      {day}
                     </th>
                   ))}
                 </tr>
