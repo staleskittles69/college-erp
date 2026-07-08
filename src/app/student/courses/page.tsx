@@ -18,7 +18,7 @@ export default function CoursesPage() {
 
   useEffect(() => {
     fetch("/api/timetable")
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data: { slots: { subject: string }[] }[]) => {
         const seen = new Set<string>();
         data.forEach((day) =>
@@ -40,8 +40,8 @@ export default function CoursesPage() {
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-gray-100 bg-white p-5 animate-pulse">
+          {[...Array(6)].map((_, skeletonIdx) => (
+            <div key={skeletonIdx} className="rounded-xl border border-gray-100 bg-white p-5 animate-pulse">
               <div className="h-10 w-10 rounded-xl bg-gray-100 mb-3" />
               <div className="h-4 bg-gray-100 rounded w-3/4 mb-2" />
               <div className="h-3 bg-gray-100 rounded w-1/2" />
@@ -60,12 +60,12 @@ export default function CoursesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {subjects.map((subject, i) => (
+          {subjects.map((subject, colorIdx) => (
             <div
               key={subject}
               className="rounded-xl border bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-3 ${COLORS[i % COLORS.length]}`}>
+              <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-3 ${COLORS[colorIdx % COLORS.length]}`}>
                 <BookOpen size={18} />
               </div>
               <p className="font-semibold text-gray-800">{subject}</p>

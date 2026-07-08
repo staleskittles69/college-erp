@@ -22,13 +22,13 @@ export default function TimetablePage() {
 
   useEffect(() => {
     fetch("/api/timetable")
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data: TimetableRow[]) => setRows(data))
       .finally(() => setLoading(false));
   }, []);
 
-  const byDay = Object.fromEntries(rows.map((r) => [r.dayOfWeek, r.slots]));
-  const activeDays = [1, 2, 3, 4, 5, 6].filter((d) => byDay[d]?.length > 0);
+  const byDay = Object.fromEntries(rows.map((row) => [row.dayOfWeek, row.slots]));
+  const activeDays = [1, 2, 3, 4, 5, 6].filter((day) => byDay[day]?.length > 0);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -39,12 +39,12 @@ export default function TimetablePage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-gray-100 bg-white p-4 animate-pulse">
+          {[...Array(5)].map((_, skeletonIdx) => (
+            <div key={skeletonIdx} className="rounded-xl border border-gray-100 bg-white p-4 animate-pulse">
               <div className="h-4 bg-gray-100 rounded w-24 mb-3" />
               <div className="flex gap-3">
-                {[...Array(3)].map((_, j) => (
-                  <div key={j} className="h-16 bg-gray-100 rounded-lg flex-1" />
+                {[...Array(3)].map((_, slotSkeletonIdx) => (
+                  <div key={slotSkeletonIdx} className="h-16 bg-gray-100 rounded-lg flex-1" />
                 ))}
               </div>
             </div>
@@ -68,8 +68,8 @@ export default function TimetablePage() {
                 <p className="font-semibold text-blue-800 text-sm">{DAYS[day]}</p>
               </div>
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {byDay[day].map((slot, i) => (
-                  <div key={i} className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
+                {byDay[day].map((slot, slotIdx) => (
+                  <div key={slotIdx} className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
                     <p className="text-xs text-blue-600 font-medium mb-1">{slot.time}</p>
                     <p className="font-semibold text-gray-800 text-sm">{slot.subject}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{slot.room}</p>

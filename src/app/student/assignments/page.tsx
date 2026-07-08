@@ -12,8 +12,8 @@ interface Test {
 }
 
 function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  const dateObj = new Date(dateStr);
+  return dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
 export default function AssignmentsPage() {
@@ -22,14 +22,14 @@ export default function AssignmentsPage() {
 
   useEffect(() => {
     fetch("/api/tests")
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data: Test[]) => setTests(data))
       .finally(() => setLoading(false));
   }, []);
 
   const now = new Date();
-  const upcoming = tests.filter((t) => new Date(t.date) >= now);
-  const past = tests.filter((t) => new Date(t.date) < now);
+  const upcoming = tests.filter((test) => new Date(test.date) >= now);
+  const past = tests.filter((test) => new Date(test.date) < now);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -40,8 +40,8 @@ export default function AssignmentsPage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-gray-100 bg-white p-5 animate-pulse">
+          {[...Array(4)].map((_, skeletonIdx) => (
+            <div key={skeletonIdx} className="rounded-xl border border-gray-100 bg-white p-5 animate-pulse">
               <div className="h-4 bg-gray-100 rounded w-1/3 mb-2" />
               <div className="h-3 bg-gray-100 rounded w-1/2" />
             </div>

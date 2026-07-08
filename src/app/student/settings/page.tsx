@@ -18,21 +18,21 @@ export default function SettingsPage() {
       return;
     }
     setStatus("loading");
-    const res = await fetch("/api/auth/change-password", {
+    const response = await fetch("/api/auth/change-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
     });
-    const data = await res.json();
-    if (res.ok) {
+    const result = await response.json();
+    if (response.ok) {
       setStatus("success");
-      setMessage(data.message);
+      setMessage(result.message);
       setCurrent("");
       setNewPass("");
       setConfirm("");
     } else {
       setStatus("error");
-      setMessage(data.error);
+      setMessage(result.error);
     }
   }
 

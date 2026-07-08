@@ -38,7 +38,7 @@ export default function GradesPage() {
 
   useEffect(() => {
     fetch("/api/student/marks", { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : []))
+      .then((response) => (response.ok ? response.json() : []))
       .then(setMarks)
       .catch(() => setMarks([]))
       .finally(() => setLoading(false));
@@ -53,8 +53,8 @@ export default function GradesPage() {
 
       {loading ? (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-8 animate-pulse space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 bg-gray-100 rounded" />
+          {[1, 2, 3].map((skeletonIdx) => (
+            <div key={skeletonIdx} className="h-12 bg-gray-100 rounded" />
           ))}
         </div>
       ) : marks.length === 0 ? (
