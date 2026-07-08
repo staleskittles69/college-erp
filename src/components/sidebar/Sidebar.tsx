@@ -29,11 +29,11 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
 
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data) {
-          setUserName(data.name || data.email?.split('@')[0] || 'Student');
-          setUserEmail(data.email || '');
+      .then(response => response.ok ? response.json() : null)
+      .then(profile => {
+        if (profile) {
+          setUserName(profile.name || profile.email?.split('@')[0] || 'Student');
+          setUserEmail(profile.email || '');
         }
       })
       .catch(() => {});
