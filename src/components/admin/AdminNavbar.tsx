@@ -13,11 +13,11 @@ interface StudentResult {
   section: string;
 }
 
-function toStudentUrl(s: StudentResult) {
-  const branch = s.branch.toLowerCase();
-  const year = ["1st-year", "2nd-year", "3rd-year", "4th-year"][Math.ceil(s.semester / 2) - 1] ?? "1st-year";
-  const section = s.section.toLowerCase().replace(/\s+/g, "-");
-  return `/admin/${branch}/${year}/${section}/${s._id}`;
+function toStudentUrl(student: StudentResult) {
+  const branch = student.branch.toLowerCase();
+  const year = ["1st-year", "2nd-year", "3rd-year", "4th-year"][Math.ceil(student.semester / 2) - 1] ?? "1st-year";
+  const section = student.section.toLowerCase().replace(/\s+/g, "-");
+  return `/admin/${branch}/${year}/${section}/${student._id}`;
 }
 
 export default function AdminNavbar() {
@@ -31,32 +31,32 @@ export default function AdminNavbar() {
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.email) setProfile({ name: data.name ?? "Admin", email: data.email }); })
+      .then((response) => response.ok ? response.json() : null)
+      .then((profileData) => { if (profileData?.email) setProfile({ name: profileData.name ?? "Admin", email: profileData.email }); })
       .catch(() => {});
   }, []);
 
-  const fetchResults = useCallback((q: string) => {
-    if (!q.trim()) { setResults([]); return; }
-    fetch(`/api/students?search=${encodeURIComponent(q)}`, { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+  const fetchResults = useCallback((searchQuery: string) => {
+    if (!searchQuery.trim()) { setResults([]); return; }
+    fetch(`/api/students?search=${encodeURIComponent(searchQuery)}`, { credentials: "include" })
+      .then((response) => response.ok ? response.json() : [])
       .then(setResults)
       .catch(() => setResults([]));
   }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const q = e.target.value;
-    setQuery(q);
+    const searchQuery = e.target.value;
+    setQuery(searchQuery);
     setShowDropdown(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => fetchResults(q), 300);
+    debounceRef.current = setTimeout(() => fetchResults(searchQuery), 300);
   }
 
-  function handleSelect(s: StudentResult) {
+  function handleSelect(student: StudentResult) {
     setQuery("");
     setResults([]);
     setShowDropdown(false);
-    router.push(toStudentUrl(s));
+    router.push(toStudentUrl(student));
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -101,15 +101,15 @@ export default function AdminNavbar() {
         {/* Dropdown */}
         {showDropdown && results.length > 0 && (
           <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-            {results.map((s) => (
+            {results.map((student) => (
               <button
-                key={s._id}
-                onClick={() => handleSelect(s)}
+                key={student._id}
+                onClick={() => handleSelect(student)}
                 className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
               >
-                <p className="text-sm font-medium text-gray-800">{s.name}</p>
+                <p className="text-sm font-medium text-gray-800">{student.name}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {s.rollNo} · {s.branch} · {s.section}
+                  {student.rollNo} · {student.branch} · {student.section}
                 </p>
               </button>
             ))}

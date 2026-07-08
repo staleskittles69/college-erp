@@ -50,7 +50,7 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
     if (!studentId) { setLoading(false); return; }
     setLoading(true);
     fetch(`/api/admin/marks?studentId=${studentId}`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : []))
+      .then((response) => (response.ok ? response.json() : []))
       .then(setMarks)
       .catch(() => setMarks([]))
       .finally(() => setLoading(false));
@@ -65,7 +65,7 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
     setSaving(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/marks", {
+      const response = await fetch("/api/admin/marks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -77,9 +77,9 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
           max: Number(form.max),
         }),
       });
-      if (!res.ok) {
-        const d = await res.json();
-        setError(d.error ?? "Failed to save");
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error ?? "Failed to save");
       } else {
         setShowForm(false);
         setForm(EMPTY_FORM);

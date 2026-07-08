@@ -39,12 +39,12 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
 
   function openAdd() { setEditingId(null); setForm(EMPTY_FORM); setShowModal(true); }
   function openEdit(slot: Slot) { setEditingId(slot.id); setForm({ day: slot.day, subject: slot.subject, time: slot.time, room: slot.room }); setShowModal(true); }
-  function handleDelete(id: string) { setSlots((prev) => prev.filter((s) => s.id !== id)); }
+  function handleDelete(id: string) { setSlots((prev) => prev.filter((slot) => slot.id !== id)); }
 
   function handleSave() {
     if (!form.subject.trim() || !form.time.trim() || !form.room.trim()) return;
     if (editingId) {
-      setSlots((prev) => prev.map((s) => (s.id === editingId ? { ...s, ...form } : s)));
+      setSlots((prev) => prev.map((slot) => (slot.id === editingId ? { ...slot, ...form } : slot)));
     } else {
       setSlots((prev) => [...prev, { id: Date.now().toString(), ...form }]);
     }
@@ -55,18 +55,18 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
     setLoading(true);
     setSaveStatus("");
     try {
-      const res = await fetch(
+      const response = await fetch(
         `/api/timetable?branch=${branch}&semester=${year}&section=${section}`,
         { credentials: "include" }
       );
-      if (!res.ok) return;
-      const rows: TimetableRow[] = await res.json();
+      if (!response.ok) return;
+      const rows: TimetableRow[] = await response.json();
       const loaded: Slot[] = [];
       rows.forEach((row) => {
         const dayName = DAYS[row.dayOfWeek];
         if (!dayName) return;
-        row.slots.forEach((slot, i) => {
-          loaded.push({ id: `${row._id}-${i}`, day: dayName, subject: slot.subject, time: slot.time, room: slot.room });
+        row.slots.forEach((slot, slotIndex) => {
+          loaded.push({ id: `${row._id}-${slotIndex}`, day: dayName, subject: slot.subject, time: slot.time, room: slot.room });
         });
       });
       setSlots(loaded);
@@ -79,10 +79,10 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
     setSaving(true);
     setSaveStatus("");
     const byDay: Record<number, Array<{ subject: string; time: string; room: string }>> = {};
-    slots.forEach((s) => {
-      const dayIdx = DAY_INDEX[s.day] ?? 0;
+    slots.forEach((slot) => {
+      const dayIdx = DAY_INDEX[slot.day] ?? 0;
       if (!byDay[dayIdx]) byDay[dayIdx] = [];
-      byDay[dayIdx].push({ subject: s.subject, time: s.time, room: s.room });
+      byDay[dayIdx].push({ subject: slot.subject, time: slot.time, room: slot.room });
     });
     try {
       const results = await Promise.all(
@@ -101,7 +101,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
           })
         )
       );
-      setSaveStatus(results.every((r) => r.ok) ? "saved" : "error");
+      setSaveStatus(results.every((result) => result.ok) ? "saved" : "error");
     } catch {
       setSaveStatus("error");
     } finally {
@@ -129,15 +129,15 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
           <div className="flex items-center gap-3 flex-wrap">
             <select value={branch} onChange={(e) => setBranch(e.target.value)}
               className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
-              {["CSE", "ECE", "ME", "CE", "EEE"].map((b) => <option key={b}>{b}</option>)}
+              {["CSE", "ECE", "ME", "CE", "EEE"].map((branchOption) => <option key={branchOption}>{branchOption}</option>)}
             </select>
             <select value={year} onChange={(e) => setYear(e.target.value)}
               className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
-              {["1", "2", "3", "4"].map((y) => <option key={y} value={y}>Year {y}</option>)}
+              {["1", "2", "3", "4"].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
             </select>
             <select value={section} onChange={(e) => setSection(e.target.value)}
               className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
-              {["A", "B", "C", "D"].map((s) => <option key={s}>Section {s}</option>)}
+              {["A", "B", "C", "D"].map((sectionOption) => <option key={sectionOption}>Section {sectionOption}</option>)}
             </select>
             <button onClick={handleLoadFromDB} disabled={loading}
               className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50">
@@ -160,7 +160,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
                   <span className="text-xs font-semibold text-gray-600 uppercase tracking-wider">{day.slice(0, 3)}</span>
                 </div>
                 <div className="p-2 space-y-2 min-h-[200px]">
-                  {slots.filter((s) => s.day === day).map((slot) => (
+                  {slots.filter((slot) => slot.day === day).map((slot) => (
                     <div key={slot.id}
                       className={`border rounded-lg p-2.5 text-xs group relative cursor-default ${SUBJECT_COLORS[slot.subject] ?? "bg-gray-50 border-gray-200 text-gray-700"}`}>
                       <p className="font-semibold leading-snug">{slot.subject}</p>
@@ -194,7 +194,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
                 <label className="block text-xs font-medium text-gray-600 mb-1">Day</label>
                 <select value={form.day} onChange={(e) => setForm({ ...form, day: e.target.value })}
                   className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-600">
-                  {DAYS.map((d) => <option key={d}>{d}</option>)}
+                  {DAYS.map((dayOption) => <option key={dayOption}>{dayOption}</option>)}
                 </select>
               </div>
               <div>

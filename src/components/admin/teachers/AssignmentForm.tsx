@@ -21,22 +21,22 @@ export default function AssignmentForm({ teacherId }: { teacherId: string }) {
     setLoadingSections(true);
     setSections([]);
     fetch(`/api/admin/sections?branch=${branch}&year=${year}`, { credentials: "include" })
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data: string[]) => setAvailableSections(Array.isArray(data) ? data : []))
       .catch(() => setAvailableSections([]))
       .finally(() => setLoadingSections(false));
   }, [branch, year]);
 
-  const teacher = teachers.find((t) => t.id === teacherId);
+  const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
   const existingEntry = teacher?.teaching.find(
-    (a) => a.branch === branch && a.year === year
+    (assignment) => assignment.branch === branch && assignment.year === year
   );
   const assignedSections = existingEntry?.sections ?? [];
-  const allSectionsTaken = availableSections.length > 0 && availableSections.every((s) => assignedSections.includes(s));
+  const allSectionsTaken = availableSections.length > 0 && availableSections.every((section) => assignedSections.includes(section));
 
-  function toggleSection(s: string) {
+  function toggleSection(section: string) {
     setSections((prev) =>
-      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
+      prev.includes(section) ? prev.filter((item) => item !== section) : [...prev, section]
     );
     setError("");
   }
@@ -62,7 +62,7 @@ export default function AssignmentForm({ teacherId }: { teacherId: string }) {
             onChange={(e) => { setBranch(e.target.value as Assignment["branch"]); setError(""); }}
             className={selectClass}
           >
-            {BRANCHES.map((b) => <option key={b} value={b}>{b}</option>)}
+            {BRANCHES.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
           </select>
         </div>
         <div>
@@ -72,7 +72,7 @@ export default function AssignmentForm({ teacherId }: { teacherId: string }) {
             onChange={(e) => { setYear(Number(e.target.value) as Assignment["year"]); setError(""); }}
             className={selectClass}
           >
-            {YEARS.map((y) => <option key={y} value={y}>Year {y}</option>)}
+            {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
           </select>
         </div>
       </div>
@@ -92,24 +92,24 @@ export default function AssignmentForm({ teacherId }: { teacherId: string }) {
           <p className="text-xs text-gray-400">No sections found for this branch/year.</p>
         ) : (
           <div className="flex flex-wrap gap-2">
-            {availableSections.map((s) => {
-              const isAssigned = assignedSections.includes(s);
+            {availableSections.map((section) => {
+              const isAssigned = assignedSections.includes(section);
               return (
                 <button
-                  key={s}
+                  key={section}
                   type="button"
                   disabled={isAssigned}
-                  onClick={() => toggleSection(s)}
+                  onClick={() => toggleSection(section)}
                   title={isAssigned ? "Already assigned" : undefined}
                   className={`w-10 h-10 rounded-lg text-sm font-semibold border-2 transition-colors flex items-center justify-center ${
                     isAssigned
                       ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed"
-                      : sections.includes(s)
+                      : sections.includes(section)
                       ? "border-indigo-600 bg-indigo-600 text-white"
                       : "border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600"
                   }`}
                 >
-                  {isAssigned ? <Check size={13} /> : s}
+                  {isAssigned ? <Check size={13} /> : section}
                 </button>
               );
             })}

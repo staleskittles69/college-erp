@@ -54,7 +54,7 @@ export default function TeacherTimetableModal({ teacherName, onClose }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => { setEditing((v) => !v); setActiveCell(null); }}
+              onClick={() => { setEditing((prev) => !prev); setActiveCell(null); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
                 editing
                   ? "bg-indigo-600 text-white border-indigo-600"
@@ -81,8 +81,8 @@ export default function TeacherTimetableModal({ teacherName, onClose }: Props) {
             <thead>
               <tr>
                 <th className="text-left text-xs text-gray-400 font-medium pb-2 pr-4 w-24">Time</th>
-                {DAYS.map((d) => (
-                  <th key={d} className="text-left text-xs text-gray-400 font-medium pb-2 px-2">{d}</th>
+                {DAYS.map((day) => (
+                  <th key={day} className="text-left text-xs text-gray-400 font-medium pb-2 px-2">{day}</th>
                 ))}
               </tr>
             </thead>

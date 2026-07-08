@@ -35,8 +35,8 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
   async function loadStudents() {
     setLoading(true);
     try {
-      const res = await fetch("/api/students", { credentials: "include" });
-      if (res.ok) setStudents(await res.json());
+      const response = await fetch("/api/students", { credentials: "include" });
+      if (response.ok) setStudents(await response.json());
     } finally {
       setLoading(false);
     }
@@ -52,14 +52,14 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
     }
     setSaving(true);
     try {
-      const res = await fetch("/api/students", {
+      const response = await fetch("/api/students", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "Failed to add student."); return; }
+      const result = await response.json();
+      if (!response.ok) { setError(result.error ?? "Failed to add student."); return; }
       setForm(EMPTY_FORM);
       await loadStudents();
     } catch {
@@ -69,10 +69,10 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
     }
   }
 
-  const filtered = search
-    ? students.filter((s) =>
-        s.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.rollNo.toLowerCase().includes(search.toLowerCase())
+  const filteredStudents = search
+    ? students.filter((student) =>
+        student.name.toLowerCase().includes(search.toLowerCase()) ||
+        student.rollNo.toLowerCase().includes(search.toLowerCase())
       )
     : students;
 
@@ -87,7 +87,7 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
             <input
               type="text"
               value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
               placeholder="e.g. Rahul Sharma"
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
             />
@@ -97,7 +97,7 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
             <input
               type="text"
               value={form.rollNo}
-              onChange={(e) => setForm((f) => ({ ...f, rollNo: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, rollNo: e.target.value }))}
               placeholder="e.g. CS001"
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
             />
@@ -107,7 +107,7 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
             <input
               type="email"
               value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
               placeholder="student@college.edu"
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
             />
@@ -117,7 +117,7 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
             <input
               type="password"
               value={form.password}
-              onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
               placeholder="Login password"
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
             />
@@ -126,30 +126,30 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
             <label className="block text-xs font-medium text-gray-600 mb-1">Branch</label>
             <select
               value={form.branch}
-              onChange={(e) => setForm((f) => ({ ...f, branch: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, branch: e.target.value }))}
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-700"
             >
-              {BRANCHES.map((b) => <option key={b}>{b}</option>)}
+              {BRANCHES.map((branchOption) => <option key={branchOption}>{branchOption}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>
             <select
               value={form.semester}
-              onChange={(e) => setForm((f) => ({ ...f, semester: Number(e.target.value) }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, semester: Number(e.target.value) }))}
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-700"
             >
-              {SEMESTERS.map((s) => <option key={s} value={s}>Semester {s} (Year {Math.ceil(s / 2)})</option>)}
+              {SEMESTERS.map((semesterOption) => <option key={semesterOption} value={semesterOption}>Semester {semesterOption} (Year {Math.ceil(semesterOption / 2)})</option>)}
             </select>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Section</label>
             <select
               value={form.section}
-              onChange={(e) => setForm((f) => ({ ...f, section: e.target.value }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, section: e.target.value }))}
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-700"
             >
-              {SECTIONS.map((s) => <option key={s} value={s}>Section {s}</option>)}
+              {SECTIONS.map((sectionOption) => <option key={sectionOption} value={sectionOption}>Section {sectionOption}</option>)}
             </select>
           </div>
         </div>
@@ -193,7 +193,7 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
         <div className="overflow-x-auto">
           {loading ? (
             <p className="px-6 py-8 text-sm text-gray-400">Loading…</p>
-          ) : filtered.length === 0 ? (
+          ) : filteredStudents.length === 0 ? (
             <p className="px-6 py-8 text-sm text-gray-400">
               {students.length === 0 ? "No students yet. Add one above." : "No students match your search."}
             </p>
@@ -210,14 +210,14 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filtered.map((s) => (
-                  <tr key={s._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{s.rollNo}</td>
-                    <td className="px-6 py-3.5 font-medium text-gray-800">{s.name}</td>
-                    <td className="px-6 py-3.5 text-gray-600">{s.email}</td>
-                    <td className="px-6 py-3.5 text-gray-600">{s.branch}</td>
-                    <td className="px-6 py-3.5 text-gray-600">{s.semester}</td>
-                    <td className="px-6 py-3.5 text-gray-600">{s.section}</td>
+                {filteredStudents.map((student) => (
+                  <tr key={student._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{student.rollNo}</td>
+                    <td className="px-6 py-3.5 font-medium text-gray-800">{student.name}</td>
+                    <td className="px-6 py-3.5 text-gray-600">{student.email}</td>
+                    <td className="px-6 py-3.5 text-gray-600">{student.branch}</td>
+                    <td className="px-6 py-3.5 text-gray-600">{student.semester}</td>
+                    <td className="px-6 py-3.5 text-gray-600">{student.section}</td>
                   </tr>
                 ))}
               </tbody>

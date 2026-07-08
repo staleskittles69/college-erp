@@ -46,7 +46,7 @@ export default function DepartmentFormModal({ mode, existing, onClose }: Props) 
     setSaving(true);
     try {
       if (mode === "add") {
-        const existingSlugs = departments.map((d) => d.slug);
+        const existingSlugs = departments.map((department) => department.slug);
         const slug = uniqueSlug(toSlug(trimmed), existingSlugs);
         const color = COLOR_SEQUENCE[departments.length % COLOR_SEQUENCE.length];
         await addDepartment({ slug, name: trimmed, label: trimmed, color });

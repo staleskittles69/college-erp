@@ -17,7 +17,7 @@ export default function AddTeacherModal({ departmentSlug, onClose }: Props) {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const dept = departments.find((d) => d.slug === departmentSlug);
+  const dept = departments.find((department) => department.slug === departmentSlug);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

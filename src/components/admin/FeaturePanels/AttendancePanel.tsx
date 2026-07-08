@@ -32,7 +32,7 @@ export default function AttendancePanel({ studentId = "", context }: AttendanceP
     if (!studentId) { setLoading(false); return; }
     setLoading(true);
     fetch(`/api/attendance?studentId=${studentId}`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : []))
+      .then((response) => (response.ok ? response.json() : []))
       .then(setRecords)
       .catch(() => setRecords([]))
       .finally(() => setLoading(false));
@@ -42,16 +42,16 @@ export default function AttendancePanel({ studentId = "", context }: AttendanceP
 
   // Summary stats
   const total = records.length;
-  const present = records.filter((r) => r.status === "present").length;
+  const present = records.filter((record) => record.status === "present").length;
   const absent = total - present;
   const pct = total > 0 ? Math.round((present / total) * 100) : 0;
 
   // Group by subject
   const bySubject: Record<string, { present: number; total: number }> = {};
-  records.forEach((r) => {
-    if (!bySubject[r.subject]) bySubject[r.subject] = { present: 0, total: 0 };
-    bySubject[r.subject].total += 1;
-    if (r.status === "present") bySubject[r.subject].present += 1;
+  records.forEach((record) => {
+    if (!bySubject[record.subject]) bySubject[record.subject] = { present: 0, total: 0 };
+    bySubject[record.subject].total += 1;
+    if (record.status === "present") bySubject[record.subject].present += 1;
   });
 
   async function handleAdd() {
@@ -59,7 +59,7 @@ export default function AttendancePanel({ studentId = "", context }: AttendanceP
     setSaving(true);
     setError("");
     try {
-      const res = await fetch("/api/attendance", {
+      const response = await fetch("/api/attendance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -70,9 +70,9 @@ export default function AttendancePanel({ studentId = "", context }: AttendanceP
           status: form.status,
         }),
       });
-      if (!res.ok) {
-        const d = await res.json();
-        setError(d.error ?? "Failed to save");
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.error ?? "Failed to save");
       } else {
         setShowForm(false);
         setForm(EMPTY_FORM);
@@ -107,10 +107,10 @@ export default function AttendancePanel({ studentId = "", context }: AttendanceP
             { label: "Present", value: present, color: "text-emerald-600 bg-emerald-50" },
             { label: "Absent", value: absent, color: "text-red-600 bg-red-50" },
             { label: "Overall", value: `${pct}%`, color: "text-indigo-600 bg-indigo-50" },
-          ].map((s) => (
-            <div key={s.label} className={`rounded-lg px-4 py-3 ${s.color}`}>
-              <p className="text-xl font-bold">{s.value}</p>
-              <p className="text-xs font-medium mt-0.5 opacity-80">{s.label}</p>
+          ].map((stat) => (
+            <div key={stat.label} className={`rounded-lg px-4 py-3 ${stat.color}`}>
+              <p className="text-xl font-bold">{stat.value}</p>
+              <p className="text-xs font-medium mt-0.5 opacity-80">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -187,15 +187,15 @@ export default function AttendancePanel({ studentId = "", context }: AttendanceP
             ) : Object.keys(bySubject).length === 0 ? (
               <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-400">No attendance records yet.</td></tr>
             ) : (
-              Object.entries(bySubject).map(([subject, { present: p, total: t }]) => {
-                const subPct = Math.round((p / t) * 100);
+              Object.entries(bySubject).map(([subject, { present: presentCount, total: totalCount }]) => {
+                const subPct = Math.round((presentCount / totalCount) * 100);
                 const barColor = subPct >= 75 ? "bg-emerald-500" : subPct >= 50 ? "bg-yellow-500" : "bg-red-500";
                 const pctColor = subPct >= 75 ? "text-emerald-600" : subPct >= 50 ? "text-yellow-600" : "text-red-500";
                 return (
                   <tr key={subject} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-3.5 font-medium text-gray-800">{subject}</td>
-                    <td className="px-6 py-3.5 text-gray-700">{p}</td>
-                    <td className="px-6 py-3.5 text-gray-500">{t}</td>
+                    <td className="px-6 py-3.5 text-gray-700">{presentCount}</td>
+                    <td className="px-6 py-3.5 text-gray-500">{totalCount}</td>
                     <td className="px-6 py-3.5">
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-1.5 bg-gray-100 rounded-full">

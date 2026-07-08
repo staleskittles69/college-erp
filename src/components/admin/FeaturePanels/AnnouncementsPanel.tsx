@@ -12,15 +12,15 @@ interface Notice {
   createdAt: string;
 }
 
-function formatDate(d: string) {
-  try { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
-  catch { return d; }
+function formatDate(dateString: string) {
+  try { return new Date(dateString).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
+  catch { return dateString; }
 }
 
-function targetLabel(n: Notice) {
-  if (n.targetBranch && n.targetYear) return `${n.targetBranch} · Year ${n.targetYear}`;
-  if (n.targetBranch) return n.targetBranch;
-  if (n.targetYear) return `Year ${n.targetYear}`;
+function targetLabel(notice: Notice) {
+  if (notice.targetBranch && notice.targetYear) return `${notice.targetBranch} · Year ${notice.targetYear}`;
+  if (notice.targetBranch) return notice.targetBranch;
+  if (notice.targetYear) return `Year ${notice.targetYear}`;
   return "All Students";
 }
 
@@ -40,7 +40,7 @@ export default function AnnouncementsPanel() {
 
   function fetchNotices() {
     return fetch("/api/notices", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then(setNotices)
       .catch(() => setNotices([]))
       .finally(() => setLoading(false));
@@ -52,7 +52,7 @@ export default function AnnouncementsPanel() {
     if (!title.trim() || !body.trim()) { setError("Title and body are required."); return; }
     setSaving(true);
     setError("");
-    const res = await fetch("/api/notices", {
+    const response = await fetch("/api/notices", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -64,9 +64,9 @@ export default function AnnouncementsPanel() {
         targetYear: targetYear ? Number(targetYear) : null,
       }),
     });
-    if (!res.ok) {
-      const d = await res.json();
-      setError(d.error ?? "Failed to publish.");
+    if (!response.ok) {
+      const errorData = await response.json();
+      setError(errorData.error ?? "Failed to publish.");
     } else {
       setTitle(""); setBody(""); setTargetBranch(""); setTargetYear(""); setPinned(false);
       fetchNotices();
@@ -111,7 +111,7 @@ export default function AnnouncementsPanel() {
                 className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               >
                 <option value="">All Branches</option>
-                {BRANCHES.map((b) => <option key={b} value={b}>{b}</option>)}
+                {BRANCHES.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
               </select>
             </div>
             <div className="flex items-center gap-2">
@@ -122,7 +122,7 @@ export default function AnnouncementsPanel() {
                 className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               >
                 <option value="">All Years</option>
-                {[1, 2, 3, 4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+                {[1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
               </select>
             </div>
             <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">

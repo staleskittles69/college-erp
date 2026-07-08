@@ -20,10 +20,10 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
         <Home size={13} />
       </Link>
 
-      {items.map((item, i) => {
-        const isLast = i === items.length - 1;
+      {items.map((item, index) => {
+        const isLast = index === items.length - 1;
         return (
-          <span key={i} className="flex items-center gap-1.5 min-w-0">
+          <span key={index} className="flex items-center gap-1.5 min-w-0">
             <ChevronRight size={11} className="text-gray-300 flex-shrink-0" />
             {isLast || !item.href ? (
               <span

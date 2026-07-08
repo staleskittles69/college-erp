@@ -23,22 +23,22 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const teacher = teachers.find((t) => t.id === teacherId);
-  const existingEntry = teacher?.teaching.find((a) => a.branch === branch && a.year === year);
+  const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
+  const existingEntry = teacher?.teaching.find((assignment) => assignment.branch === branch && assignment.year === year);
   const assignedSections = existingEntry?.sections ?? [];
 
   useEffect(() => {
     setLoadingSections(true);
     setSelected([]);
     fetch(`/api/admin/sections?branch=${branch}&year=${year}`, { credentials: "include" })
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data: string[]) => {
         const list = Array.isArray(data) ? data : [];
-        list.sort((a, b) => {
-          const numA = parseInt(a.replace(/\D/g, ""), 10);
-          const numB = parseInt(b.replace(/\D/g, ""), 10);
+        list.sort((sectionA, sectionB) => {
+          const numA = parseInt(sectionA.replace(/\D/g, ""), 10);
+          const numB = parseInt(sectionB.replace(/\D/g, ""), 10);
           if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-          return a.localeCompare(b);
+          return sectionA.localeCompare(sectionB);
         });
         setAvailableSections(list);
       })
@@ -46,8 +46,8 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
       .finally(() => setLoadingSections(false));
   }, [branch, year]);
 
-  function toggle(s: string) {
-    setSelected((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
+  function toggle(section: string) {
+    setSelected((prev) => prev.includes(section) ? prev.filter((item) => item !== section) : [...prev, section]);
     setError("");
     setSuccess("");
   }
@@ -85,13 +85,13 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Branch</label>
               <select value={branch} onChange={(e) => { setBranch(e.target.value as Assignment["branch"]); setError(""); setSuccess(""); }} className={selectClass}>
-                {BRANCHES.map((b) => <option key={b} value={b}>{b}</option>)}
+                {BRANCHES.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">Year</label>
               <select value={year} onChange={(e) => { setYear(Number(e.target.value) as Assignment["year"]); setError(""); setSuccess(""); }} className={selectClass}>
-                {YEARS.map((y) => <option key={y} value={y}>Year {y}</option>)}
+                {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
               </select>
             </div>
           </div>
@@ -103,22 +103,22 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
 
             {loadingSections ? (
               <p className="text-xs text-gray-400 py-2">Loading sections…</p>
-            ) : availableSections.filter((s) => !assignedSections.includes(s)).length === 0 ? (
+            ) : availableSections.filter((section) => !assignedSections.includes(section)).length === 0 ? (
               <p className="text-xs text-gray-400 py-2">All sections already assigned for this branch / year.</p>
             ) : (
               <div className="grid grid-cols-5 gap-2">
-                {availableSections.filter((s) => !assignedSections.includes(s)).map((s) => (
+                {availableSections.filter((section) => !assignedSections.includes(section)).map((section) => (
                   <button
-                    key={s}
+                    key={section}
                     type="button"
-                    onClick={() => toggle(s)}
+                    onClick={() => toggle(section)}
                     className={`py-2 rounded-lg text-xs font-semibold border-2 transition-colors flex items-center justify-center ${
-                      selected.includes(s)
+                      selected.includes(section)
                         ? "border-indigo-600 bg-indigo-600 text-white"
                         : "border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600"
                     }`}
                   >
-                    {s}
+                    {section}
                   </button>
                 ))}
               </div>
@@ -134,7 +134,7 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
             </button>
             <button
               type="submit"
-              disabled={loadingSections || availableSections.every((s) => assignedSections.includes(s))}
+              disabled={loadingSections || availableSections.every((section) => assignedSections.includes(section))}
               className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Assign
