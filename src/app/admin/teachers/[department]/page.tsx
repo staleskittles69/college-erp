@@ -11,13 +11,13 @@ import AddTeacherModal from "@/components/admin/teachers/AddTeacherModal";
 export default function DepartmentPage() {
   const { department: slug } = useParams() as { department: string };
   const { teachers, departments } = useTeachers();
-  const dept = departments.find((d) => d.slug === slug);
+  const dept = departments.find((department) => department.slug === slug);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
 
   const filtered = teachers
-    .filter((t) => t.department === slug)
-    .filter((t) => t.name.toLowerCase().includes(search.toLowerCase()));
+    .filter((teacher) => teacher.department === slug)
+    .filter((teacher) => teacher.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

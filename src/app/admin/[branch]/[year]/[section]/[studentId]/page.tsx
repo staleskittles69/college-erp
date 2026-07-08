@@ -23,8 +23,8 @@ interface StudentData {
   email?: string;
 }
 
-function fmt(s: string) {
-  return s.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+function fmt(slug: string) {
+  return slug.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 }
 
 export default function StudentDetailPage() {
@@ -42,8 +42,8 @@ export default function StudentDetailPage() {
 
   useEffect(() => {
     fetch(`/api/students/${studentId}`, { credentials: "include" })
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => setStudent(data))
+      .then((response) => response.ok ? response.json() : null)
+      .then((studentData) => setStudent(studentData))
       .catch(() => setStudent(null))
       .finally(() => setLoading(false));
   }, [studentId]);

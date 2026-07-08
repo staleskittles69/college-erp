@@ -9,8 +9,8 @@ const YEARS = [
   { label: "4th Year", slug: "4th-year", subtitle: "Final year & project — Semester 7 & 8" },
 ];
 
-function formatBranch(s: string) {
-  return s.toUpperCase();
+function formatBranch(branchSlug: string) {
+  return branchSlug.toUpperCase();
 }
 
 interface Props {
@@ -38,7 +38,7 @@ export default function YearSelectionPage({ params }: Props) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {YEARS.map((year, i) => (
+        {YEARS.map((year, yearIdx) => (
           <Link
             key={year.slug}
             href={`/admin/${branch}/${year.slug}`}
@@ -47,7 +47,7 @@ export default function YearSelectionPage({ params }: Props) {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <span className="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {i + 1}
+                  {yearIdx + 1}
                 </span>
                 <span className="font-semibold text-gray-800">{year.label}</span>
               </div>

@@ -19,21 +19,21 @@ function PasswordSection() {
       return;
     }
     setStatus("loading");
-    const res = await fetch("/api/auth/change-password", {
+    const response = await fetch("/api/auth/change-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
     });
-    const data = await res.json();
-    if (res.ok) {
+    const result = await response.json();
+    if (response.ok) {
       setStatus("success");
-      setMessage(data.message);
+      setMessage(result.message);
       setCurrent("");
       setNewPass("");
       setConfirm("");
     } else {
       setStatus("error");
-      setMessage(data.error);
+      setMessage(result.error);
     }
   }
 
@@ -134,7 +134,7 @@ export default function SettingsPage() {
 
       <div className="space-y-5">
         {/* Account section */}
-        {STATIC_SECTIONS.filter((s) => s.title === "Account").map((section) => (
+        {STATIC_SECTIONS.filter((section) => section.title === "Account").map((section) => (
           <div key={section.title} className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
               <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
@@ -169,7 +169,7 @@ export default function SettingsPage() {
         <PasswordSection />
 
         {/* Notifications + College Info */}
-        {STATIC_SECTIONS.filter((s) => s.title !== "Account").map((section) => (
+        {STATIC_SECTIONS.filter((section) => section.title !== "Account").map((section) => (
           <div key={section.title} className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
               <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">

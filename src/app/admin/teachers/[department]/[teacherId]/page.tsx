@@ -11,8 +11,8 @@ import TeacherTimetableModal from "@/components/admin/teachers/TeacherTimetableM
 export default function TeacherDetailsPage() {
   const { department: slug, teacherId } = useParams() as { department: string; teacherId: string };
   const { teachers, departments, removeSection } = useTeachers();
-  const dept = departments.find((d) => d.slug === slug);
-  const teacher = teachers.find((t) => t.id === teacherId);
+  const dept = departments.find((department) => department.slug === slug);
+  const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
   const [showTimetable, setShowTimetable] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +38,7 @@ export default function TeacherDetailsPage() {
     );
   }
 
-  const totalSections = teacher.teaching.reduce((sum, a) => sum + a.sections.length, 0);
+  const totalSections = teacher.teaching.reduce((sum, assignment) => sum + assignment.sections.length, 0);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -120,7 +120,7 @@ export default function TeacherDetailsPage() {
               {teacher.plainPassword && (
                 <>
                   <button
-                    onClick={() => setShowPassword((v) => !v)}
+                    onClick={() => setShowPassword((prev) => !prev)}
                     className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-2.5 py-1.5 rounded-lg transition-colors"
                   >
                     {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
@@ -155,15 +155,15 @@ export default function TeacherDetailsPage() {
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-            {teacher.teaching.flatMap((a, i) =>
-              a.sections.map((s) => (
-                <div key={`${i}-${s}`} className="flex items-center justify-between py-3">
+            {teacher.teaching.flatMap((assignment, assignmentIdx) =>
+              assignment.sections.map((section) => (
+                <div key={`${assignmentIdx}-${section}`} className="flex items-center justify-between py-3">
                   <p className="text-sm font-medium text-gray-800">
-                    {a.branch} — Year {a.year} —{" "}
-                    <span className="text-indigo-600">Section {s}</span>
+                    {assignment.branch} — Year {assignment.year} —{" "}
+                    <span className="text-indigo-600">Section {section}</span>
                   </p>
                   <button
-                    onClick={() => removeSection(teacher.id, i, s)}
+                    onClick={() => removeSection(teacher.id, assignmentIdx, section)}
                     className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-2.5 py-1 rounded-lg transition-colors"
                   >
                     <X size={12} /> Remove

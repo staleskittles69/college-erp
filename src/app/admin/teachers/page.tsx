@@ -31,7 +31,7 @@ export default function TeachersPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {departments.map((dept) => {
-          const count = teachers.filter((t) => t.department === dept.slug).length;
+          const count = teachers.filter((teacher) => teacher.department === dept.slug).length;
           return (
             <DepartmentCard
               key={dept.slug}

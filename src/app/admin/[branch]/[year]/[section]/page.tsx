@@ -15,17 +15,17 @@ interface Student {
   section: string;
 }
 
-function urlToBranch(s: string) { return s.toUpperCase(); }
-function urlToYear(s: string) {
+function urlToBranch(branchSlug: string) { return branchSlug.toUpperCase(); }
+function urlToYear(yearSlug: string) {
   const map: Record<string, number> = { "1st-year": 1, "2nd-year": 2, "3rd-year": 3, "4th-year": 4 };
-  return map[s] ?? 1;
+  return map[yearSlug] ?? 1;
 }
-function urlToSection(s: string) {
-  return s.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+function urlToSection(sectionSlug: string) {
+  return sectionSlug.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 }
 
-function fmt(s: string) {
-  return s.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+function fmt(slug: string) {
+  return slug.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 }
 
 export default function StudentListPage() {
@@ -46,7 +46,7 @@ export default function StudentListPage() {
       `/api/students?branch=${branchLabel}&year=${yearNum}&section=${encodeURIComponent(sectionLabel)}`,
       { credentials: "include" }
     )
-      .then((r) => (r.ok ? r.json() : []))
+      .then((response) => (response.ok ? response.json() : []))
       .then(setStudents)
       .catch(() => setStudents([]))
       .finally(() => setLoading(false));
@@ -111,7 +111,7 @@ export default function StudentListPage() {
                     No students in this section yet.
                   </td>
                 </tr>
-              ) : students.filter((s) => s.rollNo.toLowerCase().includes(search.toLowerCase())).length === 0 ? (
+              ) : students.filter((student) => student.rollNo.toLowerCase().includes(search.toLowerCase())).length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-400">
                     No student found with roll number &quot;{search}&quot;.
@@ -119,15 +119,15 @@ export default function StudentListPage() {
                 </tr>
               ) : (
                 students
-                  .filter((s) => s.rollNo.toLowerCase().includes(search.toLowerCase()))
-                  .map((s, i) => (
-                  <tr key={s._id} className="hover:bg-gray-50 transition-colors group">
-                    <td className="px-6 py-3.5 text-gray-400 text-xs">{i + 1}</td>
-                    <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{s.rollNo}</td>
-                    <td className="px-6 py-3.5 font-medium text-gray-800">{s.name}</td>
+                  .filter((student) => student.rollNo.toLowerCase().includes(search.toLowerCase()))
+                  .map((student, index) => (
+                  <tr key={student._id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="px-6 py-3.5 text-gray-400 text-xs">{index + 1}</td>
+                    <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{student.rollNo}</td>
+                    <td className="px-6 py-3.5 font-medium text-gray-800">{student.name}</td>
                     <td className="px-6 py-3.5">
                       <Link
-                        href={`/admin/${branch}/${year}/${section}/${s._id}`}
+                        href={`/admin/${branch}/${year}/${section}/${student._id}`}
                         className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
                       >
                         View <ArrowRight size={11} />
