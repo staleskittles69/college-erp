@@ -2,10 +2,10 @@ import { NextRequest } from "next/server";
 import { verifyToken, JwtPayload } from "@/lib/auth";
 
 export function getToken(request: NextRequest): string | null {
-  const cookie = request.cookies.get("token");
-  if (cookie?.value) return cookie.value;
-  const auth = request.headers.get("authorization");
-  if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  const tokenCookie = request.cookies.get("token");
+  if (tokenCookie?.value) return tokenCookie.value;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) return authHeader.slice(7);
   return null;
 }
 

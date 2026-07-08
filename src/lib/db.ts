@@ -28,14 +28,14 @@ async function connectDB(): Promise<typeof mongoose> {
     return cached.conn;
   }
   if (!cached.promise) {
-    const opts = { bufferCommands: false };
-    cached.promise = mongoose.connect(MONGODB_URI!, opts);
+    const connectionOptions = { bufferCommands: false };
+    cached.promise = mongoose.connect(MONGODB_URI!, connectionOptions);
   }
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (error) {
     cached.promise = null;
-    throw e;
+    throw error;
   }
   return cached.conn;
 }
