@@ -28,7 +28,7 @@ export default function BranchesPage() {
   const [seeding, setSeeding] = useState(false);
 
   const STANDARD_SLUGS = ["cse", "ece", "me", "ce", "eee"];
-  const missingDefaults = STANDARD_SLUGS.some((s) => !branches.find((b) => b.slug === s));
+  const missingDefaults = STANDARD_SLUGS.some((slug) => !branches.find((branch) => branch.slug === slug));
 
   async function handleDelete(slug: string, name: string) {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -62,14 +62,14 @@ export default function BranchesPage() {
     setSaving(true);
     setError("");
     const colorStr = COLORS[branches.length % COLORS.length].color;
-    const res = await fetch("/api/departments", {
+    const response = await fetch("/api/departments", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug: name.toLowerCase(), name, label, color: colorStr }),
     });
-    if (!res.ok) {
-      const data = await res.json();
+    if (!response.ok) {
+      const data = await response.json();
       setError(data.error ?? "Failed to add branch.");
       setSaving(false);
       return;
@@ -111,8 +111,8 @@ export default function BranchesPage() {
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-xl border-2 border-gray-100 p-6 animate-pulse">
+          {[1, 2, 3, 4].map((skeletonIdx) => (
+            <div key={skeletonIdx} className="bg-white rounded-xl border-2 border-gray-100 p-6 animate-pulse">
               <div className="h-4 bg-gray-100 rounded w-16 mb-3" />
               <div className="h-4 bg-gray-100 rounded w-3/4 mb-2" />
               <div className="h-3 bg-gray-100 rounded w-full" />
@@ -179,7 +179,7 @@ export default function BranchesPage() {
                 <label className="block text-xs font-medium text-gray-700 mb-1">Branch Code</label>
                 <input
                   value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                   placeholder="e.g. IT"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
@@ -188,7 +188,7 @@ export default function BranchesPage() {
                 <label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
                 <input
                   value={form.label}
-                  onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
+                  onChange={(e) => setForm((prev) => ({ ...prev, label: e.target.value }))}
                   placeholder="e.g. Information Technology"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />

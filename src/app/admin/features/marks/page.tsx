@@ -20,25 +20,25 @@ export default function MarksPage() {
   const [showDropdown, setShowDropdown] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const search = useCallback((q: string) => {
-    if (!q.trim()) { setResults([]); return; }
-    fetch(`/api/students?search=${encodeURIComponent(q)}`, { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+  const search = useCallback((searchQuery: string) => {
+    if (!searchQuery.trim()) { setResults([]); return; }
+    fetch(`/api/students?search=${encodeURIComponent(searchQuery)}`, { credentials: "include" })
+      .then((response) => response.ok ? response.json() : [])
       .then(setResults)
       .catch(() => setResults([]));
   }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const q = e.target.value;
-    setQuery(q);
+    const searchQuery = e.target.value;
+    setQuery(searchQuery);
     setShowDropdown(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => search(q), 300);
+    debounceRef.current = setTimeout(() => search(searchQuery), 300);
   }
 
-  function handleSelect(s: StudentResult) {
-    setSelected(s);
-    setQuery(s.name);
+  function handleSelect(student: StudentResult) {
+    setSelected(student);
+    setQuery(student.name);
     setResults([]);
     setShowDropdown(false);
   }
@@ -69,11 +69,11 @@ export default function MarksPage() {
           />
           {showDropdown && results.length > 0 && (
             <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-              {results.map((s) => (
-                <button key={s._id} onClick={() => handleSelect(s)}
+              {results.map((student) => (
+                <button key={student._id} onClick={() => handleSelect(student)}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0">
-                  <p className="text-sm font-medium text-gray-800">{s.name}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{s.rollNo} · {s.branch} · Sem {s.semester}</p>
+                  <p className="text-sm font-medium text-gray-800">{student.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{student.rollNo} · {student.branch} · Sem {student.semester}</p>
                 </button>
               ))}
             </div>

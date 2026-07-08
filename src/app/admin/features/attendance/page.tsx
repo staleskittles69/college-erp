@@ -21,7 +21,7 @@ export default function AttendancePage() {
 
   useEffect(() => {
     fetch("/api/departments", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then(setDepts)
       .catch(() => {});
   }, []);
@@ -31,29 +31,29 @@ export default function AttendancePage() {
     setLoading(true);
     setApplied(false);
     try {
-      const [sRes, aRes] = await Promise.all([
+      const [studentsRes, attendanceRes] = await Promise.all([
         fetch(`/api/students?branch=${branch}&year=${year}&section=${encodeURIComponent(section)}`, { credentials: "include" }),
         fetch(`/api/attendance?branch=${branch}&section=${encodeURIComponent(section)}&from=${date}&to=${date}`, { credentials: "include" }),
       ]);
-      const sData: Student[] = sRes.ok ? await sRes.json() : [];
-      const aData: AttendanceRecord[] = aRes.ok ? await aRes.json() : [];
-      setStudents([...sData].sort((a, b) => a.name.localeCompare(b.name)));
-      setRecords(aData);
+      const studentsData: Student[] = studentsRes.ok ? await studentsRes.json() : [];
+      const attendanceData: AttendanceRecord[] = attendanceRes.ok ? await attendanceRes.json() : [];
+      setStudents([...studentsData].sort((studentA, studentB) => studentA.name.localeCompare(studentB.name)));
+      setRecords(attendanceData);
     } catch {}
     finally { setLoading(false); setApplied(true); }
   }
 
   // Map studentId → their records for the selected date
   const byStudent: Record<string, { present: number; absent: number; subjects: string[] }> = {};
-  records.forEach((r) => {
-    if (!byStudent[r.studentId]) byStudent[r.studentId] = { present: 0, absent: 0, subjects: [] };
-    if (r.status === "present") byStudent[r.studentId].present++;
-    else byStudent[r.studentId].absent++;
-    if (!byStudent[r.studentId].subjects.includes(r.subject)) byStudent[r.studentId].subjects.push(r.subject);
+  records.forEach((record) => {
+    if (!byStudent[record.studentId]) byStudent[record.studentId] = { present: 0, absent: 0, subjects: [] };
+    if (record.status === "present") byStudent[record.studentId].present++;
+    else byStudent[record.studentId].absent++;
+    if (!byStudent[record.studentId].subjects.includes(record.subject)) byStudent[record.studentId].subjects.push(record.subject);
   });
 
-  const presentCount = students.filter((s) => (byStudent[s._id]?.present ?? 0) > 0).length;
-  const absentCount = students.filter((s) => !byStudent[s._id] || byStudent[s._id].absent > 0).length;
+  const presentCount = students.filter((student) => (byStudent[student._id]?.present ?? 0) > 0).length;
+  const absentCount = students.filter((student) => !byStudent[student._id] || byStudent[student._id].absent > 0).length;
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -69,7 +69,7 @@ export default function AttendancePage() {
           <select value={branch} onChange={(e) => { setBranch(e.target.value); setApplied(false); }}
             className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
             <option value="">Select Branch</option>
-            {depts.map((d) => <option key={d.slug} value={d.name}>{d.name}</option>)}
+            {depts.map((dept) => <option key={dept.slug} value={dept.name}>{dept.name}</option>)}
           </select>
         </div>
         <div>
@@ -77,7 +77,7 @@ export default function AttendancePage() {
           <select value={year} onChange={(e) => { setYear(e.target.value); setApplied(false); }}
             className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
             <option value="">Select Year</option>
-            {[1, 2, 3, 4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+            {[1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
           </select>
         </div>
         <div>
@@ -111,10 +111,10 @@ export default function AttendancePage() {
               { label: "Total Students", value: students.length, color: "bg-gray-50 text-gray-700" },
               { label: "Present (any class)", value: presentCount, color: "bg-green-50 text-green-700" },
               { label: "Records Found", value: records.length, color: "bg-indigo-50 text-indigo-700" },
-            ].map((s) => (
-              <div key={s.label} className={`rounded-xl p-4 ${s.color}`}>
-                <p className="text-2xl font-bold">{s.value}</p>
-                <p className="text-sm font-medium mt-0.5 opacity-80">{s.label}</p>
+            ].map((stat) => (
+              <div key={stat.label} className={`rounded-xl p-4 ${stat.color}`}>
+                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-sm font-medium mt-0.5 opacity-80">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -142,15 +142,15 @@ export default function AttendancePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {students.map((s, i) => {
-                    const rec = byStudent[s._id];
+                  {students.map((student, index) => {
+                    const rec = byStudent[student._id];
                     const hasRecord = !!rec;
                     const allPresent = rec && rec.absent === 0;
                     return (
-                      <tr key={s._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-3.5 text-xs text-gray-400">{i + 1}</td>
-                        <td className="px-6 py-3.5 font-medium text-gray-800">{s.name}</td>
-                        <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{s.rollNo}</td>
+                      <tr key={student._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-3.5 text-xs text-gray-400">{index + 1}</td>
+                        <td className="px-6 py-3.5 font-medium text-gray-800">{student.name}</td>
+                        <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{student.rollNo}</td>
                         <td className="px-6 py-3.5">
                           {!hasRecord ? (
                             <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-500">Not marked</span>

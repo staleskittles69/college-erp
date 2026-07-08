@@ -25,14 +25,14 @@ export default function AdminAttendancePage() {
 
   useEffect(() => {
     fetch("/api/departments", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then((data: Branch[]) => setBranches(data))
       .catch(() => {});
   }, []);
 
-  function handleBranchChange(v: string) { setBranch(v); setStudents([]); setSubmitted(false); }
-  function handleYearChange(v: number | "") { setYear(v); setStudents([]); setSubmitted(false); }
-  function handleSectionChange(v: string) { setSection(v); setStudents([]); setSubmitted(false); }
+  function handleBranchChange(value: string) { setBranch(value); setStudents([]); setSubmitted(false); }
+  function handleYearChange(value: number | "") { setYear(value); setStudents([]); setSubmitted(false); }
+  function handleSectionChange(value: string) { setSection(value); setStudents([]); setSubmitted(false); }
 
   function loadStudents() {
     if (!branch || !year || !section) return;
@@ -40,11 +40,11 @@ export default function AdminAttendancePage() {
     setSubmitted(false);
     setSubmitError("");
     fetch(`/api/students?branch=${branch}&year=${year}&section=${section}`, { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then((data: Student[]) => {
         setStudents(data);
         const init: Record<string, Status> = {};
-        data.forEach((s) => { init[s._id] = "present"; });
+        data.forEach((student) => { init[student._id] = "present"; });
         setAttendance(init);
       })
       .catch(() => setStudents([]))
@@ -57,7 +57,7 @@ export default function AdminAttendancePage() {
 
   function markAll(status: Status) {
     const next: Record<string, Status> = {};
-    students.forEach((s) => { next[s._id] = status; });
+    students.forEach((student) => { next[student._id] = status; });
     setAttendance(next);
   }
 
@@ -65,14 +65,14 @@ export default function AdminAttendancePage() {
     if (!subject.trim()) { setSubmitError("Enter a subject before submitting."); return; }
     setSubmitting(true);
     setSubmitError("");
-    const bulk = students.map((s) => ({ studentId: s._id, status: attendance[s._id] ?? "present" }));
-    const res = await fetch("/api/attendance", {
+    const bulk = students.map((student) => ({ studentId: student._id, status: attendance[student._id] ?? "present" }));
+    const response = await fetch("/api/attendance", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bulk, subject: subject.trim(), date }),
     });
-    if (res.ok) { setSubmitted(true); }
+    if (response.ok) { setSubmitted(true); }
     else { setSubmitError("Failed to save. Please try again."); }
     setSubmitting(false);
   }
@@ -98,8 +98,8 @@ export default function AdminAttendancePage() {
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">Select</option>
-              {branches.map((b) => (
-                <option key={b.slug} value={b.slug}>{b.label || b.name}</option>
+              {branches.map((branchOption) => (
+                <option key={branchOption.slug} value={branchOption.slug}>{branchOption.label || branchOption.name}</option>
               ))}
             </select>
           </div>
@@ -111,7 +111,7 @@ export default function AdminAttendancePage() {
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">Select</option>
-              {[1, 2, 3, 4].map((y) => <option key={y} value={y}>Year {y}</option>)}
+              {[1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
             </select>
           </div>
           <div>
@@ -122,7 +122,7 @@ export default function AdminAttendancePage() {
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">Select</option>
-              {["A", "B", "C", "D"].map((s) => <option key={s} value={s}>{s}</option>)}
+              {["A", "B", "C", "D"].map((sectionOption) => <option key={sectionOption} value={sectionOption}>{sectionOption}</option>)}
             </select>
           </div>
           <div className="flex items-end">

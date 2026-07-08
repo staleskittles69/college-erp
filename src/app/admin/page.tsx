@@ -49,17 +49,17 @@ export default function AdminDashboard() {
   const [testCount, setTestCount] = useState<number | null>(null);
   useEffect(() => {
     fetch("/api/admin/stats", { credentials: "include" })
-      .then((r) => r.json())
+      .then((response) => response.json())
       .then((data) => setStats(data))
       .catch(console.error);
 
     fetch("/api/auth/me", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.name) setAdminName(data.name); })
+      .then((response) => response.ok ? response.json() : null)
+      .then((profile) => { if (profile?.name) setAdminName(profile.name); })
       .catch(() => {});
 
     fetch("/api/tests", { credentials: "include" })
-      .then((r) => r.ok ? r.json() : [])
+      .then((response) => response.ok ? response.json() : [])
       .then((data: unknown[]) => setTestCount(Array.isArray(data) ? data.length : 0))
       .catch(() => setTestCount(0));
   }, []);
