@@ -44,8 +44,8 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/teachers", { credentials: "include" }).then((r) => r.json()),
-      fetch("/api/departments", { credentials: "include" }).then((r) => r.json()),
+      fetch("/api/teachers", { credentials: "include" }).then((response) => response.json()),
+      fetch("/api/departments", { credentials: "include" }).then((response) => response.json()),
     ])
       .then(([teachersData, deptsData]) => {
         if (Array.isArray(teachersData)) setTeachers(teachersData);
@@ -56,44 +56,44 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function addTeacher(data: Omit<Teacher, "id" | "teaching"> & { password?: string }) {
-    const res = await fetch("/api/teachers", {
+    const response = await fetch("/api/teachers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    const body = await res.json();
-    if (!res.ok) throw new Error(body.error ?? "Failed to add teacher");
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Failed to add teacher");
     setTeachers((prev) => [...prev, body]);
   }
 
   async function addDepartment(dept: Department) {
-    const res = await fetch("/api/departments", {
+    const response = await fetch("/api/departments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dept),
     });
-    const body = await res.json();
-    if (!res.ok) throw new Error(body.error ?? "Failed to add department");
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Failed to add department");
     setDepartments((prev) => [...prev, body]);
   }
 
   async function updateDepartment(slug: string, updates: Omit<Department, "slug">) {
-    const res = await fetch(`/api/departments/${slug}`, {
+    const response = await fetch(`/api/departments/${slug}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
-    const body = await res.json();
-    if (!res.ok) throw new Error(body.error ?? "Failed to update department");
-    setDepartments((prev) => prev.map((d) => (d.slug === slug ? body : d)));
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Failed to update department");
+    setDepartments((prev) => prev.map((department) => (department.slug === slug ? body : department)));
   }
 
   async function addAssignment(teacherId: string, assignment: Assignment) {
-    const teacher = teachers.find((t) => t.id === teacherId);
+    const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
     if (!teacher) return;
 
     const existingIdx = teacher.teaching.findIndex(
-      (a) => a.branch === assignment.branch && a.year === assignment.year
+      (existingAssignment) => existingAssignment.branch === assignment.branch && existingAssignment.year === assignment.year
     );
 
     let newTeaching: Assignment[];
@@ -101,59 +101,61 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
       newTeaching = [...teacher.teaching, assignment];
     } else {
       const existing = teacher.teaching[existingIdx];
-      const newSections = assignment.sections.filter((s) => !existing.sections.includes(s));
+      const newSections = assignment.sections.filter((section) => !existing.sections.includes(section));
       if (newSections.length === 0) return;
-      newTeaching = teacher.teaching.map((a, i) =>
-        i === existingIdx
-          ? { ...a, sections: [...a.sections, ...newSections].sort() as Assignment["sections"] }
-          : a
+      newTeaching = teacher.teaching.map((existingAssignment, assignmentIdx) =>
+        assignmentIdx === existingIdx
+          ? { ...existingAssignment, sections: [...existingAssignment.sections, ...newSections].sort() as Assignment["sections"] }
+          : existingAssignment
       );
     }
 
-    const res = await fetch(`/api/teachers/${teacherId}`, {
+    const response = await fetch(`/api/teachers/${teacherId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ teaching: newTeaching }),
     });
-    const body = await res.json();
-    if (!res.ok) throw new Error(body.error ?? "Failed to update assignments");
-    setTeachers((prev) => prev.map((t) => (t.id === teacherId ? body : t)));
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Failed to update assignments");
+    setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? body : teacherItem)));
   }
 
   async function removeAssignment(teacherId: string, index: number) {
-    const teacher = teachers.find((t) => t.id === teacherId);
+    const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
     if (!teacher) return;
 
-    const newTeaching = teacher.teaching.filter((_, i) => i !== index);
+    const newTeaching = teacher.teaching.filter((_, assignmentIdx) => assignmentIdx !== index);
 
-    const res = await fetch(`/api/teachers/${teacherId}`, {
+    const response = await fetch(`/api/teachers/${teacherId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ teaching: newTeaching }),
     });
-    const body = await res.json();
-    if (!res.ok) throw new Error(body.error ?? "Failed to remove assignment");
-    setTeachers((prev) => prev.map((t) => (t.id === teacherId ? body : t)));
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Failed to remove assignment");
+    setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? body : teacherItem)));
   }
 
   async function removeSection(teacherId: string, assignmentIndex: number, section: string) {
-    const teacher = teachers.find((t) => t.id === teacherId);
+    const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
     if (!teacher) return;
 
     const newTeaching = teacher.teaching
-      .map((a, i) =>
-        i === assignmentIndex ? { ...a, sections: a.sections.filter((s) => s !== section) } : a
+      .map((existingAssignment, assignmentIdx) =>
+        assignmentIdx === assignmentIndex
+          ? { ...existingAssignment, sections: existingAssignment.sections.filter((existingSection) => existingSection !== section) }
+          : existingAssignment
       )
-      .filter((a) => a.sections.length > 0) as Assignment[];
+      .filter((existingAssignment) => existingAssignment.sections.length > 0) as Assignment[];
 
-    const res = await fetch(`/api/teachers/${teacherId}`, {
+    const response = await fetch(`/api/teachers/${teacherId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ teaching: newTeaching }),
     });
-    const body = await res.json();
-    if (!res.ok) throw new Error(body.error ?? "Failed to remove section");
-    setTeachers((prev) => prev.map((t) => (t.id === teacherId ? body : t)));
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Failed to remove section");
+    setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? body : teacherItem)));
   }
 
   return (
