@@ -16,7 +16,23 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get("limit") ?? "50", 10), 100);
     const skip = parseInt(searchParams.get("skip") ?? "0", 10);
 
-    const notices = await Notice.find()
+    let filter: Record<string, unknown> = {};
+    if (payload.role === "student") {
+      const User = (await import("@/models/User")).default;
+      const user = await User.findById(payload.userId).lean() as { branch?: string; year?: number } | null;
+      if (user?.branch && user?.year) {
+        filter = {
+          $or: [
+            { targetBranch: null, targetYear: null },
+            { targetBranch: user.branch, targetYear: null },
+            { targetBranch: null, targetYear: user.year },
+            { targetBranch: user.branch, targetYear: user.year },
+          ],
+        };
+      }
+    }
+
+    const notices = await Notice.find(filter)
       .sort({ pinned: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
