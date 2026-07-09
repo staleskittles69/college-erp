@@ -13,6 +13,7 @@ import {
   CalendarCheck,
   Settings,
   ClipboardList,
+  ListChecks,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/admin/branches", label: "Branches", icon: GitBranch },
   { href: "/admin/features/students", label: "Students", icon: Users },
   { href: "/admin/teachers", label: "Teachers", icon: GraduationCap },
+  { href: "/admin/tests", label: "Schedule Tests", icon: ListChecks },
   { href: "/admin/features/announcements", label: "Announcements", icon: Bell },
   { href: "/admin/features/timetable", label: "Timetable", icon: Calendar },
   { href: "/admin/attendance", label: "Attendance", icon: CalendarCheck },

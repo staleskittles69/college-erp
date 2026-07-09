@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Test from "@/models/Test";
+import Notice from "@/models/Notice";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -43,7 +44,11 @@ export async function GET(request: NextRequest) {
         date: test.date,
         branch: test.branch,
         semester: test.semester,
+        section: test.section,
+        testType: test.testType,
         maxMarks: test.maxMarks,
+        dueTime: test.dueTime,
+        notes: test.notes,
       }))
     );
   } catch (error) {
@@ -66,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { subject, title, date, branch, semester, maxMarks, dueTime, attachmentUrl } = body;
+    const { subject, title, date, branch, semester, section, testType, maxMarks, dueTime, notes, attachmentUrl } = body;
 
     if (!subject || !title || !date) {
       return NextResponse.json(
@@ -83,10 +88,24 @@ export async function POST(request: NextRequest) {
       date: new Date(date),
       branch: branch ?? null,
       semester: semester != null ? Number(semester) : null,
+      section: section ?? null,
+      testType: testType ?? null,
       maxMarks: maxMarks != null ? Number(maxMarks) : null,
       dueTime: dueTime ?? null,
+      notes: notes ?? null,
       attachmentUrl: attachmentUrl ?? null,
     });
+
+    if (branch) {
+      await Notice.create({
+        title: `${testType ?? "Test"} Scheduled: ${title}`,
+        body: `A ${(testType ?? "test").toLowerCase()} for ${subject} has been scheduled on ${new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}${dueTime ? ` at ${dueTime}` : ""}.${maxMarks ? ` Max marks: ${maxMarks}.` : ""}`,
+        createdBy: payload.userId,
+        pinned: false,
+        targetBranch: branch,
+        targetYear: semester != null ? Number(semester) : null,
+      });
+    }
 
     return NextResponse.json({
       _id: test._id.toString(),
@@ -95,8 +114,11 @@ export async function POST(request: NextRequest) {
       date: test.date,
       branch: test.branch,
       semester: test.semester,
+      section: test.section,
+      testType: test.testType,
       maxMarks: test.maxMarks,
       dueTime: test.dueTime,
+      notes: test.notes,
       attachmentUrl: test.attachmentUrl,
     });
   } catch (error) {

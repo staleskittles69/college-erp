@@ -2,8 +2,9 @@ import mongoose, { Schema, model, models } from "mongoose";
 
 export interface ITimetableSlot {
   subject: string;
-  time: string;
-  room: string;
+  period: number;
+  time?: string;
+  room?: string;
 }
 
 export interface ITimetable {
@@ -20,8 +21,9 @@ export interface ITimetable {
 const TimetableSlotSchema = new Schema<ITimetableSlot>(
   {
     subject: { type: String, required: true },
-    time: { type: String, required: true },
-    room: { type: String, required: true },
+    period: { type: Number, required: true, min: 1, max: 6 },
+    time: { type: String, default: "" },
+    room: { type: String, default: "" },
   },
   { _id: false }
 );

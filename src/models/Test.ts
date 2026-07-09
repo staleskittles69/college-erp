@@ -7,8 +7,11 @@ export interface ITest {
   date: Date;
   branch?: string;
   semester?: number;
+  section?: string;
+  testType?: string;
   maxMarks?: number;
   dueTime?: string;
+  notes?: string;
   attachmentUrl?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -21,8 +24,11 @@ const TestSchema = new Schema<ITest>(
     date: { type: Date, required: true },
     branch: { type: String, default: null },
     semester: { type: Number, default: null },
+    section: { type: String, default: null },
+    testType: { type: String, default: null },
     maxMarks: { type: Number, default: null },
     dueTime: { type: String, default: null },
+    notes: { type: String, default: null },
     attachmentUrl: { type: String, default: null },
   },
   { timestamps: true }

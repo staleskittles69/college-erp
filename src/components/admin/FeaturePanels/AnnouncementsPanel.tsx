@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BRANCHES as FALLBACK_BRANCHES, YEARS, yearLabel } from "@/lib/academics";
 
 interface Notice {
   _id: string;
@@ -18,17 +19,16 @@ function formatDate(dateString: string) {
 }
 
 function targetLabel(notice: Notice) {
-  if (notice.targetBranch && notice.targetYear) return `${notice.targetBranch} · Year ${notice.targetYear}`;
+  if (notice.targetBranch && notice.targetYear) return `${notice.targetBranch} · ${yearLabel(notice.targetYear)}`;
   if (notice.targetBranch) return notice.targetBranch;
-  if (notice.targetYear) return `Year ${notice.targetYear}`;
+  if (notice.targetYear) return yearLabel(notice.targetYear);
   return "All Students";
 }
-
-const BRANCHES = ["CSE", "ECE", "ME", "CE", "EEE"];
 
 export default function AnnouncementsPanel() {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [branches, setBranches] = useState<string[]>(FALLBACK_BRANCHES);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [targetBranch, setTargetBranch] = useState("");
@@ -46,7 +46,15 @@ export default function AnnouncementsPanel() {
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { fetchNotices(); }, []);
+  useEffect(() => {
+    fetchNotices();
+    fetch("/api/departments", { credentials: "include" })
+      .then((response) => response.ok ? response.json() : [])
+      .then((departments: { name: string }[]) => {
+        if (departments.length > 0) setBranches(departments.map((department) => department.name));
+      })
+      .catch(() => {});
+  }, []);
 
   async function handlePublish() {
     if (!title.trim() || !body.trim()) { setError("Title and body are required."); return; }
@@ -102,29 +110,34 @@ export default function AnnouncementsPanel() {
             placeholder="Write your announcement here..."
             className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
           />
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Target audience</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] text-gray-400 mb-1">Branch</label>
+                <select
+                  value={targetBranch}
+                  onChange={(e) => setTargetBranch(e.target.value)}
+                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="">All Branches</option>
+                  {branches.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] text-gray-400 mb-1">Year</label>
+                <select
+                  value={targetYear}
+                  onChange={(e) => setTargetYear(e.target.value)}
+                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  <option value="">All Years</option>
+                  {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>{yearLabel(yearOption)}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
           <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-medium text-gray-600">Branch:</label>
-              <select
-                value={targetBranch}
-                onChange={(e) => setTargetBranch(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              >
-                <option value="">All Branches</option>
-                {BRANCHES.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-medium text-gray-600">Year:</label>
-              <select
-                value={targetYear}
-                onChange={(e) => setTargetYear(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-              >
-                <option value="">All Years</option>
-                {[1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
-              </select>
-            </div>
             <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
               <input
                 type="checkbox"

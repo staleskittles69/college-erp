@@ -48,6 +48,79 @@ export async function GET(
   }
 }
 
+/* ---------- UPDATE TEST ---------- */
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+): Promise<Response> {
+  const { id } = await context.params;
+
+  try {
+    const payload = await getAuth(request);
+
+    if (!payload)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    if (!requireAdmin(payload))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
+
+    const body = await request.json();
+    const { subject, title, date, branch, semester, section, testType, maxMarks, dueTime, notes } = body;
+
+    if (!subject || !title || !date) {
+      return NextResponse.json(
+        { error: "Missing required fields: subject, title, date" },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+
+    const updated = await Test.findByIdAndUpdate(
+      id,
+      {
+        subject,
+        title,
+        date: new Date(date),
+        branch: branch ?? null,
+        semester: semester != null ? Number(semester) : null,
+        section: section ?? null,
+        testType: testType ?? null,
+        maxMarks: maxMarks != null ? Number(maxMarks) : null,
+        dueTime: dueTime ?? null,
+        notes: notes ?? null,
+      },
+      { new: true }
+    );
+
+    if (!updated)
+      return NextResponse.json({ error: "Test not found" }, { status: 404 });
+
+    return NextResponse.json({
+      _id: updated._id.toString(),
+      subject: updated.subject,
+      title: updated.title,
+      date: updated.date,
+      branch: updated.branch,
+      semester: updated.semester,
+      section: updated.section,
+      testType: updated.testType,
+      maxMarks: updated.maxMarks,
+      dueTime: updated.dueTime,
+      notes: updated.notes,
+    });
+  } catch (error) {
+    console.error("Test PUT error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 /* ---------- DELETE TEST ---------- */
 export async function DELETE(
   request: NextRequest,
