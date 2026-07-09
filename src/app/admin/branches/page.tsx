@@ -69,8 +69,8 @@ export default function BranchesPage() {
       body: JSON.stringify({ slug: name.toLowerCase(), name, label, color: colorStr }),
     });
     if (!response.ok) {
-      const data = await response.json();
-      setError(data.error ?? "Failed to add branch.");
+      const errorData = await response.json();
+      setError(errorData.error ?? "Failed to add branch.");
       setSaving(false);
       return;
     }
@@ -126,8 +126,8 @@ export default function BranchesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {branches.map((branch, idx) => {
-            const { color, badge } = COLORS[idx % COLORS.length];
+          {branches.map((branch, colorIdx) => {
+            const { color, badge } = COLORS[colorIdx % COLORS.length];
             return (
               <div key={branch.slug} className="relative group/card">
                 <Link

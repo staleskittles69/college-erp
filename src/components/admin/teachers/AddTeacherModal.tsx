@@ -17,18 +17,18 @@ export default function AddTeacherModal({ departmentSlug, onClose }: Props) {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const dept = departments.find((department) => department.slug === departmentSlug);
+  const department = departments.find((departmentOption) => departmentOption.slug === departmentSlug);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(formEvent: React.FormEvent) {
+    formEvent.preventDefault();
     if (!name.trim() || !email.trim()) return;
     setError("");
     setSubmitting(true);
     try {
       await addTeacher({ name: name.trim(), email: email.trim(), password: password.trim() || "teacher123", department: departmentSlug });
       onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setSubmitting(false);
     }
@@ -84,7 +84,7 @@ export default function AddTeacherModal({ departmentSlug, onClose }: Props) {
             <label className="text-xs font-medium text-gray-600 mb-1 block">Department</label>
             <input
               type="text"
-              value={dept?.name ?? departmentSlug}
+              value={department?.name ?? departmentSlug}
               disabled
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
             />

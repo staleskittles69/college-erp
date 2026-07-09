@@ -77,7 +77,7 @@ export default function AdminAttendancePage() {
     setSubmitting(false);
   }
 
-  const presentCount = Object.values(attendance).filter((v) => v === "present").length;
+  const presentCount = Object.values(attendance).filter((status) => status === "present").length;
   const absentCount = students.length - presentCount;
 
   return (

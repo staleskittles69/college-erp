@@ -32,15 +32,15 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
     setSelected([]);
     fetch(`/api/admin/sections?branch=${branch}&year=${year}`, { credentials: "include" })
       .then((response) => response.json())
-      .then((data: string[]) => {
-        const list = Array.isArray(data) ? data : [];
-        list.sort((sectionA, sectionB) => {
+      .then((sectionsData: string[]) => {
+        const sortedSections = Array.isArray(sectionsData) ? sectionsData : [];
+        sortedSections.sort((sectionA, sectionB) => {
           const numA = parseInt(sectionA.replace(/\D/g, ""), 10);
           const numB = parseInt(sectionB.replace(/\D/g, ""), 10);
           if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
           return sectionA.localeCompare(sectionB);
         });
-        setAvailableSections(list);
+        setAvailableSections(sortedSections);
       })
       .catch(() => setAvailableSections([]))
       .finally(() => setLoadingSections(false));
