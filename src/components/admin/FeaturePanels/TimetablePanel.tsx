@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BRANCHES, DAYS, PERIODS, PERIOD_TIMES, SECTIONS, YEARS, yearLabel } from "@/lib/academics";
+import { BRANCHES, DAYS, PERIODS, PERIOD_TIMES, YEARS, yearLabel } from "@/lib/academics";
 import { getSubjects } from "@/lib/subjects";
 
 interface Slot { id: string; day: string; period: number; subject: string; }
@@ -29,7 +29,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
 
   const [branch, setBranch] = useState(BRANCHES[0]);
   const [year, setYear] = useState(String(YEARS[0]));
-  const [section, setSection] = useState(SECTIONS[0]);
+  const [section, setSection] = useState("1");
 
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -151,10 +151,11 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
               className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
               {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>{yearLabel(yearOption)}</option>)}
             </select>
-            <select value={section} onChange={(e) => setSection(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
-              {SECTIONS.map((sectionOption) => <option key={sectionOption}>Section {sectionOption}</option>)}
-            </select>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-gray-500">Section</span>
+              <input type="number" min={1} value={section} onChange={(e) => setSection(e.target.value)}
+                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+            </div>
             <button onClick={handleLoadFromDB} disabled={loading}
               className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50">
               {loading ? "Loading…" : "Load from DB"}

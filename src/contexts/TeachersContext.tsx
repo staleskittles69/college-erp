@@ -11,7 +11,7 @@ export interface Department {
 export interface Assignment {
   branch: "CSE" | "ECE" | "MECH" | "CIVIL";
   year: 1 | 2 | 3 | 4;
-  sections: ("A" | "B" | "C")[];
+  sections: string[];
 }
 
 export interface Teacher {

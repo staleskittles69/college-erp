@@ -17,11 +17,10 @@ interface StudentDataPanelProps {
 }
 
 const BRANCHES = ["CSE", "ECE", "MECH", "CIVIL", "IT", "EEE"];
-const SECTIONS = ["A", "B", "C", "D"];
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const EMPTY_FORM = {
-  name: "", rollNo: "", email: "", password: "", branch: "CSE", semester: 1, section: "A",
+  name: "", rollNo: "", email: "", password: "", branch: "CSE", semester: 1, section: "1",
 };
 
 export default function StudentDataPanel({ context }: StudentDataPanelProps) {
@@ -144,13 +143,13 @@ export default function StudentDataPanel({ context }: StudentDataPanelProps) {
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Section</label>
-            <select
+            <input
+              type="number"
+              min={1}
               value={form.section}
               onChange={(e) => setForm((prev) => ({ ...prev, section: e.target.value }))}
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-700"
-            >
-              {SECTIONS.map((sectionOption) => <option key={sectionOption} value={sectionOption}>Section {sectionOption}</option>)}
-            </select>
+            />
           </div>
         </div>
         <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100">

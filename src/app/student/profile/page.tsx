@@ -13,7 +13,7 @@ export default function ProfilePage() {
           {/* Info */}
           <div className="pb-1">
             <h1 className="text-2xl font-bold text-white tracking-tight">Student Name</h1>
-            <p className="text-blue-200 text-sm mt-0.5">Computer Science · 3rd Year · Section A</p>
+            <p className="text-blue-200 text-sm mt-0.5">Computer Science · 3rd Year · Section 1</p>
           </div>
         </div>
       </div>

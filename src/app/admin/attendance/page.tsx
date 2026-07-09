@@ -116,14 +116,14 @@ export default function AdminAttendancePage() {
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Section</label>
-            <select
+            <input
+              type="number"
+              min={1}
               value={section}
               onChange={(e) => handleSectionChange(e.target.value)}
+              placeholder="e.g. 1"
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Select</option>
-              {["A", "B", "C", "D"].map((sectionOption) => <option key={sectionOption} value={sectionOption}>{sectionOption}</option>)}
-            </select>
+            />
           </div>
           <div className="flex items-end">
             <button

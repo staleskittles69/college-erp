@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BRANCHES, SECTIONS, TEST_TYPES, YEARS, yearLabel } from "@/lib/academics";
+import { BRANCHES, TEST_TYPES, YEARS, yearLabel } from "@/lib/academics";
 import { getSubjects } from "@/lib/subjects";
 
 interface Test {
@@ -21,7 +21,7 @@ interface Test {
 const EMPTY_FORM = {
   branch: BRANCHES[0],
   semester: String(YEARS[0]),
-  section: SECTIONS[0],
+  section: "1",
   subject: "",
   title: "",
   testType: TEST_TYPES[0],
@@ -71,7 +71,7 @@ export default function ScheduleTestsPanel() {
     setForm({
       branch: test.branch ?? BRANCHES[0],
       semester: test.semester != null ? String(test.semester) : String(YEARS[0]),
-      section: test.section ?? SECTIONS[0],
+      section: test.section ?? "1",
       subject: test.subject,
       title: test.title,
       testType: test.testType ?? TEST_TYPES[0],
@@ -147,10 +147,8 @@ export default function ScheduleTestsPanel() {
             </div>
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Section</label>
-              <select value={form.section} onChange={(e) => setForm({ ...form, section: e.target.value })}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
-                {SECTIONS.map((sectionOption) => <option key={sectionOption} value={sectionOption}>Section {sectionOption}</option>)}
-              </select>
+              <input type="number" min={1} value={form.section} onChange={(e) => setForm({ ...form, section: e.target.value })}
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
             </div>
           </div>
 
