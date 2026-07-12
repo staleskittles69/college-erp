@@ -14,7 +14,7 @@ _(jot down anything you think is missing or half-done, per portal)_
 
 ## Found while working — needs a dedicated look
 - **Branches are hardcoded** (`src/lib/academics.ts` → `BRANCHES = ["CSE","ECE","ME","CE","EEE"]`). Should come from the database instead so admin can manage them.
-- **"Add student" is broken/duplicated**: `/api/students` POST creates a User with no `rollNumber`, which the schema requires for students — this throws. `/api/admin/create-student` does it correctly but no page in the UI actually calls it. Needs consolidating into one working flow.
+- ~~"Add student" is broken/duplicated~~ — **fixed**: `/api/students` POST now sets `rollNumber`/`branch`/`year` on the User properly (auto-generated, scoped per branch+year) and hashes the password. Deleted the unused duplicate `/api/admin/create-student` route. Also swapped the form's own hardcoded branch list (`MECH/CIVIL/IT`, which didn't match branches used anywhere else) for the shared one.
 
 ## Up next: Android app
 Once the web app feels done, build the Android app (Expo/React Native, same backend APIs).
