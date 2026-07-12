@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword } from "@/lib/auth";
+import { generateRollNumber } from "@/lib/utils/generateRollNumber";
 
 export async function GET(request: NextRequest) {
   try {
@@ -94,9 +95,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const year = Math.ceil(Number(semester) / 2);
+    const sectionLabel = /^\d+$/.test(String(section)) ? `Section ${section}` : section;
+    const rollNumber = await generateRollNumber(branch, year);
     const hashedPassword = await hashPassword(password);
+
     const user = await User.create({
+      name,
       email,
+      rollNumber,
+      branch,
+      year,
+      section: sectionLabel,
       password: hashedPassword,
       role: "student",
     });
@@ -107,10 +117,8 @@ export async function POST(request: NextRequest) {
       rollNo,
       branch,
       semester: Number(semester),
-      section,
+      section: sectionLabel,
     });
-
-    await User.findByIdAndUpdate(user._id, { studentId: student._id });
 
     return NextResponse.json({
       _id: student._id.toString(),

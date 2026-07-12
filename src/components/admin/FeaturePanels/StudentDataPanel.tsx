@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BRANCHES } from "@/lib/academics";
 
 interface Student {
   _id: string;
@@ -16,7 +17,6 @@ interface StudentDataPanelProps {
   context?: string;
 }
 
-const BRANCHES = ["CSE", "ECE", "MECH", "CIVIL", "IT", "EEE"];
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const EMPTY_FORM = {
