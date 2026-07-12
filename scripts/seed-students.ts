@@ -1,6 +1,7 @@
 /**
  * Bulk student seed:
- * 5 branches × 30 sections × 4 years × 60 students = 36,000 students
+ * 5 branches × 10 sections × 4 years × 60 students = 12,000 students
+ * Roll numbers restart at 1 for every branch+year batch.
  *
  * Run: npm run seed:students
  * Requires MONGODB_URI in .env.local
@@ -19,7 +20,7 @@ if (!MONGODB_URI) {
 }
 
 const BRANCHES = ["CSE", "ECE", "ME", "CE", "EEE"];
-const SECTION_COUNT = 30;
+const SECTION_COUNT = 10;
 const YEARS = [1, 2, 3, 4];
 const PER_SECTION = 60;
 
@@ -48,19 +49,14 @@ async function seedStudents() {
   const User = (await import("../src/models/User")).default;
   const Student = (await import("../src/models/Student")).default;
 
-  const existingCount = await Student.countDocuments();
-  if (existingCount >= 100) {
-    console.log(`Already have ${existingCount} students — drop the collection first to re-seed.`);
-    await mongoose.disconnect();
-    return;
-  }
+  console.log("Wiping existing seeded students...");
+  const existingStudentUsers = await User.find({ role: "student" }).select("_id").lean();
+  const existingIds = existingStudentUsers.map((u) => u._id);
+  await User.deleteMany({ role: "student" });
+  await Student.deleteMany({ userId: { $in: existingIds } });
 
   console.log("Hashing password...");
   const hashedPassword = await bcrypt.hash("student123", 10);
-
-  // Start roll numbers after any existing ones
-  const maxUser = await User.findOne({ role: "student" }).sort({ rollNumber: -1 });
-  let rollCounter = maxUser?.rollNumber ? maxUser.rollNumber + 1 : 10001;
 
   const userDocs: object[] = [];
   const studentDocs: object[] = [];
@@ -70,18 +66,23 @@ async function seedStudents() {
     const batchYear = 26 - year;   // year 1→batch 25, year 4→batch 22
 
     for (const branch of BRANCHES) {
+      let rollCounter = 1; // roll numbers restart at 1 for each branch+year batch
+
       for (let sec = 1; sec <= SECTION_COUNT; sec++) {
         const sectionLabel = `Section ${sec}`;
 
         for (let i = 0; i < PER_SECTION; i++) {
           const userId = new mongoose.Types.ObjectId();
           const name = SECTION_NAMES[i]; // unique within section, repeats across sections
+          const rollNumber = rollCounter++;
           const rollNo = `${batchYear}${branch.slice(0, 2)}S${String(sec).padStart(2, "0")}${String(i + 1).padStart(3, "0")}`;
+          const email = `${branch.toLowerCase()}${year}.${sectionLabel.replace(" ", "").toLowerCase()}.${rollNumber}@college.edu`;
 
           userDocs.push({
             _id: userId,
             name,
-            rollNumber: rollCounter++,
+            email,
+            rollNumber,
             branch,
             year,
             section: sectionLabel,
@@ -116,7 +117,7 @@ async function seedStudents() {
   }
 
   console.log(`\nDone! Seeded ${studentDocs.length} students.`);
-  console.log(`Roll numbers: ${10001} – ${rollCounter - 1} | Password: student123`);
+  console.log(`Roll numbers restart at 1 for every branch+year batch | Password: student123`);
 
   await mongoose.disconnect();
 }

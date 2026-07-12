@@ -19,7 +19,7 @@ const UserSchema = new Schema<IUser>(
     name: { type: String, required: true },
     // sparse: true allows multiple docs with no email/rollNumber
     email: { type: String, unique: true, sparse: true },
-    rollNumber: { type: Number, unique: true, sparse: true },
+    rollNumber: { type: Number },
     branch: { type: String },
     year: { type: Number },
     section: { type: String },
@@ -28,6 +28,12 @@ const UserSchema = new Schema<IUser>(
     role: { type: String, enum: ["admin", "student", "teacher"], required: true },
   },
   { timestamps: true }
+);
+
+// rollNumber only needs to be unique within its own branch+year (each batch restarts at 1)
+UserSchema.index(
+  { branch: 1, year: 1, rollNumber: 1 },
+  { unique: true, sparse: true }
 );
 
 UserSchema.pre("save", function (next) {
