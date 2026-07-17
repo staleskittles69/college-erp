@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
         maxMarks: test.maxMarks,
         dueTime: test.dueTime,
         notes: test.notes,
+        attachmentUrl: test.attachmentUrl,
       }))
     );
   } catch (error) {

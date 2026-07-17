@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ClipboardList, Clock, CheckCircle } from "lucide-react";
+import { ClipboardList, Clock, CheckCircle, ChevronDown, Paperclip, StickyNote } from "lucide-react";
+import { isAssignmentType } from "@/lib/academics";
 
 interface Test {
   _id: string;
@@ -9,11 +10,84 @@ interface Test {
   title: string;
   date: string;
   maxMarks: number | null;
+  testType?: string | null;
+  dueTime?: string | null;
+  notes?: string | null;
+  attachmentUrl?: string | null;
 }
 
 function formatDate(dateStr: string) {
   const dateObj = new Date(dateStr);
   return dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function TypeBadge({ testType }: { testType?: string | null }) {
+  const assignment = isAssignmentType(testType);
+  return (
+    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${assignment ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600"}`}>
+      {assignment ? "Assignment" : "Test"}
+    </span>
+  );
+}
+
+function TestRow({ test, dimmed }: { test: Test; dimmed: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasDetails = Boolean(test.dueTime || test.notes || test.attachmentUrl);
+
+  return (
+    <div className={`rounded-xl border ${dimmed ? "border-gray-100 bg-gray-50 opacity-70" : "border-blue-100 bg-white shadow-sm"} overflow-hidden`}>
+      <button
+        onClick={() => hasDetails && setExpanded((prev) => !prev)}
+        className={`w-full px-5 py-4 flex items-center justify-between gap-4 text-left ${hasDetails ? "cursor-pointer" : "cursor-default"}`}
+      >
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className={`font-semibold ${dimmed ? "text-gray-700" : "text-gray-800"}`}>{test.title}</p>
+            <TypeBadge testType={test.testType} />
+          </div>
+          <p className={`text-xs mt-0.5 ${dimmed ? "text-gray-500" : "text-blue-600"}`}>{test.subject}</p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="text-right">
+            <p className={`text-sm font-medium ${dimmed ? "text-gray-500" : "text-gray-700"}`}>{formatDate(test.date)}</p>
+            {test.maxMarks != null && (
+              <p className="text-xs text-gray-400 mt-0.5">{test.maxMarks} marks</p>
+            )}
+          </div>
+          {hasDetails && (
+            <ChevronDown size={16} className={`text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          )}
+        </div>
+      </button>
+
+      {expanded && hasDetails && (
+        <div className="px-5 pb-4 pt-1 border-t border-gray-100 space-y-2">
+          {test.dueTime && (
+            <div className="flex items-center gap-2 text-xs text-gray-600">
+              <Clock size={13} className="text-gray-400" />
+              <span>Due {test.dueTime}</span>
+            </div>
+          )}
+          {test.notes && (
+            <div className="flex items-start gap-2 text-xs text-gray-600">
+              <StickyNote size={13} className="text-gray-400 mt-0.5 shrink-0" />
+              <span className="whitespace-pre-wrap">{test.notes}</span>
+            </div>
+          )}
+          {test.attachmentUrl && (
+            <a
+              href={test.attachmentUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:underline"
+            >
+              <Paperclip size={13} /> View attachment
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function AssignmentsPage() {
@@ -67,18 +141,7 @@ export default function AssignmentsPage() {
               </div>
               <div className="space-y-3">
                 {upcoming.map((test) => (
-                  <div key={test._id} className="rounded-xl border border-blue-100 bg-white shadow-sm px-5 py-4 flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-semibold text-gray-800">{test.title}</p>
-                      <p className="text-xs text-blue-600 mt-0.5">{test.subject}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-medium text-gray-700">{formatDate(test.date)}</p>
-                      {test.maxMarks != null && (
-                        <p className="text-xs text-gray-400 mt-0.5">{test.maxMarks} marks</p>
-                      )}
-                    </div>
-                  </div>
+                  <TestRow key={test._id} test={test} dimmed={false} />
                 ))}
               </div>
             </div>
@@ -92,18 +155,7 @@ export default function AssignmentsPage() {
               </div>
               <div className="space-y-3">
                 {past.map((test) => (
-                  <div key={test._id} className="rounded-xl border border-gray-100 bg-gray-50 px-5 py-4 flex items-center justify-between gap-4 opacity-70">
-                    <div>
-                      <p className="font-semibold text-gray-700">{test.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{test.subject}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-medium text-gray-500">{formatDate(test.date)}</p>
-                      {test.maxMarks != null && (
-                        <p className="text-xs text-gray-400 mt-0.5">{test.maxMarks} marks</p>
-                      )}
-                    </div>
-                  </div>
+                  <TestRow key={test._id} test={test} dimmed={true} />
                 ))}
               </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { ClipboardList, Plus, X, Upload, Paperclip } from "lucide-react";
 
 interface Test {
@@ -13,11 +14,12 @@ interface Test {
   maxMarks: number | null;
   dueTime?: string | null;
   attachmentUrl?: string | null;
+  testType?: string | null;
 }
 
 interface Dept { slug: string; name: string; }
 
-const EMPTY_FORM = { title: "", subject: "", branch: "", semester: "", date: "", maxMarks: "" };
+const EMPTY_FORM = { title: "", subject: "", branch: "", semester: "", date: "", maxMarks: "", testType: "Assignment" };
 
 export default function AssignmentsPage() {
   const [tests, setTests] = useState<Test[]>([]);
@@ -91,6 +93,7 @@ export default function AssignmentsPage() {
         branch: form.branch || null,
         semester: form.semester ? Number(form.semester) : null,
         maxMarks: form.maxMarks ? Number(form.maxMarks) : null,
+        testType: form.testType,
         attachmentUrl,
       }),
     });
@@ -123,7 +126,7 @@ export default function AssignmentsPage() {
           onClick={() => { setOpen(true); setFormError(""); }}
           className="flex items-center gap-2 rounded-xl bg-white/15 border border-white/30 hover:bg-white/25 px-4 py-2.5 text-sm font-medium text-white transition-colors"
         >
-          <Plus size={16} /> Create Assignment
+          <Plus size={16} /> Create
         </button>
       </div>
 
@@ -159,7 +162,16 @@ export default function AssignmentsPage() {
             return (
               <div key={test._id} className="rounded-xl border border-gray-200 bg-white p-5 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">{test.title}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-gray-800">{test.title}</p>
+                    <span
+                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                        test.testType === "Test" ? "bg-blue-50 text-blue-600" : "bg-amber-50 text-amber-600"
+                      }`}
+                    >
+                      {test.testType === "Test" ? "Test" : "Assignment"}
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-500 mt-0.5">
                     {test.subject}
                     {test.branch ? ` · ${test.branch}` : ""}
@@ -183,11 +195,11 @@ export default function AssignmentsPage() {
         </div>
       )}
 
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white">
-              <h2 className="font-semibold text-gray-900">Create Assignment</h2>
+              <h2 className="font-semibold text-gray-900">Create {form.testType === "Test" ? "Test" : "Assignment"}</h2>
               <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
                 <X size={18} />
               </button>
@@ -195,11 +207,33 @@ export default function AssignmentsPage() {
 
             <div className="px-6 py-5 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Assignment Title <span className="text-red-400">*</span></label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
+                <div className="flex gap-2">
+                  {(["Assignment", "Test"] as const).map((typeOption) => (
+                    <button
+                      key={typeOption}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, testType: typeOption }))}
+                      className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
+                        form.testType === typeOption
+                          ? typeOption === "Test"
+                            ? "bg-blue-50 border-blue-300 text-blue-700"
+                            : "bg-amber-50 border-amber-300 text-amber-700"
+                          : "border-gray-200 text-gray-500 hover:bg-gray-50"
+                      }`}
+                    >
+                      {typeOption}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Title <span className="text-red-400">*</span></label>
                 <input
                   value={form.title}
                   onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g. Chapter 3 Assignment"
+                  placeholder={form.testType === "Test" ? "e.g. Unit Test 2 - Data Structures" : "e.g. Chapter 3 Assignment"}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -307,11 +341,12 @@ export default function AssignmentsPage() {
                 disabled={saving}
                 className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
-                {saving ? "Creating…" : "Create Assignment"}
+                {saving ? "Creating…" : `Create ${form.testType === "Test" ? "Test" : "Assignment"}`}
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
