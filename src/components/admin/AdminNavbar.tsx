@@ -3,21 +3,15 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Bell, User, LogOut, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { studentDetailUrl } from "@/lib/academics";
 
 interface StudentResult {
   _id: string;
   name: string;
   rollNo: string;
   branch: string;
-  semester: number;
+  year: number;
   section: string;
-}
-
-function toStudentUrl(student: StudentResult) {
-  const branch = student.branch.toLowerCase();
-  const year = ["1st-year", "2nd-year", "3rd-year", "4th-year"][Math.ceil(student.semester / 2) - 1] ?? "1st-year";
-  const section = student.section.toLowerCase().replace(/\s+/g, "-");
-  return `/admin/${branch}/${year}/${section}/${student._id}`;
 }
 
 export default function AdminNavbar() {
@@ -56,7 +50,7 @@ export default function AdminNavbar() {
     setQuery("");
     setResults([]);
     setShowDropdown(false);
-    router.push(toStudentUrl(student));
+    router.push(studentDetailUrl(student));
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
