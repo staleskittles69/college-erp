@@ -22,12 +22,12 @@ export async function GET(
 
     await connectDB();
 
-    const student = await Student.findById(id).populate("userId", "email");
+    const student = await Student.findOne({ userId: id }).populate("userId", "email");
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
-    if (payload.role === "student" && payload.studentId !== id) {
+    if (payload.role === "student" && payload.userId !== id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -73,7 +73,7 @@ export async function PATCH(
 
     await connectDB();
 
-    const student = await Student.findById(id);
+    const student = await Student.findOne({ userId: id });
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
@@ -122,13 +122,13 @@ export async function DELETE(
 
     await connectDB();
 
-    const student = await Student.findById(id);
+    const student = await Student.findOne({ userId: id });
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
-    await User.findByIdAndDelete(student.userId);
-    await Student.findByIdAndDelete(id);
+    await User.findByIdAndDelete(id);
+    await Student.findByIdAndDelete(student._id);
 
     return NextResponse.json({ success: true });
   } catch (error) {
