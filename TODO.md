@@ -4,10 +4,12 @@
 _(jot down anything you think is missing or half-done, per portal)_
 
 ### Admin
--
+- At-risk students page: two tables (Low Attendance, Low CGPA), thresholds configurable by admin, filterable by branch/year/section. Pure code (aggregation over Attendance + Marks), no AI needed.
+- Notices: add `audience` field (students/teachers/both) so admin announcements can also reach teachers, not just students.
+- Messages panel: view + mark-as-read for messages sent in by teachers (see Teacher section below).
 
 ### Teacher
--
+- "Message Admin" form + sent-message history (new `TeacherMessage` model: sender, body, read/unread) — pairs with the admin Messages panel above.
 
 ### Student
 -
