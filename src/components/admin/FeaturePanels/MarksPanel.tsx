@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { GRADE_COLORS, calcGrade, computeCGPA } from "@/lib/grades";
 
 interface MarkRecord {
   id: string;
@@ -16,27 +17,6 @@ interface MarksPanelProps {
 }
 
 const EMPTY_FORM = { subject: "", examType: "Mid Term", obtained: "", max: "100" };
-
-const GRADE_COLORS: Record<string, string> = {
-  "A+": "bg-emerald-100 text-emerald-700",
-  A: "bg-green-100 text-green-700",
-  "B+": "bg-blue-100 text-blue-700",
-  B: "bg-blue-50 text-blue-600",
-  "C+": "bg-yellow-100 text-yellow-700",
-  C: "bg-orange-100 text-orange-700",
-  D: "bg-red-100 text-red-700",
-};
-
-function calcGrade(obtained: number, max: number) {
-  const pct = (obtained / max) * 100;
-  if (pct >= 90) return "A+";
-  if (pct >= 80) return "A";
-  if (pct >= 70) return "B+";
-  if (pct >= 60) return "B";
-  if (pct >= 50) return "C+";
-  if (pct >= 40) return "C";
-  return "D";
-}
 
 export default function MarksPanel({ studentId = "", context }: MarksPanelProps) {
   const [marks, setMarks] = useState<MarkRecord[]>([]);
@@ -59,6 +39,9 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
   useEffect(() => {
     loadMarks();
   }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const subjectCount = new Set(marks.map((mark) => mark.subject)).size;
+  const cgpa = computeCGPA(marks);
 
   async function handleAdd() {
     if (!form.subject.trim() || !form.obtained || !form.max) return;
@@ -111,6 +94,22 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
           + Add Marks
         </button>
       </div>
+
+      {/* Summary */}
+      {marks.length > 0 && (
+        <div className="grid grid-cols-3 gap-4 px-6 py-4 border-b border-gray-100">
+          {[
+            { label: "Records", value: marks.length, color: "text-indigo-600 bg-indigo-50" },
+            { label: "Subjects", value: subjectCount, color: "text-blue-600 bg-blue-50" },
+            { label: "CGPA", value: cgpa != null ? cgpa.toFixed(2) : "—", color: "text-emerald-600 bg-emerald-50" },
+          ].map((stat) => (
+            <div key={stat.label} className={`rounded-lg px-4 py-3 ${stat.color}`}>
+              <p className="text-xl font-bold">{stat.value}</p>
+              <p className="text-xs font-medium mt-0.5 opacity-80">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Add form */}
       {showForm && (

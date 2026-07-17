@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GraduationCap } from "lucide-react";
+import { GRADE_COLORS, calcGrade } from "@/lib/grades";
 
 interface MarkRecord {
   id: string;
@@ -9,27 +10,6 @@ interface MarkRecord {
   examType: string;
   obtained: number;
   max: number;
-}
-
-const GRADE_COLORS: Record<string, string> = {
-  "A+": "bg-emerald-100 text-emerald-700",
-  A: "bg-green-100 text-green-700",
-  "B+": "bg-blue-100 text-blue-700",
-  B: "bg-blue-50 text-blue-600",
-  "C+": "bg-yellow-100 text-yellow-700",
-  C: "bg-orange-100 text-orange-700",
-  D: "bg-red-100 text-red-700",
-};
-
-function calcGrade(obtained: number, max: number) {
-  const pct = (obtained / max) * 100;
-  if (pct >= 90) return "A+";
-  if (pct >= 80) return "A";
-  if (pct >= 70) return "B+";
-  if (pct >= 60) return "B";
-  if (pct >= 50) return "C+";
-  if (pct >= 40) return "C";
-  return "D";
 }
 
 export default function GradesPage() {

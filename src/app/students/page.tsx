@@ -1,7 +1,7 @@
 "use client";
 
 import { AttendanceSummary } from "@/components/student/AttendanceSummary";
-import { SubjectAttendance } from "@/components/student/SubjectAttendance";
+import { CGPA } from "@/components/student/CGPA";
 import { WeeklyTimetable } from "@/components/student/WeeklyTimetable";
 import { UpcomingTests } from "@/components/student/UpcomingTests";
 import { NoticeBoard } from "@/components/student/NoticeBoard";
@@ -41,7 +41,7 @@ export default function StudentDashboardPage() {
             <AttendanceSummary />
           </div>
           <div className="animate-slide-up-1">
-            <SubjectAttendance />
+            <CGPA />
           </div>
           <div className="md:col-span-2 lg:col-span-1 animate-slide-up-2">
             <UpcomingTests />
