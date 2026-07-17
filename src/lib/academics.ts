@@ -19,3 +19,16 @@ export function yearLabel(year: number | string): string {
   const numericYear = Number(year);
   return `${YEAR_SUFFIXES[numericYear] ?? `${numericYear}th`} Year`;
 }
+
+export function isAssignmentType(testType?: string | null): boolean {
+  return !!testType && testType.toLowerCase().includes("assignment");
+}
+
+const YEAR_SLUGS: Record<number, string> = { 1: "1st-year", 2: "2nd-year", 3: "3rd-year", 4: "4th-year" };
+
+export function studentDetailUrl(student: { _id: string; branch: string; year: number; section: string }): string {
+  const branch = student.branch.toLowerCase();
+  const year = YEAR_SLUGS[student.year] ?? "1st-year";
+  const section = student.section.toLowerCase().replace(/\s+/g, "-");
+  return `/admin/${branch}/${year}/${section}/${student._id}`;
+}
