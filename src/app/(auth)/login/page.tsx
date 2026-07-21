@@ -86,7 +86,7 @@ export default function LoginPage() {
               {[
                 { label: "Admin", email: "admin@college.edu", password: "admin123" },
                 { label: "Teacher", email: "praful@college.edu", password: "asdfghjkl" },
-                { label: "Student", email: "student@college.edu", password: "student123" },
+                { label: "Student", email: "cse1.section1.1@college.edu", password: "student123" },
               ].map(({ label, email: quickEmail, password: quickPassword }) => (
                 <button
                   key={label}
