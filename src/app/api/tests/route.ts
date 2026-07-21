@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Test from "@/models/Test";
-import Notice from "@/models/Notice";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -96,17 +95,6 @@ export async function POST(request: NextRequest) {
       notes: notes ?? null,
       attachmentUrl: attachmentUrl ?? null,
     });
-
-    if (branch) {
-      await Notice.create({
-        title: `${testType ?? "Test"} Scheduled: ${title}`,
-        body: `A ${(testType ?? "test").toLowerCase()} for ${subject} has been scheduled on ${new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}${dueTime ? ` at ${dueTime}` : ""}.${maxMarks ? ` Max marks: ${maxMarks}.` : ""}`,
-        createdBy: payload.userId,
-        pinned: false,
-        targetBranch: branch,
-        targetYear: semester != null ? Number(semester) : null,
-      });
-    }
 
     return NextResponse.json({
       _id: test._id.toString(),
