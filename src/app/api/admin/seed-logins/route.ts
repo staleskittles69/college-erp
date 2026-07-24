@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { hashPassword } from "@/lib/auth";
 
 // POST /api/admin/seed-logins
 // Body: { branch, year, sections: ["Section 1", "Section 2"] }
@@ -35,13 +36,14 @@ export async function POST(request: NextRequest) {
   if (students.length === 0)
     return NextResponse.json({ message: "All students in these sections already have logins.", updated: 0 });
 
+  const hashedPassword = await hashPassword("student123");
   const loginUpdates = students.map((student) => ({
     updateOne: {
       filter: { _id: student._id },
       update: {
         $set: {
           email: `roll${student.rollNumber}@college.edu`,
-          password: "student123",
+          password: hashedPassword,
         },
       },
     },

@@ -3,6 +3,12 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { getAuth } from "@/lib/api-auth";
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_EXTENSIONS = new Set([
+  ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",
+  ".jpg", ".jpeg", ".png", ".gif", ".txt",
+]);
+
 export async function POST(request: NextRequest) {
   const payload = await getAuth(request);
   if (!payload) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -11,6 +17,15 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
   if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
+
+  if (file.size > MAX_FILE_SIZE) {
+    return NextResponse.json({ error: "File exceeds the 10MB limit" }, { status: 400 });
+  }
+
+  const extension = path.extname(file.name).toLowerCase();
+  if (!ALLOWED_EXTENSIONS.has(extension)) {
+    return NextResponse.json({ error: "File type not allowed" }, { status: 400 });
+  }
 
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);

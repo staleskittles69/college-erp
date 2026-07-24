@@ -10,6 +10,8 @@ export interface IUser {
   section?: string;
   password: string;
   role: "admin" | "student" | "teacher";
+  failedLoginAttempts: number;
+  lockUntil?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,9 +25,10 @@ const UserSchema = new Schema<IUser>(
     branch: { type: String },
     year: { type: Number },
     section: { type: String },
-    // TODO: hash passwords before going to production
     password: { type: String, required: true },
     role: { type: String, enum: ["admin", "student", "teacher"], required: true },
+    failedLoginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date, default: null },
   },
   { timestamps: true }
 );

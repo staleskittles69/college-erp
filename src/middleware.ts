@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "fallback-secret-change-in-production"
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET not set");
+}
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 type Role = "student" | "teacher" | "admin";
 
@@ -35,9 +37,7 @@ export async function middleware(request: NextRequest) {
 
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/auth/login") ||
-    pathname.startsWith("/api/setup-initial-data") ||
-    pathname.startsWith("/api/debug-users")
+    pathname.startsWith("/api/auth/login")
   ) {
     return NextResponse.next();
   }

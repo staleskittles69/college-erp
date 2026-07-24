@@ -3,6 +3,9 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { signToken, comparePassword } from "@/lib/auth";
 
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -20,12 +23,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
     }
 
-    const passwordMatch = user.password.startsWith("$2")
-      ? await comparePassword(password, user.password)
-      : user.password === password;
+    if (user.lockUntil && user.lockUntil.getTime() > Date.now()) {
+      const minutesLeft = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000);
+      return NextResponse.json(
+        { error: `Too many failed attempts. Try again in ${minutesLeft} minute${minutesLeft === 1 ? "" : "s"}.` },
+        { status: 429 }
+      );
+    }
+
+    const passwordMatch = await comparePassword(password, user.password);
 
     if (!passwordMatch) {
+      const attempts = (user.failedLoginAttempts ?? 0) + 1;
+      if (attempts >= MAX_FAILED_ATTEMPTS) {
+        user.failedLoginAttempts = 0;
+        user.lockUntil = new Date(Date.now() + LOCK_DURATION_MS);
+      } else {
+        user.failedLoginAttempts = attempts;
+      }
+      await user.save();
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    }
+
+    if (user.failedLoginAttempts || user.lockUntil) {
+      user.failedLoginAttempts = 0;
+      user.lockUntil = null;
+      await user.save();
     }
 
     const token = signToken({

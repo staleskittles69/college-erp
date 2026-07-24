@@ -5,6 +5,7 @@ import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword } from "@/lib/auth";
 import { generateRollNumber } from "@/lib/utils/generateRollNumber";
+import { escapeRegex } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,9 +29,10 @@ export async function GET(request: NextRequest) {
 
     const filter: Record<string, unknown> = { role: "student" };
     if (search) {
+      const safeSearch = escapeRegex(search);
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
+        { name: { $regex: safeSearch, $options: "i" } },
+        { email: { $regex: safeSearch, $options: "i" } },
       ];
     } else {
       if (branch) filter.branch = branch;

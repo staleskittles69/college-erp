@@ -26,9 +26,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const isMatch = user.password.startsWith("$2")
-    ? await comparePassword(currentPassword, user.password)
-    : user.password === currentPassword;
+  const isMatch = await comparePassword(currentPassword, user.password);
 
   if (!isMatch) {
     return NextResponse.json({ error: "Current password is incorrect" }, { status: 400 });
