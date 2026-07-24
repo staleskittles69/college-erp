@@ -1,9 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bell, User, LogOut, Search } from "lucide-react";
+import { Bell, User, LogOut, Search, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { studentDetailUrl } from "@/lib/academics";
+
+interface AdminNavbarProps {
+  onMenuClick: () => void;
+}
 
 interface StudentResult {
   _id: string;
@@ -14,7 +18,7 @@ interface StudentResult {
   section: string;
 }
 
-export default function AdminNavbar() {
+export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<StudentResult[]>([]);
@@ -73,46 +77,57 @@ export default function AdminNavbar() {
   }
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0 z-10">
-      {/* Search */}
-      <div className="flex-1 max-w-sm relative" ref={wrapperRef}>
-        <div className="relative">
-          <Search
-            size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="text"
-            value={query}
-            onChange={handleChange}
-            onFocus={() => setShowDropdown(true)}
-            onKeyDown={handleKeyDown}
-            placeholder="Search by name or roll no..."
-            className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
-          />
-        </div>
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 gap-3 flex-shrink-0 z-10">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        {/* Mobile menu toggle */}
+        <button
+          onClick={onMenuClick}
+          className="md:hidden -ml-1 p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors shrink-0"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
 
-        {/* Dropdown */}
-        {showDropdown && results.length > 0 && (
-          <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-            {results.map((student) => (
-              <button
-                key={student._id}
-                onClick={() => handleSelect(student)}
-                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
-              >
-                <p className="text-sm font-medium text-gray-800">{student.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {student.rollNo} · {student.branch} · {student.section}
-                </p>
-              </button>
-            ))}
+        {/* Search */}
+        <div className="flex-1 max-w-sm relative" ref={wrapperRef}>
+          <div className="relative">
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="text"
+              value={query}
+              onChange={handleChange}
+              onFocus={() => setShowDropdown(true)}
+              onKeyDown={handleKeyDown}
+              placeholder="Search by name or roll no..."
+              className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
+            />
           </div>
-        )}
+
+          {/* Dropdown */}
+          {showDropdown && results.length > 0 && (
+            <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+              {results.map((student) => (
+                <button
+                  key={student._id}
+                  onClick={() => handleSelect(student)}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                >
+                  <p className="text-sm font-medium text-gray-800">{student.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {student.rollNo} · {student.branch} · {student.section}
+                  </p>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         {/* Notifications */}
         <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
           <Bell size={18} />

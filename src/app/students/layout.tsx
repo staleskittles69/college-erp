@@ -6,13 +6,19 @@ import { Navbar } from "@/components/navbar/Navbar";
 
 export default function StudentsLayout({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar isCollapsed={isCollapsed} toggleSidebar={() => setIsCollapsed(!isCollapsed)} />
-      <div className={`transition-all duration-300 ${isCollapsed ? "ml-20" : "ml-64"}`}>
-        <Navbar />
-        <main className="p-6">
+      <Sidebar
+        isCollapsed={isCollapsed}
+        toggleSidebar={() => setIsCollapsed(!isCollapsed)}
+        mobileOpen={mobileOpen}
+        onCloseMobile={() => setMobileOpen(false)}
+      />
+      <div className={`transition-all duration-300 ${isCollapsed ? "md:ml-20" : "md:ml-64"}`}>
+        <Navbar onMenuClick={() => setMobileOpen(true)} />
+        <main className="p-4 sm:p-6">
           {children}
         </main>
       </div>

@@ -6,6 +6,7 @@ import { TeacherNavbar } from "@/components/teacher/TeacherNavbar";
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [teacherName, setTeacherName] = useState("");
   const [teacherEmail, setTeacherEmail] = useState("");
 
@@ -26,10 +27,12 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
         toggleSidebar={() => setIsCollapsed(!isCollapsed)}
         name={teacherName}
         email={teacherEmail}
+        mobileOpen={mobileOpen}
+        onCloseMobile={() => setMobileOpen(false)}
       />
-      <div className={`transition-all duration-300 ${isCollapsed ? "ml-20" : "ml-64"}`}>
-        <TeacherNavbar name={teacherName} />
-        <main className="p-6">
+      <div className={`transition-all duration-300 ${isCollapsed ? "md:ml-20" : "md:ml-64"}`}>
+        <TeacherNavbar name={teacherName} onMenuClick={() => setMobileOpen(true)} />
+        <main className="p-4 sm:p-6">
           {children}
         </main>
       </div>

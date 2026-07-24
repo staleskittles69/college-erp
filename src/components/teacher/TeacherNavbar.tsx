@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, LogOut, Menu } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -11,7 +11,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/teacher/assignments': 'Assignments',
 };
 
-export function TeacherNavbar({ name }: { name: string }) {
+export function TeacherNavbar({ name, onMenuClick }: { name: string; onMenuClick: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
   const pageTitle = PAGE_TITLES[pathname] ?? 'Teacher Portal';
@@ -22,13 +22,20 @@ export function TeacherNavbar({ name }: { name: string }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white px-6 shadow-sm">
-      <div className="flex items-center gap-2">
-        <div className="w-1 h-5 rounded-full bg-blue-600" />
-        <h1 className="text-base font-semibold text-gray-800">{pageTitle}</h1>
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 shadow-sm">
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          onClick={onMenuClick}
+          className="md:hidden -ml-1 mr-1 p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors shrink-0"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+        <div className="w-1 h-5 rounded-full bg-blue-600 shrink-0 hidden sm:block" />
+        <h1 className="text-base font-semibold text-gray-800 truncate">{pageTitle}</h1>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0">
         <button
           className="relative rounded-full p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
           aria-label="Notifications"
@@ -37,16 +44,16 @@ export function TeacherNavbar({ name }: { name: string }) {
           <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border-2 border-white bg-blue-600" />
         </button>
 
-        <div className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold ml-1">
+        <div className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold ml-1 shrink-0">
           {name ? name.charAt(0).toUpperCase() : "T"}
         </div>
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors ml-1"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-sm text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors ml-1"
         >
           <LogOut size={15} />
-          <span>Logout</span>
+          <span className="hidden sm:inline">Logout</span>
         </button>
       </div>
     </header>

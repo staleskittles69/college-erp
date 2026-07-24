@@ -81,7 +81,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat) => (
           <div
             key={stat.label}
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
             View All <ArrowRight size={14} />
           </Link>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats?.branches.map((branch) => (
             <Link
               key={branch.slug}
@@ -129,7 +129,7 @@ export default function AdminDashboard() {
             </Link>
           ))}
           {!stats && (
-            <div className="col-span-4 h-24 rounded-xl border border-dashed border-gray-300 flex items-center justify-center text-sm text-gray-400">
+            <div className="col-span-full h-24 rounded-xl border border-dashed border-gray-300 flex items-center justify-center text-sm text-gray-400">
               Loading...
             </div>
           )}
