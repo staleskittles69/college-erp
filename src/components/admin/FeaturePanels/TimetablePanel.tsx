@@ -67,7 +67,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
     setSaveStatus("");
     try {
       const response = await fetch(
-        `/api/timetable?branch=${branch}&semester=${year}&section=${section}`,
+        `/api/timetable?branch=${branch}&semester=${year}&section=${encodeURIComponent(`Section ${section}`)}`,
         { credentials: "include" }
       );
       if (!response.ok) return;
@@ -110,7 +110,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
             body: JSON.stringify({
               branch: branch.toUpperCase(),
               semester: parseInt(year, 10),
-              section: section.toUpperCase(),
+              section: `Section ${section}`,
               dayOfWeek: parseInt(dayIdx, 10),
               slots: daySlots,
             }),

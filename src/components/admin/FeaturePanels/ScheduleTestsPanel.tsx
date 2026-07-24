@@ -71,7 +71,7 @@ export default function ScheduleTestsPanel() {
     setForm({
       branch: test.branch ?? BRANCHES[0],
       semester: test.semester != null ? String(test.semester) : String(YEARS[0]),
-      section: test.section ?? "1",
+      section: test.section ? test.section.replace(/^Section\s*/i, "") : "1",
       subject: test.subject,
       title: test.title,
       testType: test.testType ?? TEST_TYPES[0],
@@ -95,7 +95,7 @@ export default function ScheduleTestsPanel() {
       date: form.date,
       branch: form.branch,
       semester: Number(form.semester),
-      section: form.section,
+      section: form.section ? `Section ${form.section}` : null,
       testType: form.testType,
       maxMarks: form.maxMarks ? Number(form.maxMarks) : null,
       dueTime: form.dueTime || null,
