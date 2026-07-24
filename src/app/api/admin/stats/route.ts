@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     const [totalStudents, branchCounts, noticeCount] = await Promise.all([
       Student.countDocuments(),
-      Student.aggregate([{ $group: { _id: "$branch", count: { $sum: 1 } } }, { $sort: { _id: 1 } }]),
+      Student.aggregate([{ $group: { _id: "$branch", count: { $sum: 1 } } }, { $sort: { count: -1, _id: 1 } }]),
       Notice.countDocuments(),
     ]);
 
