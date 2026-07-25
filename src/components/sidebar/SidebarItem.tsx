@@ -22,8 +22,8 @@ export function SidebarItem({ icon, label, href, isCollapsed, onNavigate }: Side
       title={isCollapsed ? label : undefined}
       className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all group ${
         isActive
-          ? 'bg-blue-600 text-white shadow-sm'
-          : 'text-white/65 hover:bg-white/10 hover:text-white'
+          ? 'bg-orange-50 text-orange-600 font-semibold'
+          : 'text-slate-500 hover:bg-gray-50 hover:text-slate-900'
       } ${isCollapsed ? 'md:justify-center' : ''}`}
     >
       <span className="flex items-center justify-center w-[18px] h-[18px] shrink-0 transition-transform group-hover:scale-110">

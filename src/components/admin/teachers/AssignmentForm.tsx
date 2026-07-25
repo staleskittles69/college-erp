@@ -50,7 +50,7 @@ export default function AssignmentForm({ teacherId }: { teacherId: string }) {
   }
 
   const selectClass =
-    "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 bg-white";
+    "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 bg-white";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,8 +105,8 @@ export default function AssignmentForm({ teacherId }: { teacherId: string }) {
                     isAssigned
                       ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed"
                       : sections.includes(section)
-                      ? "border-indigo-600 bg-indigo-600 text-white"
-                      : "border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600"
+                      ? "border-orange-600 bg-orange-600 text-white"
+                      : "border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
                   }`}
                 >
                   {isAssigned ? <Check size={13} /> : section}
@@ -124,7 +124,7 @@ export default function AssignmentForm({ teacherId }: { teacherId: string }) {
       <button
         type="submit"
         disabled={allSectionsTaken}
-        className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {existingEntry ? "Add Sections" : "Assign Class"}
       </button>

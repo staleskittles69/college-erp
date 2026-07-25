@@ -134,21 +134,21 @@ export default function ScheduleTestsPanel() {
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Branch</label>
               <select value={form.branch} onChange={(e) => setForm({ ...form, branch: e.target.value })}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
                 {BRANCHES.map((branchOption) => <option key={branchOption}>{branchOption}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Year</label>
               <select value={form.semester} onChange={(e) => setForm({ ...form, semester: e.target.value })}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
                 {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>{yearLabel(yearOption)}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Section</label>
               <input type="number" min={1} value={form.section} onChange={(e) => setForm({ ...form, section: e.target.value })}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20" />
             </div>
           </div>
 
@@ -156,7 +156,7 @@ export default function ScheduleTestsPanel() {
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Subject</label>
               <select value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
                 <option value="">Select subject…</option>
                 {subjectOptions.map((subjectOption) => <option key={subjectOption} value={subjectOption}>{subjectOption}</option>)}
               </select>
@@ -164,7 +164,7 @@ export default function ScheduleTestsPanel() {
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Test Type</label>
               <select value={form.testType} onChange={(e) => setForm({ ...form, testType: e.target.value })}
-                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
                 {TEST_TYPES.map((typeOption) => <option key={typeOption}>{typeOption}</option>)}
               </select>
             </div>
@@ -175,26 +175,26 @@ export default function ScheduleTestsPanel() {
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             placeholder="Test title, e.g. Unit Test 1 - Data Structures"
-            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Date</label>
               <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-600" />
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-gray-600" />
             </div>
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Time / Period</label>
               <input type="text" value={form.dueTime} onChange={(e) => setForm({ ...form, dueTime: e.target.value })}
                 placeholder="e.g. 10:00 AM or Period 3"
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20" />
             </div>
             <div>
               <label className="block text-[11px] text-gray-400 mb-1">Max Marks</label>
               <input type="number" value={form.maxMarks} onChange={(e) => setForm({ ...form, maxMarks: e.target.value })}
                 placeholder="e.g. 50"
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20" />
             </div>
           </div>
 
@@ -203,7 +203,7 @@ export default function ScheduleTestsPanel() {
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}
             placeholder="Optional syllabus / notes..."
-            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
 
           <div className="flex items-center gap-3">
@@ -216,7 +216,7 @@ export default function ScheduleTestsPanel() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-5 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-60"
+                className="px-5 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-60"
               >
                 {saving ? "Saving…" : editingId ? "Save Changes" : "Schedule Test"}
               </button>
@@ -263,7 +263,7 @@ export default function ScheduleTestsPanel() {
                     <td className="px-4 py-3 text-gray-600">{test.maxMarks ?? "—"}</td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button onClick={() => openEdit(test)}
-                        className="text-xs text-indigo-600 hover:text-indigo-800 font-medium mr-3">Edit</button>
+                        className="text-xs text-orange-600 hover:text-orange-800 font-medium mr-3">Edit</button>
                       <button onClick={() => handleDelete(test._id)} disabled={deleting === test._id}
                         className="text-xs text-red-500 hover:text-red-700 font-medium disabled:opacity-40">
                         {deleting === test._id ? "Deleting…" : "Delete"}

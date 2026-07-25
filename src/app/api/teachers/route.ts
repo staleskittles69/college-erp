@@ -3,7 +3,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Teacher from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
-import { hashPassword } from "@/lib/auth";
+import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
         email: (teacher.userId as { email?: string })?.email ?? "",
         department: teacher.department,
         teaching: teacher.teaching ?? [],
-        plainPassword: teacher.plainPassword ?? "",
       }))
     );
   } catch (error) {
@@ -55,6 +54,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const plainPassword = password || "teacher123";
+    const passwordError = validatePasswordStrength(plainPassword);
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 });
+    }
+
     await connectDB();
 
     const existing = await User.findOne({ email });
@@ -62,7 +67,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email already registered" }, { status: 400 });
     }
 
-    const plainPassword = password || "teacher123";
     const hashedPassword = await hashPassword(plainPassword);
     const user = await User.create({ name, email, password: hashedPassword, role: "teacher" });
 
@@ -72,7 +76,6 @@ export async function POST(request: NextRequest) {
       employeeId: `EMP${Date.now()}`,
       department,
       teaching: [],
-      plainPassword,
     });
 
     return NextResponse.json({

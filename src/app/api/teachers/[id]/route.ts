@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Teacher, { ITeacher } from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { generateRandomPassword, hashPassword } from "@/lib/auth";
 import mongoose from "mongoose";
 
 export async function PATCH(
@@ -31,6 +32,17 @@ export async function PATCH(
     if (body.department != null) teacher.department = body.department;
     await teacher.save();
 
+    let newPassword: string | undefined;
+    if (body.resetPassword) {
+      newPassword = generateRandomPassword();
+      const hashedPassword = await hashPassword(newPassword);
+      await User.findByIdAndUpdate(teacher.userId, {
+        password: hashedPassword,
+        failedLoginAttempts: 0,
+        lockUntil: null,
+      });
+    }
+
     const populated = await Teacher.findById(id).populate("userId", "email").lean() as (ITeacher & { userId: { email?: string } }) | null;
     return NextResponse.json({
       id: populated!._id.toString(),
@@ -38,6 +50,7 @@ export async function PATCH(
       email: (populated!.userId as { email?: string })?.email ?? "",
       department: populated!.department,
       teaching: populated!.teaching ?? [],
+      ...(newPassword ? { newPassword } : {}),
     });
   } catch (error) {
     console.error("Teacher PATCH error:", error);

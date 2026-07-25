@@ -117,10 +117,10 @@ export default function AssignmentsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] px-8 py-6 text-white shadow-lg">
+      <div className="flex items-center justify-between rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <div>
           <h1 className="text-xl font-bold">Assignments</h1>
-          <p className="text-blue-200 text-sm mt-1">Tests and assignments for your classes</p>
+          <p className="text-white/80 text-sm mt-1">Tests and assignments for your classes</p>
         </div>
         <button
           onClick={() => { setOpen(true); setFormError(""); }}
@@ -166,7 +166,7 @@ export default function AssignmentsPage() {
                     <p className="text-sm font-semibold text-gray-800">{test.title}</p>
                     <span
                       className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
-                        test.testType === "Test" ? "bg-blue-50 text-blue-600" : "bg-amber-50 text-amber-600"
+                        test.testType === "Test" ? "bg-orange-50 text-orange-600" : "bg-amber-50 text-amber-600"
                       }`}
                     >
                       {test.testType === "Test" ? "Test" : "Assignment"}
@@ -179,7 +179,7 @@ export default function AssignmentsPage() {
                   </p>
                   {test.attachmentUrl && (
                     <a href={test.attachmentUrl} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-1">
+                      className="inline-flex items-center gap-1 text-xs text-orange-600 hover:underline mt-1">
                       <Paperclip size={11} /> Attachment
                     </a>
                   )}
@@ -217,7 +217,7 @@ export default function AssignmentsPage() {
                       className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
                         form.testType === typeOption
                           ? typeOption === "Test"
-                            ? "bg-blue-50 border-blue-300 text-blue-700"
+                            ? "bg-orange-50 border-orange-300 text-orange-700"
                             : "bg-amber-50 border-amber-300 text-amber-700"
                           : "border-gray-200 text-gray-500 hover:bg-gray-50"
                       }`}
@@ -234,7 +234,7 @@ export default function AssignmentsPage() {
                   value={form.title}
                   onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
                   placeholder={form.testType === "Test" ? "e.g. Unit Test 2 - Data Structures" : "e.g. Chapter 3 Assignment"}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
@@ -244,7 +244,7 @@ export default function AssignmentsPage() {
                   <select
                     value={form.subject}
                     onChange={(e) => setForm((prev) => ({ ...prev, subject: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option value="">Select subject</option>
                     {subjects.map((subjectOption) => <option key={subjectOption} value={subjectOption}>{subjectOption}</option>)}
@@ -254,7 +254,7 @@ export default function AssignmentsPage() {
                     value={form.subject}
                     onChange={(e) => setForm((prev) => ({ ...prev, subject: e.target.value }))}
                     placeholder="e.g. Data Structures"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 )}
               </div>
@@ -265,7 +265,7 @@ export default function AssignmentsPage() {
                   <select
                     value={form.branch}
                     onChange={(e) => handleBranchChange(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option value="">All branches</option>
                     {depts.map((dept) => <option key={dept.slug} value={dept.name}>{dept.name}</option>)}
@@ -277,7 +277,7 @@ export default function AssignmentsPage() {
                     value={form.semester}
                     onChange={(e) => setForm((prev) => ({ ...prev, semester: e.target.value }))}
                     disabled={!form.branch}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-gray-50"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:bg-gray-50"
                   >
                     <option value="">{form.branch ? "All years" : "Select branch first"}</option>
                     {form.branch && [1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
@@ -291,7 +291,7 @@ export default function AssignmentsPage() {
                   type="date"
                   value={form.date}
                   onChange={(e) => setForm((prev) => ({ ...prev, date: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
@@ -303,13 +303,13 @@ export default function AssignmentsPage() {
                   onChange={(e) => setForm((prev) => ({ ...prev, maxMarks: e.target.value }))}
                   placeholder="e.g. 100"
                   min={0}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Attachment <span className="text-gray-400">(optional)</span></label>
-                <label className="flex items-center gap-3 border border-dashed border-gray-300 rounded-lg px-4 py-3 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                <label className="flex items-center gap-3 border border-dashed border-gray-300 rounded-lg px-4 py-3 cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
                   <Upload size={16} className="text-gray-400 flex-shrink-0" />
                   <span className="text-sm text-gray-500 truncate">
                     {file ? file.name : "Click to upload a file"}
@@ -339,7 +339,7 @@ export default function AssignmentsPage() {
               <button
                 onClick={handleCreate}
                 disabled={saving}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60"
+                className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
                 {saving ? "Creating…" : `Create ${form.testType === "Test" ? "Test" : "Assignment"}`}
               </button>

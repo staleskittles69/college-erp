@@ -67,7 +67,7 @@ export default function AttendancePage() {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Branch</label>
           <select value={branch} onChange={(e) => { setBranch(e.target.value); setApplied(false); }}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
             <option value="">Select Branch</option>
             {depts.map((dept) => <option key={dept.slug} value={dept.name}>{dept.name}</option>)}
           </select>
@@ -75,7 +75,7 @@ export default function AttendancePage() {
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Year</label>
           <select value={year} onChange={(e) => { setYear(e.target.value); setApplied(false); }}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
             <option value="">Select Year</option>
             {[1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
           </select>
@@ -84,15 +84,15 @@ export default function AttendancePage() {
           <label className="block text-xs font-medium text-gray-600 mb-1">Section</label>
           <input value={section} onChange={(e) => { setSection(e.target.value); setApplied(false); }}
             placeholder="e.g. Section 1"
-            className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 w-32" />
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20 w-32" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
           <input type="date" value={date} onChange={(e) => { setDate(e.target.value); setApplied(false); }}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+            className="text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20" />
         </div>
         <button onClick={handleApply} disabled={loading || !branch || !year || !section}
-          className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50">
+          className="px-4 py-2 text-sm bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50">
           {loading ? "Loading…" : "Apply Filters"}
         </button>
       </div>
@@ -110,7 +110,7 @@ export default function AttendancePage() {
             {[
               { label: "Total Students", value: students.length, color: "bg-gray-50 text-gray-700" },
               { label: "Present (any class)", value: presentCount, color: "bg-green-50 text-green-700" },
-              { label: "Records Found", value: records.length, color: "bg-indigo-50 text-indigo-700" },
+              { label: "Records Found", value: records.length, color: "bg-orange-50 text-orange-700" },
             ].map((stat) => (
               <div key={stat.label} className={`rounded-xl p-4 ${stat.color}`}>
                 <p className="text-2xl font-bold">{stat.value}</p>

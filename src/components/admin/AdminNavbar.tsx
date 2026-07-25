@@ -102,7 +102,7 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
               onFocus={() => setShowDropdown(true)}
               onKeyDown={handleKeyDown}
               placeholder="Search by name or roll no..."
-              className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition"
             />
           </div>
 
@@ -138,8 +138,8 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
 
         {/* Profile */}
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-            <User size={15} className="text-indigo-600" />
+          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+            <User size={15} className="text-orange-600" />
           </div>
           <div className="hidden sm:block leading-none">
             <p className="text-sm font-semibold text-gray-800">{profile?.name ?? "Admin"}</p>

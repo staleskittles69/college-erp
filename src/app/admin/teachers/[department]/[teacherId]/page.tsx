@@ -10,7 +10,7 @@ import TeacherTimetableModal from "@/components/admin/teachers/TeacherTimetableM
 
 export default function TeacherDetailsPage() {
   const { department: slug, teacherId } = useParams() as { department: string; teacherId: string };
-  const { teachers, departments, removeSection } = useTeachers();
+  const { teachers, departments, removeSection, resetTeacherPassword } = useTeachers();
   const dept = departments.find((department) => department.slug === slug);
   const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
   const [showTimetable, setShowTimetable] = useState(false);
@@ -18,6 +18,9 @@ export default function TeacherDetailsPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(false);
+  const [resetPasswordValue, setResetPasswordValue] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState("");
 
   function copyToClipboard(text: string, which: "email" | "password") {
     navigator.clipboard.writeText(text);
@@ -27,6 +30,20 @@ export default function TeacherDetailsPage() {
     } else {
       setCopiedPassword(true);
       setTimeout(() => setCopiedPassword(false), 1500);
+    }
+  }
+
+  async function handleResetPassword() {
+    setResetError("");
+    setResetting(true);
+    try {
+      const newPassword = await resetTeacherPassword(teacherId);
+      setResetPasswordValue(newPassword);
+      setShowPassword(true);
+    } catch (error) {
+      setResetError(error instanceof Error ? error.message : "Failed to reset password");
+    } finally {
+      setResetting(false);
     }
   }
 
@@ -62,26 +79,26 @@ export default function TeacherDetailsPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowAssign(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors"
             >
               + Assign Class
             </button>
             <button
               onClick={() => setShowTimetable(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-orange-600 hover:border-orange-200 transition-colors"
             >
               <Calendar size={13} /> Edit Timetable
             </button>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-2xl flex-shrink-0">
+          <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-2xl flex-shrink-0">
             {teacher.name.charAt(0)}
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-gray-900">{teacher.name}</p>
             <p className="text-xs text-gray-500 mt-0.5">{teacher.email}</p>
-            <span className="inline-block mt-1.5 px-2 py-0.5 text-xs font-medium bg-indigo-50 text-indigo-600 rounded-full">
+            <span className="inline-block mt-1.5 px-2 py-0.5 text-xs font-medium bg-orange-50 text-orange-600 rounded-full">
               {dept?.name ?? teacher.department}
             </span>
           </div>
@@ -100,7 +117,7 @@ export default function TeacherDetailsPage() {
             </div>
             <button
               onClick={() => copyToClipboard(teacher.email, "email")}
-              className="flex-shrink-0 flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-2.5 py-1.5 rounded-lg transition-colors"
+              className="flex-shrink-0 flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 px-2.5 py-1.5 rounded-lg transition-colors"
             >
               {copiedEmail ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
               {copiedEmail ? "Copied" : "Copy"}
@@ -111,32 +128,45 @@ export default function TeacherDetailsPage() {
             <div className="min-w-0">
               <p className="text-xs text-gray-400 mb-0.5">Password</p>
               <p className="text-sm font-medium text-gray-800 font-mono">
-                {teacher.plainPassword
-                  ? showPassword ? teacher.plainPassword : "•".repeat(Math.min(teacher.plainPassword.length, 12))
-                  : <span className="text-gray-400 italic text-xs">Set before this feature was added</span>}
+                {resetPasswordValue
+                  ? showPassword ? resetPasswordValue : "•".repeat(Math.min(resetPasswordValue.length, 12))
+                  : <span className="text-gray-400 italic text-xs">Not stored — reset to generate a new one</span>}
               </p>
             </div>
             <div className="flex-shrink-0 flex items-center gap-1.5">
-              {teacher.plainPassword && (
+              {resetPasswordValue && (
                 <>
                   <button
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 px-2.5 py-1.5 rounded-lg transition-colors"
                   >
                     {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
                     {showPassword ? "Hide" : "Show"}
                   </button>
                   <button
-                    onClick={() => copyToClipboard(teacher.plainPassword!, "password")}
-                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-indigo-600 border border-gray-200 hover:border-indigo-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                    onClick={() => copyToClipboard(resetPasswordValue, "password")}
+                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 px-2.5 py-1.5 rounded-lg transition-colors"
                   >
                     {copiedPassword ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
                     {copiedPassword ? "Copied" : "Copy"}
                   </button>
                 </>
               )}
+              <button
+                onClick={handleResetPassword}
+                disabled={resetting}
+                className="flex items-center gap-1 text-xs text-white bg-orange-600 hover:bg-orange-700 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+              >
+                {resetting ? "Resetting..." : resetPasswordValue ? "Reset again" : "Reset password"}
+              </button>
             </div>
           </div>
+          {resetError && <p className="text-xs text-red-500">{resetError}</p>}
+          {resetPasswordValue && (
+            <p className="text-xs text-amber-600">
+              This is shown once — save it now. It won&apos;t be retrievable after you leave this page.
+            </p>
+          )}
         </div>
       </div>
 
@@ -160,7 +190,7 @@ export default function TeacherDetailsPage() {
                 <div key={`${assignmentIdx}-${section}`} className="flex items-center justify-between py-3">
                   <p className="text-sm font-medium text-gray-800">
                     {assignment.branch} — Year {assignment.year} —{" "}
-                    <span className="text-indigo-600">Section {section}</span>
+                    <span className="text-orange-600">Section {section}</span>
                   </p>
                   <button
                     onClick={() => removeSection(teacher.id, assignmentIdx, section)}

@@ -4,7 +4,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Profile hero */}
-      <div className="rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] shadow-lg overflow-hidden">
+      <div className="rounded-2xl bg-orange-600 shadow-lg overflow-hidden">
         <div className="px-8 pt-8 pb-6 flex items-end gap-6">
           {/* Avatar */}
           <div className="w-20 h-20 rounded-2xl bg-white/20 border-2 border-white/30 flex items-center justify-center shrink-0">
@@ -13,7 +13,7 @@ export default function ProfilePage() {
           {/* Info */}
           <div className="pb-1">
             <h1 className="text-2xl font-bold text-white tracking-tight">Student Name</h1>
-            <p className="text-blue-200 text-sm mt-0.5">Computer Science · 3rd Year · Section 1</p>
+            <p className="text-white/80 text-sm mt-0.5">Computer Science · 3rd Year · Section 1</p>
           </div>
         </div>
       </div>
@@ -21,8 +21,8 @@ export default function ProfilePage() {
       {/* Info cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
-          { icon: <Hash size={18} className="text-blue-500" />, label: "Student ID", value: "—", bg: "bg-blue-50" },
-          { icon: <Mail size={18} className="text-indigo-500" />, label: "Email", value: "—", bg: "bg-indigo-50" },
+          { icon: <Hash size={18} className="text-orange-500" />, label: "Student ID", value: "—", bg: "bg-orange-50" },
+          { icon: <Mail size={18} className="text-orange-500" />, label: "Email", value: "—", bg: "bg-orange-50" },
           { icon: <BookOpen size={18} className="text-green-500" />, label: "Branch", value: "—", bg: "bg-green-50" },
           { icon: <User size={18} className="text-amber-500" />, label: "Batch", value: "—", bg: "bg-amber-50" },
         ].map((item) => (

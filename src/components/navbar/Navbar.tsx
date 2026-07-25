@@ -39,7 +39,7 @@ export function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
         >
           <Menu size={20} />
         </button>
-        <div className="w-1 h-5 rounded-full bg-blue-600 shrink-0 hidden sm:block" />
+        <div className="w-1 h-5 rounded-full bg-orange-600 shrink-0 hidden sm:block" />
         <h1 className="text-base font-semibold text-gray-800 truncate">{pageTitle}</h1>
       </div>
 
@@ -51,13 +51,13 @@ export function Navbar({ onMenuClick }: { onMenuClick: () => void }) {
           aria-label="Notifications"
         >
           <Bell size={19} />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border-2 border-white bg-blue-600" />
+          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border-2 border-white bg-orange-600" />
         </button>
 
         {/* Avatar / profile link */}
         <Link
           href="/student/profile"
-          className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold hover:bg-blue-700 hover:ring-2 hover:ring-blue-300 hover:ring-offset-1 transition-all ml-1 shrink-0"
+          className="h-9 w-9 rounded-full bg-orange-600 text-white flex items-center justify-center text-sm font-bold hover:bg-orange-700 hover:ring-2 hover:ring-orange-300 hover:ring-offset-1 transition-all ml-1 shrink-0"
           aria-label="Profile"
         >
           S

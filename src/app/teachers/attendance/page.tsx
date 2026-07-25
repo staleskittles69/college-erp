@@ -103,9 +103,9 @@ export default function AttendancePage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] px-8 py-6 text-white shadow-lg">
+      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <h1 className="text-xl font-bold">Attendance</h1>
-        <p className="text-blue-200 text-sm mt-1">{today}</p>
+        <p className="text-white/80 text-sm mt-1">{today}</p>
       </div>
 
       {/* Class + subject selector */}
@@ -117,7 +117,7 @@ export default function AttendancePage() {
             <select
               value={branch}
               onChange={(e) => handleBranchChange(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="">Select</option>
               {branches.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
@@ -129,7 +129,7 @@ export default function AttendancePage() {
               value={year}
               onChange={(e) => handleYearChange(Number(e.target.value))}
               disabled={!branch}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
             >
               <option value="">Select</option>
               {yearsForBranch.map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
@@ -141,7 +141,7 @@ export default function AttendancePage() {
               value={section}
               onChange={(e) => handleSectionChange(e.target.value)}
               disabled={!year}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
             >
               <option value="">Select</option>
               {sectionsForClass.map((sectionOption) => <option key={sectionOption} value={sectionOption}>Section {sectionOption}</option>)}
@@ -153,7 +153,7 @@ export default function AttendancePage() {
               type="date"
               value={date}
               onChange={(e) => { setDate(e.target.value); setSubmitted(false); }}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function AttendancePage() {
               <select
                 value={subject}
                 onChange={(e) => { setSubject(e.target.value); setSubmitError(""); }}
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
                 <option value="">Select subject</option>
                 {subjects.map((subjectOption) => <option key={subjectOption} value={subjectOption}>{subjectOption}</option>)}
@@ -242,7 +242,7 @@ export default function AttendancePage() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-60"
+                className="shrink-0 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
                 {submitting ? "Saving…" : "Submit"}
               </button>

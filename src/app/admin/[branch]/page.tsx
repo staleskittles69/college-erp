@@ -42,11 +42,11 @@ export default function YearSelectionPage({ params }: Props) {
           <Link
             key={year.slug}
             href={`/admin/${branch}/${year.slug}`}
-            className="bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30 px-6 py-5 flex items-center justify-between group transition-all"
+            className="bg-white rounded-xl border border-gray-200 hover:border-orange-300 hover:bg-orange-50/30 px-6 py-5 flex items-center justify-between group transition-all"
           >
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <span className="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                <span className="w-7 h-7 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {yearIdx + 1}
                 </span>
                 <span className="font-semibold text-gray-800">{year.label}</span>
@@ -55,7 +55,7 @@ export default function YearSelectionPage({ params }: Props) {
             </div>
             <ArrowRight
               size={16}
-              className="text-gray-300 group-hover:text-indigo-400 transition-colors flex-shrink-0"
+              className="text-gray-300 group-hover:text-orange-400 transition-colors flex-shrink-0"
             />
           </Link>
         ))}

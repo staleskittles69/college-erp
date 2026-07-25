@@ -84,7 +84,7 @@ export default function StudentListPage() {
               placeholder="Search by roll number..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function StudentListPage() {
                     <td className="px-6 py-3.5">
                       <Link
                         href={`/admin/${branch}/${year}/${section}/${student._id}`}
-                        className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                        className="flex items-center gap-1 text-xs text-orange-600 hover:text-orange-800 font-medium"
                       >
                         View <ArrowRight size={11} />
                       </Link>

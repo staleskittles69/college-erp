@@ -6,8 +6,8 @@ import { useTeachers } from "@/contexts/TeachersContext";
 import { Department } from "@/contexts/TeachersContext";
 
 const COLOR_SEQUENCE = [
-  "border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50",
-  "border-blue-200 hover:border-blue-400 hover:bg-blue-50",
+  "border-orange-200 hover:border-orange-400 hover:bg-orange-50",
+  "border-orange-200 hover:border-orange-400 hover:bg-orange-50",
   "border-green-200 hover:border-green-400 hover:bg-green-50",
   "border-orange-200 hover:border-orange-400 hover:bg-orange-50",
   "border-purple-200 hover:border-purple-400 hover:bg-purple-50",
@@ -86,7 +86,7 @@ export default function DepartmentFormModal({ mode, existing, onClose }: Props) 
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoFocus
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
 
@@ -103,7 +103,7 @@ export default function DepartmentFormModal({ mode, existing, onClose }: Props) 
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60"
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-60"
             >
               {saving ? "Saving…" : mode === "add" ? "Add Department" : "Save Changes"}
             </button>

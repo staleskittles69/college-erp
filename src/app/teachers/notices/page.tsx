@@ -88,7 +88,7 @@ export default function TeacherNoticesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center">
             <Bell size={20} className="text-white" />
           </div>
           <div>
@@ -98,7 +98,7 @@ export default function TeacherNoticesPage() {
         </div>
         <button
           onClick={() => { setOpen(true); setFormError(""); }}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           <Plus size={16} /> Post Notice
         </button>
@@ -123,10 +123,10 @@ export default function TeacherNoticesPage() {
               <div className="flex items-start justify-between mb-1.5 gap-3">
                 <div className="flex items-center gap-2 flex-wrap">
                   {notice.pinned && (
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">Pinned</span>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">Pinned</span>
                   )}
                   {notice.targetBranch && (
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
                       {notice.targetBranch}{notice.targetYear ? ` · Year ${notice.targetYear}` : ""}
                     </span>
                   )}
@@ -154,7 +154,7 @@ export default function TeacherNoticesPage() {
                   value={form.title}
                   onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g. Assignment deadline reminder"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               <div>
@@ -164,7 +164,7 @@ export default function TeacherNoticesPage() {
                   onChange={(e) => setForm((prev) => ({ ...prev, body: e.target.value }))}
                   placeholder="Write your notice here..."
                   rows={4}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -173,7 +173,7 @@ export default function TeacherNoticesPage() {
                   <select
                     value={form.targetBranch}
                     onChange={(e) => handleBranchChange(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option value="">All students</option>
                     {[...new Set(teaching.map((teachingItem) => teachingItem.branch))].map((branchOption) => (
@@ -187,7 +187,7 @@ export default function TeacherNoticesPage() {
                     value={form.targetYear}
                     onChange={(e) => setForm((prev) => ({ ...prev, targetYear: e.target.value }))}
                     disabled={!form.targetBranch}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:bg-gray-50"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:bg-gray-50"
                   >
                     <option value="">{form.targetBranch ? "All years" : "Select branch first"}</option>
                     {yearsForBranch.map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
@@ -202,7 +202,7 @@ export default function TeacherNoticesPage() {
               <button
                 onClick={handlePost}
                 disabled={saving}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60"
+                className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
                 {saving ? "Posting…" : "Post Notice"}
               </button>

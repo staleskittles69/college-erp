@@ -101,14 +101,14 @@ export default function AnnouncementsPanel() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Announcement title..."
-            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
           <textarea
             rows={3}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Write your announcement here..."
-            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1.5">Target audience</label>
@@ -118,7 +118,7 @@ export default function AnnouncementsPanel() {
                 <select
                   value={targetBranch}
                   onChange={(e) => setTargetBranch(e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
                   <option value="">All Branches</option>
                   {branches.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
@@ -129,7 +129,7 @@ export default function AnnouncementsPanel() {
                 <select
                   value={targetYear}
                   onChange={(e) => setTargetYear(e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
                   <option value="">All Years</option>
                   {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>{yearLabel(yearOption)}</option>)}
@@ -143,7 +143,7 @@ export default function AnnouncementsPanel() {
                 type="checkbox"
                 checked={pinned}
                 onChange={(e) => setPinned(e.target.checked)}
-                className="rounded text-indigo-600"
+                className="rounded text-orange-600"
               />
               Pin announcement
             </label>
@@ -152,7 +152,7 @@ export default function AnnouncementsPanel() {
               <button
                 onClick={handlePublish}
                 disabled={saving}
-                className="px-5 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-60"
+                className="px-5 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-60"
               >
                 {saving ? "Publishing…" : "Publish"}
               </button>

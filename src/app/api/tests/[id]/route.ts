@@ -12,6 +12,11 @@ export async function GET(
   const { id } = await context.params;
 
   try {
+    const payload = await getAuth(request);
+    if (!payload) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }

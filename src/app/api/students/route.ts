@@ -3,7 +3,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
-import { hashPassword } from "@/lib/auth";
+import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { generateRollNumber } from "@/lib/utils/generateRollNumber";
 import { escapeRegex } from "@/lib/utils";
 
@@ -85,6 +85,11 @@ export async function POST(request: NextRequest) {
         { error: "Missing required fields: email, password, name, rollNo, branch, semester, section" },
         { status: 400 }
       );
+    }
+
+    const passwordError = validatePasswordStrength(password);
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 });
     }
 
     await connectDB();

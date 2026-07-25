@@ -65,7 +65,7 @@ export default function MarksPage() {
             onChange={handleChange}
             onFocus={() => setShowDropdown(true)}
             placeholder="Name or roll number…"
-            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+            className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
           {showDropdown && results.length > 0 && (
             <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
@@ -83,7 +83,7 @@ export default function MarksPage() {
           <p className="mt-2 text-xs text-gray-500">
             Showing marks for <strong>{selected.name}</strong> ({context})
             <button onClick={() => { setSelected(null); setQuery(""); }}
-              className="ml-2 text-indigo-600 hover:text-indigo-800 underline">
+              className="ml-2 text-orange-600 hover:text-orange-800 underline">
               Clear
             </button>
           </p>

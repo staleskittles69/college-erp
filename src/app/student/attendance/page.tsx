@@ -84,9 +84,9 @@ export default function AttendancePage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] px-8 py-6 text-white shadow-lg">
+      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <h1 className="text-2xl font-bold tracking-tight">Attendance</h1>
-        <p className="text-blue-200 text-sm mt-1">Monitor your attendance records and statistics.</p>
+        <p className="text-white/80 text-sm mt-1">Monitor your attendance records and statistics.</p>
       </div>
 
       {loading ? (
@@ -110,7 +110,7 @@ export default function AttendancePage() {
             {[
               { label: "Present", value: present, color: "bg-green-50 text-green-700" },
               { label: "Absent", value: total - present, color: "bg-red-50 text-red-700" },
-              { label: "Overall", value: `${pct}%`, color: pct >= 75 ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700" },
+              { label: "Overall", value: `${pct}%`, color: pct >= 75 ? "bg-orange-50 text-orange-700" : "bg-amber-50 text-amber-700" },
             ].map((stat) => (
               <div key={stat.label} className={`rounded-xl p-4 ${stat.color}`}>
                 <p className="text-2xl font-bold">{stat.value}</p>

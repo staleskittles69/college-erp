@@ -95,7 +95,7 @@ export default function AdminAttendancePage() {
             <select
               value={branch}
               onChange={(e) => handleBranchChange(e.target.value)}
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="">Select</option>
               {branches.map((branchOption) => (
@@ -108,7 +108,7 @@ export default function AdminAttendancePage() {
             <select
               value={year}
               onChange={(e) => handleYearChange(e.target.value ? Number(e.target.value) : "")}
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               <option value="">Select</option>
               {[1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
@@ -122,14 +122,14 @@ export default function AdminAttendancePage() {
               value={section}
               onChange={(e) => handleSectionChange(e.target.value)}
               placeholder="e.g. 1"
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
           <div className="flex items-end">
             <button
               onClick={loadStudents}
               disabled={!branch || !year || !section || loadingStudents}
-              className="w-full flex items-center justify-center gap-1.5 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-40"
+              className="w-full flex items-center justify-center gap-1.5 text-sm font-medium bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-40"
             >
               {loadingStudents ? <RefreshCw size={14} className="animate-spin" /> : null}
               Load Students
@@ -145,7 +145,7 @@ export default function AdminAttendancePage() {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="e.g. Data Structures"
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
           <div>
@@ -154,7 +154,7 @@ export default function AdminAttendancePage() {
               type="date"
               value={date}
               onChange={(e) => { setDate(e.target.value); setSubmitted(false); }}
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
         </div>
@@ -215,7 +215,7 @@ export default function AdminAttendancePage() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-60"
+                className="ml-auto bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
                 {submitting ? "Saving…" : "Submit Attendance"}
               </button>

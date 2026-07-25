@@ -6,13 +6,13 @@ import Breadcrumb from "@/components/admin/Breadcrumb";
 import { ArrowRight, Users, Plus, X, RefreshCw, Trash2 } from "lucide-react";
 
 const COLORS = [
-  { color: "border-indigo-200 hover:border-indigo-400", badge: "bg-indigo-100 text-indigo-700" },
-  { color: "border-blue-200 hover:border-blue-400",     badge: "bg-blue-100 text-blue-700" },
+  { color: "border-orange-200 hover:border-orange-400", badge: "bg-orange-100 text-orange-700" },
+  { color: "border-orange-200 hover:border-orange-400",     badge: "bg-orange-100 text-orange-700" },
   { color: "border-orange-200 hover:border-orange-400", badge: "bg-orange-100 text-orange-700" },
   { color: "border-green-200 hover:border-green-400",   badge: "bg-green-100 text-green-700" },
   { color: "border-rose-200 hover:border-rose-400",     badge: "bg-rose-100 text-rose-700" },
   { color: "border-purple-200 hover:border-purple-400", badge: "bg-purple-100 text-purple-700" },
-  { color: "border-teal-200 hover:border-teal-400",     badge: "bg-teal-100 text-teal-700" },
+  { color: "border-orange-200 hover:border-orange-400",     badge: "bg-orange-100 text-orange-700" },
 ];
 
 interface Branch { slug: string; name: string; label: string; }
@@ -102,7 +102,7 @@ export default function BranchesPage() {
           )}
           <button
             onClick={() => { setOpen(true); setError(""); }}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
             <Plus size={16} /> Add Branch
           </button>
@@ -181,7 +181,7 @@ export default function BranchesPage() {
                   value={form.name}
                   onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                   placeholder="e.g. IT"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               <div>
@@ -190,14 +190,14 @@ export default function BranchesPage() {
                   value={form.label}
                   onChange={(e) => setForm((prev) => ({ ...prev, label: e.target.value }))}
                   placeholder="e.g. Information Technology"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               {error && <p className="text-xs text-red-500">{error}</p>}
             </div>
             <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
               <button onClick={() => setOpen(false)} className="text-sm text-gray-500 hover:text-gray-700 px-4 py-2 rounded-lg">Cancel</button>
-              <button onClick={handleAdd} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60">
+              <button onClick={handleAdd} disabled={saving} className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60">
                 {saving ? "Adding…" : "Add Branch"}
               </button>
             </div>

@@ -20,19 +20,19 @@ export interface Teacher {
   email: string;
   department: string;
   teaching: Assignment[];
-  plainPassword?: string;
 }
 
 interface TeachersContextType {
   teachers: Teacher[];
   departments: Department[];
   loading: boolean;
-  addTeacher: (data: Omit<Teacher, "id" | "teaching"> & { password?: string }) => Promise<void>;
+  addTeacher: (data: Omit<Teacher, "id" | "teaching"> & { password?: string }) => Promise<string>;
   addDepartment: (dept: Department) => Promise<void>;
   updateDepartment: (slug: string, updates: Omit<Department, "slug">) => Promise<void>;
   addAssignment: (teacherId: string, assignment: Assignment) => Promise<void>;
   removeAssignment: (teacherId: string, index: number) => Promise<void>;
   removeSection: (teacherId: string, assignmentIndex: number, section: string) => Promise<void>;
+  resetTeacherPassword: (teacherId: string) => Promise<string>;
 }
 
 const TeachersContext = createContext<TeachersContextType | null>(null);
@@ -63,7 +63,9 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
     });
     const body = await response.json();
     if (!response.ok) throw new Error(body.error ?? "Failed to add teacher");
-    setTeachers((prev) => [...prev, body]);
+    const { plainPassword, ...teacher } = body;
+    setTeachers((prev) => [...prev, teacher]);
+    return plainPassword as string;
   }
 
   async function addDepartment(dept: Department) {
@@ -158,9 +160,22 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
     setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? body : teacherItem)));
   }
 
+  async function resetTeacherPassword(teacherId: string) {
+    const response = await fetch(`/api/teachers/${teacherId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resetPassword: true }),
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Failed to reset password");
+    const { newPassword, ...teacher } = body;
+    setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? teacher : teacherItem)));
+    return newPassword as string;
+  }
+
   return (
     <TeachersContext.Provider
-      value={{ teachers, departments, loading, addTeacher, addDepartment, updateDepartment, addAssignment, removeAssignment, removeSection }}
+      value={{ teachers, departments, loading, addTeacher, addDepartment, updateDepartment, addAssignment, removeAssignment, removeSection, resetTeacherPassword }}
     >
       {children}
     </TeachersContext.Provider>

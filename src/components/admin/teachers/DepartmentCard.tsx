@@ -30,7 +30,7 @@ export default function DepartmentCard({ slug, name, label, teacherCount, color,
             <button
               onClick={(e) => { e.stopPropagation(); onEdit(); }}
               title="Edit department"
-              className="p-1 rounded text-gray-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-all"
+              className="p-1 rounded text-gray-300 hover:text-orange-500 opacity-0 group-hover:opacity-100 transition-all"
             >
               <Pencil size={13} />
             </button>

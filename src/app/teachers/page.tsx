@@ -12,7 +12,7 @@ interface TeacherStats {
 function SectionHeader({ title }: { title: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="w-1 h-5 rounded-full bg-blue-600" />
+      <div className="w-1 h-5 rounded-full bg-orange-600" />
       <h2 className="text-base font-semibold text-gray-800">{title}</h2>
     </div>
   );
@@ -35,7 +35,7 @@ export default function TeacherDashboardPage() {
   }, []);
 
   const statCards = [
-    { label: "Total Students",     value: stats ? String(stats.studentCount) : "—",   icon: Users,         color: "bg-blue-50 text-blue-600" },
+    { label: "Total Students",     value: stats ? String(stats.studentCount) : "—",   icon: Users,         color: "bg-orange-50 text-orange-600" },
     { label: "Sections Assigned",  value: stats ? String(stats.sectionCount)  : "—",  icon: BookOpen,      color: "bg-green-50 text-green-600" },
     { label: "Pending Assignments", value: "—",                                        icon: ClipboardList, color: "bg-amber-50 text-amber-600" },
     { label: "Active Notices",     value: noticeCount !== null ? String(noticeCount) : "—", icon: Bell,    color: "bg-purple-50 text-purple-600" },

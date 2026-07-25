@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { BookOpen } from "lucide-react";
 
 const COLORS = [
-  "bg-blue-50 text-blue-700 border-blue-200",
+  "bg-orange-50 text-orange-700 border-orange-200",
   "bg-violet-50 text-violet-700 border-violet-200",
   "bg-emerald-50 text-emerald-700 border-emerald-200",
   "bg-amber-50 text-amber-700 border-amber-200",
@@ -33,9 +33,9 @@ export default function CoursesPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] px-8 py-6 text-white shadow-lg">
+      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <h1 className="text-2xl font-bold tracking-tight">Courses</h1>
-        <p className="text-blue-200 text-sm mt-1">Your enrolled courses this semester.</p>
+        <p className="text-white/80 text-sm mt-1">Your enrolled courses this semester.</p>
       </div>
 
       {loading ? (
@@ -50,8 +50,8 @@ export default function CoursesPage() {
         </div>
       ) : subjects.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-16 flex flex-col items-center justify-center min-h-[300px] gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
-            <BookOpen size={30} className="text-blue-500" />
+          <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center">
+            <BookOpen size={30} className="text-orange-500" />
           </div>
           <div className="text-center">
             <p className="font-semibold text-gray-700">No courses yet</p>

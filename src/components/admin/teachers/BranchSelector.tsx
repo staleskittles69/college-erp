@@ -16,8 +16,8 @@ export default function BranchSelector({ selected, onSelect }: Props) {
           onClick={() => onSelect(branch)}
           className={`px-4 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
             selected === branch
-              ? "bg-indigo-600 text-white border-indigo-600"
-              : "bg-white text-gray-700 border-gray-200 hover:border-indigo-300 hover:text-indigo-700 hover:bg-indigo-50"
+              ? "bg-orange-600 text-white border-orange-600"
+              : "bg-white text-gray-700 border-gray-200 hover:border-orange-300 hover:text-orange-700 hover:bg-orange-50"
           }`}
         >
           {branch}

@@ -8,7 +8,6 @@ export interface ITeacher {
   department: string;
   subjects: string[];
   teaching: { branch: string; year: number; sections: string[] }[];
-  plainPassword: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,7 +23,6 @@ const TeacherSchema = new Schema<ITeacher>(
       type: [{ branch: String, year: Number, sections: [String] }],
       default: [],
     },
-    plainPassword: { type: String, default: "" },
   },
   { timestamps: true }
 );

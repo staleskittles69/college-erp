@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 export type JwtPayload = {
   userId: string;
@@ -39,4 +40,26 @@ export function verifyToken(token: string): JwtPayload | null {
   } catch {
     return null;
   }
+}
+
+export function validatePasswordStrength(password: string): string | null {
+  if (password.length < 8) return "Password must be at least 8 characters";
+  if (!/[a-zA-Z]/.test(password)) return "Password must contain at least one letter";
+  if (!/[0-9]/.test(password)) return "Password must contain at least one number";
+  return null;
+}
+
+const PASSWORD_LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz";
+const PASSWORD_DIGITS = "23456789";
+const PASSWORD_ALL = PASSWORD_LETTERS + PASSWORD_DIGITS;
+
+export function generateRandomPassword(length = 10): string {
+  const pick = (charset: string) => charset[crypto.randomInt(charset.length)];
+  const chars = [pick(PASSWORD_LETTERS), pick(PASSWORD_DIGITS)];
+  for (let i = chars.length; i < length; i++) chars.push(pick(PASSWORD_ALL));
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = crypto.randomInt(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join("");
 }

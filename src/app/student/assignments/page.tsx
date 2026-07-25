@@ -24,7 +24,7 @@ function formatDate(dateStr: string) {
 function TypeBadge({ testType }: { testType?: string | null }) {
   const assignment = isAssignmentType(testType);
   return (
-    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${assignment ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600"}`}>
+    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${assignment ? "bg-amber-50 text-amber-600" : "bg-orange-50 text-orange-600"}`}>
       {assignment ? "Assignment" : "Test"}
     </span>
   );
@@ -35,7 +35,7 @@ function TestRow({ test, dimmed }: { test: Test; dimmed: boolean }) {
   const hasDetails = Boolean(test.dueTime || test.notes || test.attachmentUrl);
 
   return (
-    <div className={`rounded-xl border ${dimmed ? "border-gray-100 bg-gray-50 opacity-70" : "border-blue-100 bg-white shadow-sm"} overflow-hidden`}>
+    <div className={`rounded-xl border ${dimmed ? "border-gray-100 bg-gray-50 opacity-70" : "border-orange-100 bg-white shadow-sm"} overflow-hidden`}>
       <button
         onClick={() => hasDetails && setExpanded((prev) => !prev)}
         className={`w-full px-5 py-4 flex items-center justify-between gap-4 text-left ${hasDetails ? "cursor-pointer" : "cursor-default"}`}
@@ -45,7 +45,7 @@ function TestRow({ test, dimmed }: { test: Test; dimmed: boolean }) {
             <p className={`font-semibold ${dimmed ? "text-gray-700" : "text-gray-800"}`}>{test.title}</p>
             <TypeBadge testType={test.testType} />
           </div>
-          <p className={`text-xs mt-0.5 ${dimmed ? "text-gray-500" : "text-blue-600"}`}>{test.subject}</p>
+          <p className={`text-xs mt-0.5 ${dimmed ? "text-gray-500" : "text-orange-600"}`}>{test.subject}</p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <div className="text-right">
@@ -79,7 +79,7 @@ function TestRow({ test, dimmed }: { test: Test; dimmed: boolean }) {
               href={test.attachmentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 hover:underline"
             >
               <Paperclip size={13} /> View attachment
             </a>
@@ -107,9 +107,9 @@ export default function AssignmentsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] px-8 py-6 text-white shadow-lg">
+      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <h1 className="text-2xl font-bold tracking-tight">Assignments & Tests</h1>
-        <p className="text-blue-200 text-sm mt-1">Your scheduled tests and assessments.</p>
+        <p className="text-white/80 text-sm mt-1">Your scheduled tests and assessments.</p>
       </div>
 
       {loading ? (
@@ -123,8 +123,8 @@ export default function AssignmentsPage() {
         </div>
       ) : tests.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-16 flex flex-col items-center justify-center min-h-[300px] gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center">
-            <ClipboardList size={30} className="text-indigo-500" />
+          <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center">
+            <ClipboardList size={30} className="text-orange-500" />
           </div>
           <div className="text-center">
             <p className="font-semibold text-gray-700">No tests scheduled</p>
@@ -136,7 +136,7 @@ export default function AssignmentsPage() {
           {upcoming.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Clock size={15} className="text-blue-600" />
+                <Clock size={15} className="text-orange-600" />
                 <h2 className="font-semibold text-gray-700 text-sm">Upcoming</h2>
               </div>
               <div className="space-y-3">

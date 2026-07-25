@@ -38,15 +38,15 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] px-8 py-6 text-white shadow-lg">
+      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-blue-200 text-sm mt-1">Manage your account preferences.</p>
+        <p className="text-white/80 text-sm mt-1">Manage your account preferences.</p>
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 max-w-lg">
         <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">
-          <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-            <Lock size={16} className="text-blue-600" />
+          <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+            <Lock size={16} className="text-orange-600" />
           </div>
           <div>
             <h2 className="font-semibold text-gray-800 text-sm">Change Password</h2>
@@ -63,7 +63,7 @@ export default function SettingsPage() {
               onChange={(e) => setCurrent(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
             />
           </div>
           <div>
@@ -74,7 +74,7 @@ export default function SettingsPage() {
               onChange={(e) => setNewPass(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
             />
           </div>
           <div>
@@ -85,7 +85,7 @@ export default function SettingsPage() {
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
             />
           </div>
 
@@ -106,7 +106,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={status === "loading"}
-              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-60"
+              className="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-60"
             >
               {status === "loading" ? "Saving..." : "Update Password"}
             </button>

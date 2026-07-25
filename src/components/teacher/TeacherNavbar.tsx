@@ -31,7 +31,7 @@ export function TeacherNavbar({ name, onMenuClick }: { name: string; onMenuClick
         >
           <Menu size={20} />
         </button>
-        <div className="w-1 h-5 rounded-full bg-blue-600 shrink-0 hidden sm:block" />
+        <div className="w-1 h-5 rounded-full bg-orange-600 shrink-0 hidden sm:block" />
         <h1 className="text-base font-semibold text-gray-800 truncate">{pageTitle}</h1>
       </div>
 
@@ -41,10 +41,10 @@ export function TeacherNavbar({ name, onMenuClick }: { name: string; onMenuClick
           aria-label="Notifications"
         >
           <Bell size={19} />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border-2 border-white bg-blue-600" />
+          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border-2 border-white bg-orange-600" />
         </button>
 
-        <div className="h-9 w-9 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold ml-1 shrink-0">
+        <div className="h-9 w-9 rounded-full bg-orange-600 text-white flex items-center justify-center text-sm font-bold ml-1 shrink-0">
           {name ? name.charAt(0).toUpperCase() : "T"}
         </div>
 

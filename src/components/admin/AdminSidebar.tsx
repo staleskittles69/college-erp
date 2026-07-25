@@ -52,25 +52,28 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile }: AdminSidebar
       )}
 
       <aside
-        className={`fixed md:relative left-0 top-0 z-40 flex flex-col bg-slate-900 text-white transition-all duration-300 ease-in-out flex-shrink-0 h-screen md:min-h-screen w-64 ${
+        className={`fixed md:relative left-0 top-0 z-40 flex flex-col bg-white text-slate-900 border-r border-gray-200 transition-all duration-300 ease-in-out flex-shrink-0 h-screen md:min-h-screen w-64 ${
           collapsed ? "md:w-16" : "md:w-64"
         } ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         {/* Logo */}
         <div
-          className={`flex items-center justify-between h-16 border-b border-slate-700 px-5 ${
+          className={`flex items-center justify-between h-16 border-b border-gray-200 px-5 ${
             collapsed ? "md:justify-center md:px-2" : ""
           }`}
         >
-          <span className={`text-base font-bold text-white tracking-tight ${collapsed ? "md:hidden" : ""}`}>
-            College ERP
-          </span>
-          <span className={`hidden text-base font-bold text-indigo-400 ${collapsed ? "md:inline" : ""}`}>
-            E
-          </span>
+          <div className={`flex items-center gap-2.5 min-w-0 ${collapsed ? "md:hidden" : ""}`}>
+            <img src="/logo-nri.png" alt="NRI University" className="h-8 w-auto shrink-0" />
+            <span className="text-base font-bold text-slate-900 tracking-tight truncate">NRI University</span>
+          </div>
+          <img
+            src="/logo2.png"
+            alt="NRI University"
+            className={`hidden w-8 h-8 rounded-lg object-cover ${collapsed ? "md:block" : ""}`}
+          />
           <button
             onClick={onCloseMobile}
-            className="md:hidden text-slate-400 hover:text-white transition-colors"
+            className="md:hidden text-slate-400 hover:text-slate-900 transition-colors"
             aria-label="Close menu"
           >
             <X size={20} />
@@ -93,8 +96,8 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile }: AdminSidebar
                   collapsed ? "md:justify-center" : ""
                 } ${
                   isActive
-                    ? "bg-indigo-600 text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    ? "bg-orange-50 text-orange-600 font-semibold"
+                    : "text-slate-500 hover:bg-gray-50 hover:text-slate-900"
                 }`}
               >
                 <Icon size={18} className="flex-shrink-0" />
@@ -106,7 +109,7 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile }: AdminSidebar
 
         {/* Footer label */}
         <div className={`px-5 pb-4 ${collapsed ? "md:hidden" : ""}`}>
-          <p className="text-[10px] text-slate-600 uppercase tracking-widest font-semibold">
+          <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
             Admin Panel
           </p>
         </div>
@@ -114,7 +117,7 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile }: AdminSidebar
         {/* Collapse toggle - desktop only */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden md:flex absolute -right-3.5 top-[72px] z-10 items-center justify-center w-7 h-7 bg-slate-900 border border-slate-700 rounded-full text-slate-400 hover:text-white transition-colors"
+          className="hidden md:flex absolute -right-3.5 top-[72px] z-10 items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-full text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}

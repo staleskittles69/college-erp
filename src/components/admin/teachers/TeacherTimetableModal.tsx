@@ -57,7 +57,7 @@ export default function TeacherTimetableModal({ teacherName, onClose }: Props) {
               onClick={() => { setEditing((prev) => !prev); setActiveCell(null); }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
                 editing
-                  ? "bg-indigo-600 text-white border-indigo-600"
+                  ? "bg-orange-600 text-white border-orange-600"
                   : "border-gray-200 text-gray-700 hover:bg-gray-50"
               }`}
             >
@@ -103,10 +103,10 @@ export default function TeacherTimetableModal({ teacherName, onClose }: Props) {
                             onFocus={() => setActiveCell(key)}
                             onChange={(e) => handleCellChange(key, e.target.value)}
                             onBlur={(e) => handleCellBlur(key, e.target.value)}
-                            className="w-full min-w-[100px] px-2 py-1 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 placeholder-gray-300"
+                            className="w-full min-w-[100px] px-2 py-1 text-xs border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 placeholder-gray-300"
                           />
                         ) : value ? (
-                          <span className="inline-block bg-indigo-50 text-indigo-700 text-xs rounded-md px-2 py-1 leading-snug whitespace-nowrap">
+                          <span className="inline-block bg-orange-50 text-orange-700 text-xs rounded-md px-2 py-1 leading-snug whitespace-nowrap">
                             {value}
                           </span>
                         ) : (

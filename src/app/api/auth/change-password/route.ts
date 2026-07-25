@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import { getAuth } from "@/lib/api-auth";
-import { comparePassword, hashPassword } from "@/lib/auth";
+import { comparePassword, hashPassword, validatePasswordStrength } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   const payload = await getAuth(request);
@@ -16,8 +16,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Both fields are required" }, { status: 400 });
   }
 
-  if (newPassword.length < 6) {
-    return NextResponse.json({ error: "New password must be at least 6 characters" }, { status: 400 });
+  const passwordError = validatePasswordStrength(newPassword);
+  if (passwordError) {
+    return NextResponse.json({ error: passwordError }, { status: 400 });
   }
 
   await connectDB();

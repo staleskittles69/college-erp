@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, GraduationCap, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -58,24 +58,22 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1f44] via-[#0d2d5e] to-[#1a56db] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
 
-      <div className="w-full max-w-4xl flex rounded-2xl overflow-hidden shadow-2xl">
+      <div className="w-full max-w-4xl flex rounded-2xl overflow-hidden shadow-xl border border-gray-200">
 
         {/* Left panel — branding */}
-        <div className="hidden md:flex flex-col justify-between w-1/2 bg-white/10 backdrop-blur-sm p-10 text-white">
+        <div className="hidden md:flex flex-col justify-between w-1/2 bg-gradient-to-br from-orange-600 to-orange-700 p-10 text-white">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-500 flex items-center justify-center">
-              <GraduationCap size={18} className="text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">EduPortal</span>
+            <img src="/logo2.png" alt="NRI University" className="w-10 h-10 rounded-xl object-cover" />
+            <span className="text-xl font-bold tracking-tight">NRI University</span>
           </div>
 
           <div>
             <h1 className="text-3xl font-bold leading-tight mb-4">
               Your college.<br />All in one place.
             </h1>
-            <p className="text-blue-200 text-sm leading-relaxed">
+            <p className="text-white/80 text-sm leading-relaxed">
               Access your dashboard, attendance, grades, timetable, and more — all from a single portal.
             </p>
           </div>
@@ -106,10 +104,8 @@ export default function LoginPage() {
 
           {/* Mobile logo */}
           <div className="flex md:hidden items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <GraduationCap size={16} className="text-white" />
-            </div>
-            <span className="text-lg font-bold text-gray-900">EduPortal</span>
+            <img src="/logo-nri.png" alt="NRI University" className="h-9 w-auto" />
+            <span className="text-lg font-bold text-gray-900">NRI University</span>
           </div>
 
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome back</h2>
@@ -129,7 +125,7 @@ export default function LoginPage() {
                 placeholder="you@college.edu"
                 autoFocus
                 autoComplete="email"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
               />
             </div>
 
@@ -145,7 +141,7 @@ export default function LoginPage() {
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
                   placeholder="Enter your password"
                   autoComplete="current-password"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-11 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-11 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
                 />
                 <button
                   type="button"
@@ -170,7 +166,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-orange-700 hover:shadow-md active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -191,7 +187,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-xs text-gray-400">
-            College ERP &copy; {new Date().getFullYear()}
+            NRI University &copy; {new Date().getFullYear()}
           </p>
         </div>
 

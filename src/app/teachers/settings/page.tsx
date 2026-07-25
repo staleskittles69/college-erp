@@ -46,7 +46,7 @@ export default function TeacherSettingsPage() {
       <div className="rounded-xl border border-slate-700 bg-slate-800 p-6">
         <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-700">
           <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
-            <Lock size={16} className="text-teal-400" />
+            <Lock size={16} className="text-orange-400" />
           </div>
           <div>
             <h2 className="font-semibold text-white text-sm">Change Password</h2>
@@ -63,7 +63,7 @@ export default function TeacherSettingsPage() {
               onChange={(e) => setCurrent(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500"
+              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
             />
           </div>
           <div>
@@ -74,7 +74,7 @@ export default function TeacherSettingsPage() {
               onChange={(e) => setNewPass(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500"
+              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
             />
           </div>
           <div>
@@ -85,7 +85,7 @@ export default function TeacherSettingsPage() {
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500"
+              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
             />
           </div>
 
@@ -104,7 +104,7 @@ export default function TeacherSettingsPage() {
             <button
               type="submit"
               disabled={status === "loading"}
-              className="px-4 py-2 bg-teal-600 text-white text-sm rounded-lg hover:bg-teal-700 transition-colors font-medium disabled:opacity-60"
+              className="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-60"
             >
               {status === "loading" ? "Saving..." : "Update Password"}
             </button>

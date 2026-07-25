@@ -6,6 +6,8 @@ import { getAuth } from "@/lib/api-auth";
 export async function GET(request: NextRequest) {
   const payload = await getAuth(request);
   if (!payload) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (payload.role !== "admin" && payload.role !== "teacher")
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   await connectDB();
 

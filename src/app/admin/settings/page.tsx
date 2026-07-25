@@ -40,8 +40,8 @@ function PasswordSection() {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
-        <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
-          <Lock size={16} className="text-indigo-600" />
+        <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+          <Lock size={16} className="text-orange-600" />
         </div>
         <div>
           <h2 className="font-semibold text-gray-800 text-sm">Password</h2>
@@ -62,7 +62,7 @@ function PasswordSection() {
               onChange={(e) => set(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
             />
           </div>
         ))}
@@ -80,7 +80,7 @@ function PasswordSection() {
           <button
             type="submit"
             disabled={status === "loading"}
-            className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-60"
+            className="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-60"
           >
             {status === "loading" ? "Saving..." : "Save Changes"}
           </button>
@@ -137,8 +137,8 @@ export default function SettingsPage() {
         {STATIC_SECTIONS.filter((section) => section.title === "Account").map((section) => (
           <div key={section.title} className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
-              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
-                <section.icon size={16} className="text-indigo-600" />
+              <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+                <section.icon size={16} className="text-orange-600" />
               </div>
               <div>
                 <h2 className="font-semibold text-gray-800 text-sm">{section.title}</h2>
@@ -152,12 +152,12 @@ export default function SettingsPage() {
                   <input
                     type={field.type}
                     placeholder={field.placeholder}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
                   />
                 </div>
               ))}
               <div className="flex justify-end pt-2">
-                <button className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                <button className="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium">
                   Save Changes
                 </button>
               </div>
@@ -172,8 +172,8 @@ export default function SettingsPage() {
         {STATIC_SECTIONS.filter((section) => section.title !== "Account").map((section) => (
           <div key={section.title} className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
-              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
-                <section.icon size={16} className="text-indigo-600" />
+              <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+                <section.icon size={16} className="text-orange-600" />
               </div>
               <div>
                 <h2 className="font-semibold text-gray-800 text-sm">{section.title}</h2>
@@ -188,12 +188,12 @@ export default function SettingsPage() {
                     <input
                       type={field.type}
                       placeholder={field.placeholder}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
                     />
                   </div>
                 ))}
                 <div className="flex justify-end pt-2">
-                  <button className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                  <button className="px-4 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium">
                     Save Changes
                   </button>
                 </div>
@@ -206,7 +206,7 @@ export default function SettingsPage() {
                     <span className="text-sm text-gray-700">{toggle.label}</span>
                     <div
                       className={`relative w-10 h-5 rounded-full cursor-pointer transition-colors ${
-                        toggle.enabled ? "bg-indigo-600" : "bg-gray-200"
+                        toggle.enabled ? "bg-orange-600" : "bg-gray-200"
                       }`}
                     >
                       <span

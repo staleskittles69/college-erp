@@ -80,7 +80,7 @@ export function UpcomingTests() {
               return (
                 <li key={test._id} className="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0">
                   {/* Date chip */}
-                  <div className={`shrink-0 w-12 rounded-xl text-white text-center py-1.5 ${assignment ? "bg-amber-500" : "bg-blue-600"}`}>
+                  <div className={`shrink-0 w-12 rounded-xl text-white text-center py-1.5 ${assignment ? "bg-amber-500" : "bg-orange-600"}`}>
                     <p className="text-xs font-bold leading-tight">{formatDate(test.date)}</p>
                     <p className="text-xs opacity-75 leading-tight">{formatYear(test.date)}</p>
                   </div>
@@ -88,7 +88,7 @@ export function UpcomingTests() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-sm text-gray-800 truncate">{test.title}</p>
-                      <span className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded ${assignment ? "bg-amber-50 text-amber-600" : "bg-blue-50 text-blue-600"}`}>
+                      <span className={`shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded ${assignment ? "bg-amber-50 text-amber-600" : "bg-orange-50 text-orange-600"}`}>
                         {assignment ? "Assignment" : "Test"}
                       </span>
                     </div>

@@ -63,8 +63,8 @@ export default function StudentDetailPage() {
       {/* Student Info Card */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
         <div className="flex items-start gap-5">
-          <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <User size={28} className="text-indigo-600" />
+          <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <User size={28} className="text-orange-600" />
           </div>
           <div className="flex-1 min-w-0">
             {loading ? (
@@ -96,7 +96,7 @@ export default function StudentDetailPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
               activeTab === tab.id
-                ? "bg-indigo-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
             }`}
           >
@@ -114,7 +114,7 @@ export default function StudentDetailPage() {
       <div className="mt-6">
         <Link
           href={`/admin/${branch}/${year}/${section}`}
-          className="text-sm text-gray-500 hover:text-indigo-600 transition-colors"
+          className="text-sm text-gray-500 hover:text-orange-600 transition-colors"
         >
           ← Back to {sectionLabel} students
         </Link>

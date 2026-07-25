@@ -8,9 +8,9 @@ interface Slot { id: string; day: string; period: number; subject: string; }
 interface TimetableRow { _id: string; dayOfWeek: number; slots: { subject: string; period?: number; time?: string; room?: string }[]; }
 
 const SUBJECT_COLORS: Record<string, string> = {
-  "Mathematics I": "bg-indigo-50 border-indigo-200 text-indigo-700",
-  "Mathematics II": "bg-indigo-50 border-indigo-200 text-indigo-700",
-  Physics: "bg-blue-50 border-blue-200 text-blue-700",
+  "Mathematics I": "bg-orange-50 border-orange-200 text-orange-700",
+  "Mathematics II": "bg-orange-50 border-orange-200 text-orange-700",
+  Physics: "bg-orange-50 border-orange-200 text-orange-700",
   Chemistry: "bg-purple-50 border-purple-200 text-purple-700",
   English: "bg-green-50 border-green-200 text-green-700",
   "Engineering Workshop": "bg-orange-50 border-orange-200 text-orange-700",
@@ -136,7 +136,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
             </div>
             <button
               onClick={openAdd}
-              className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+              className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium"
             >
               + Add/Edit Slot
             </button>
@@ -144,17 +144,17 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
 
           <div className="flex items-center gap-3 flex-wrap">
             <select value={branch} onChange={(e) => setBranch(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+              className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
               {BRANCHES.map((branchOption) => <option key={branchOption}>{branchOption}</option>)}
             </select>
             <select value={year} onChange={(e) => setYear(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+              className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
               {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>{yearLabel(yearOption)}</option>)}
             </select>
             <div className="flex items-center gap-1.5">
               <span className="text-sm text-gray-500">Section</span>
               <input type="number" min={1} value={section} onChange={(e) => setSection(e.target.value)}
-                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+                className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20" />
             </div>
             <button onClick={handleLoadFromDB} disabled={loading}
               className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50">
@@ -199,7 +199,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
                           className={`w-full min-h-[56px] rounded-lg border text-xs text-left p-2 transition-colors ${
                             slot
                               ? `${SUBJECT_COLORS[slot.subject] ?? "bg-gray-50 border-gray-200 text-gray-700"} hover:opacity-80`
-                              : "border-dashed border-gray-200 text-gray-300 hover:border-indigo-300 hover:text-indigo-400"
+                              : "border-dashed border-gray-200 text-gray-300 hover:border-orange-300 hover:text-orange-400"
                           }`}
                         >
                           {slot ? <span className="font-semibold leading-snug">{slot.subject}</span> : <span>+ Add</span>}
@@ -228,21 +228,21 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Day</label>
                 <select value={form.day} onChange={(e) => setForm({ ...form, day: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-600">
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-gray-600">
                   {DAYS.map((dayOption) => <option key={dayOption}>{dayOption}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Period</label>
                 <select value={form.period} onChange={(e) => setForm({ ...form, period: Number(e.target.value) })}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-600">
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-gray-600">
                   {PERIODS.map((periodOption) => <option key={periodOption} value={periodOption}>Period {periodOption} ({PERIOD_TIMES[periodOption]})</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
                 <select value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-600">
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-gray-600">
                   <option value="">Select subject…</option>
                   {subjectOptions.map((subjectOption) => <option key={subjectOption} value={subjectOption}>{subjectOption}</option>)}
                 </select>
@@ -260,7 +260,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
                 <button onClick={() => setShowModal(false)}
                   className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
                 <button onClick={handleSave} disabled={!form.subject.trim()}
-                  className="px-5 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50">
+                  className="px-5 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50">
                   {editingId ? "Save Changes" : "Add Slot"}
                 </button>
               </div>

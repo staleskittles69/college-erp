@@ -62,7 +62,7 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
   }
 
   const selectClass =
-    "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 bg-white";
+    "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 bg-white";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -114,8 +114,8 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
                     onClick={() => toggle(section)}
                     className={`py-2 rounded-lg text-xs font-semibold border-2 transition-colors flex items-center justify-center ${
                       selected.includes(section)
-                        ? "border-indigo-600 bg-indigo-600 text-white"
-                        : "border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600"
+                        ? "border-orange-600 bg-orange-600 text-white"
+                        : "border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
                     }`}
                   >
                     {section}
@@ -135,7 +135,7 @@ export default function AssignClassModal({ teacherId, onClose }: Props) {
             <button
               type="submit"
               disabled={loadingSections || availableSections.every((section) => assignedSections.includes(section))}
-              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Assign
             </button>

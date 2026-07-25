@@ -32,9 +32,9 @@ export default function TimetablePage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] px-8 py-6 text-white shadow-lg">
+      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <h1 className="text-2xl font-bold tracking-tight">Timetable</h1>
-        <p className="text-blue-200 text-sm mt-1">Your weekly class schedule.</p>
+        <p className="text-white/80 text-sm mt-1">Your weekly class schedule.</p>
       </div>
 
       {loading ? (
@@ -64,13 +64,13 @@ export default function TimetablePage() {
         <div className="space-y-4">
           {activeDays.map((day) => (
             <div key={day} className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-5 py-3 bg-blue-50 border-b border-blue-100">
-                <p className="font-semibold text-blue-800 text-sm">{DAYS[day]}</p>
+              <div className="px-5 py-3 bg-orange-50 border-b border-orange-100">
+                <p className="font-semibold text-orange-800 text-sm">{DAYS[day]}</p>
               </div>
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {byDay[day].map((slot, slotIdx) => (
                   <div key={slotIdx} className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-                    <p className="text-xs text-blue-600 font-medium mb-1">{slot.time}</p>
+                    <p className="text-xs text-orange-600 font-medium mb-1">{slot.time}</p>
                     <p className="font-semibold text-gray-800 text-sm">{slot.subject}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{slot.room}</p>
                   </div>

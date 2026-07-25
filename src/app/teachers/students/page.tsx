@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
 const branches = [
-  { code: 'CSE', full: 'Computer Science & Engineering',          accent: 'border-l-blue-500',   icon: 'bg-blue-50 text-blue-600' },
+  { code: 'CSE', full: 'Computer Science & Engineering',          accent: 'border-l-orange-500',   icon: 'bg-orange-50 text-orange-600' },
   { code: 'ECE', full: 'Electronics & Communication Engineering', accent: 'border-l-green-500',  icon: 'bg-green-50 text-green-600' },
   { code: 'ME',  full: 'Mechanical Engineering',                  accent: 'border-l-amber-500',  icon: 'bg-amber-50 text-amber-600' },
   { code: 'CE',  full: 'Civil Engineering',                       accent: 'border-l-purple-500', icon: 'bg-purple-50 text-purple-600' },

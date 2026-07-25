@@ -26,9 +26,9 @@ export default function GradesPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-gradient-to-br from-[#0a1f44] to-[#1a56db] px-8 py-6 text-white shadow-lg">
+      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <h1 className="text-2xl font-bold tracking-tight">Grades</h1>
-        <p className="text-blue-200 text-sm mt-1">Your subject-wise marks and performance.</p>
+        <p className="text-white/80 text-sm mt-1">Your subject-wise marks and performance.</p>
       </div>
 
       {loading ? (

@@ -51,17 +51,17 @@ export default function SectionSelectionPage({ params }: Props) {
           <Link
             key={section.slug}
             href={`/admin/${branch}/${year}/${section.slug}`}
-            className="bg-white rounded-xl border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/30 px-4 py-5 flex flex-col group transition-all"
+            className="bg-white rounded-xl border border-gray-200 hover:border-orange-300 hover:bg-orange-50/30 px-4 py-5 flex flex-col group transition-all"
           >
             <div className="flex items-start justify-between mb-3">
-              <div className="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <span className="text-indigo-700 font-bold text-xs">
+              <div className="w-9 h-9 bg-orange-100 rounded-lg flex items-center justify-center">
+                <span className="text-orange-700 font-bold text-xs">
                   {section.label.split(" ")[1]}
                 </span>
               </div>
               <ArrowRight
                 size={14}
-                className="text-gray-300 group-hover:text-indigo-400 transition-colors mt-0.5"
+                className="text-gray-300 group-hover:text-orange-400 transition-colors mt-0.5"
               />
             </div>
             <h3 className="font-semibold text-gray-800 text-sm mb-1">{section.label}</h3>

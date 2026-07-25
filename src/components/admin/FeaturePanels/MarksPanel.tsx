@@ -89,7 +89,7 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
         </div>
         <button
           onClick={() => { setShowForm(true); setError(""); }}
-          className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium"
         >
           + Add Marks
         </button>
@@ -99,8 +99,8 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
       {marks.length > 0 && (
         <div className="grid grid-cols-3 gap-4 px-6 py-4 border-b border-gray-100">
           {[
-            { label: "Records", value: marks.length, color: "text-indigo-600 bg-indigo-50" },
-            { label: "Subjects", value: subjectCount, color: "text-blue-600 bg-blue-50" },
+            { label: "Records", value: marks.length, color: "text-orange-600 bg-orange-50" },
+            { label: "Subjects", value: subjectCount, color: "text-orange-600 bg-orange-50" },
             { label: "CGPA", value: cgpa != null ? cgpa.toFixed(2) : "—", color: "text-emerald-600 bg-emerald-50" },
           ].map((stat) => (
             <div key={stat.label} className={`rounded-lg px-4 py-3 ${stat.color}`}>
@@ -122,7 +122,7 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
                 placeholder="e.g. Mathematics"
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20"
               />
             </div>
             <div>
@@ -130,7 +130,7 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
               <select
                 value={form.examType}
                 onChange={(e) => setForm({ ...form, examType: e.target.value })}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-gray-600"
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-gray-600"
               >
                 <option>Mid Term</option>
                 <option>Final</option>
@@ -147,7 +147,7 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
                   value={form.obtained}
                   onChange={(e) => setForm({ ...form, obtained: e.target.value })}
                   placeholder="75"
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 />
               </div>
               <div className="flex-1">
@@ -157,7 +157,7 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
                   value={form.max}
                   onChange={(e) => setForm({ ...form, max: e.target.value })}
                   placeholder="100"
-                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 />
               </div>
             </div>
@@ -167,7 +167,7 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
             <button
               onClick={handleAdd}
               disabled={saving}
-              className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors font-medium disabled:opacity-50"
+              className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save"}
             </button>

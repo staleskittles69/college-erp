@@ -59,7 +59,7 @@ export default function StudentDataPanel() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name or roll no..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400"
+            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
         </div>
       </div>
@@ -80,11 +80,11 @@ export default function StudentDataPanel() {
               <Link
                 key={student._id}
                 href={studentDetailUrl(student)}
-                className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all"
+                className="block bg-white rounded-xl border border-gray-200 p-5 hover:border-orange-300 hover:shadow-sm transition-all"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-11 h-11 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User size={18} className="text-indigo-600" />
+                  <div className="w-11 h-11 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User size={18} className="text-orange-600" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -93,7 +93,7 @@ export default function StudentDataPanel() {
                     </div>
                     <p className="text-sm text-gray-500 mt-1">{student.email}</p>
                     <div className="flex items-center gap-2 mt-2 flex-wrap text-xs">
-                      <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">{student.branch}</span>
+                      <span className="px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-medium">{student.branch}</span>
                       <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 font-medium">{yearLabel(student.year)}</span>
                       <span className="px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-medium">{student.section}</span>
                     </div>

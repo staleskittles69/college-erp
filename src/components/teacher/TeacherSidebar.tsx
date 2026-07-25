@@ -7,7 +7,6 @@ import {
   CalendarCheck,
   CalendarDays,
   ClipboardList,
-  GraduationCap,
   Menu,
   ChevronLeft,
   Bell,
@@ -46,16 +45,16 @@ export function TeacherSidebar({ isCollapsed, toggleSidebar, name, email, mobile
       )}
 
       <aside
-        className={`fixed left-0 top-0 z-40 h-screen bg-[#0a1f44] transition-all duration-300 flex flex-col shadow-xl w-64 ${
+        className={`fixed left-0 top-0 z-40 h-screen bg-white border-r border-gray-200 transition-all duration-300 flex flex-col shadow-sm w-64 ${
           isCollapsed ? 'md:w-20' : 'md:w-64'
         } ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center shrink-0 border-b border-white/10 px-4">
+        <div className="flex h-16 items-center shrink-0 border-b border-gray-200 px-4">
           {isCollapsed && (
             <button
               onClick={toggleSidebar}
-              className="hidden md:mx-auto md:flex rounded-lg p-1.5 text-white/60 hover:bg-white/10 hover:text-white transition-colors"
+              className="hidden md:mx-auto md:flex rounded-lg p-1.5 text-slate-400 hover:bg-gray-100 hover:text-slate-900 transition-colors"
               aria-label="Expand sidebar"
             >
               <Menu size={20} />
@@ -63,21 +62,19 @@ export function TeacherSidebar({ isCollapsed, toggleSidebar, name, email, mobile
           )}
           <div className={`items-center w-full flex ${isCollapsed ? 'md:hidden' : ''}`}>
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
-                <GraduationCap size={14} className="text-white" />
-              </div>
-              <span className="text-white font-bold text-base tracking-tight truncate">NRI University</span>
+              <img src="/logo-nri.png" alt="NRI University" className="h-7 w-auto shrink-0" />
+              <span className="text-slate-900 font-bold text-base tracking-tight truncate">NRI University</span>
             </div>
             <button
               onClick={toggleSidebar}
-              className="hidden md:flex rounded-lg p-1.5 text-white/60 hover:bg-white/10 hover:text-white transition-colors shrink-0"
+              className="hidden md:flex rounded-lg p-1.5 text-slate-400 hover:bg-gray-100 hover:text-slate-900 transition-colors shrink-0"
               aria-label="Collapse sidebar"
             >
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={onCloseMobile}
-              className="md:hidden rounded-lg p-1.5 text-white/60 hover:bg-white/10 hover:text-white transition-colors shrink-0"
+              className="md:hidden rounded-lg p-1.5 text-slate-400 hover:bg-gray-100 hover:text-slate-900 transition-colors shrink-0"
               aria-label="Close menu"
             >
               <X size={18} />
@@ -95,14 +92,14 @@ export function TeacherSidebar({ isCollapsed, toggleSidebar, name, email, mobile
         </div>
 
         {/* User footer */}
-        <div className={`px-4 py-4 border-t border-white/10 shrink-0 ${isCollapsed ? 'md:hidden' : ''}`}>
+        <div className={`px-4 py-4 border-t border-gray-200 shrink-0 ${isCollapsed ? 'md:hidden' : ''}`}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-xs font-bold shrink-0">
               {name ? name.charAt(0).toUpperCase() : "T"}
             </div>
             <div className="overflow-hidden">
-              <p className="text-white text-sm font-medium truncate">{name || "Teacher"}</p>
-              <p className="text-white/40 text-xs truncate">{email || "—"}</p>
+              <p className="text-slate-900 text-sm font-medium truncate">{name || "Teacher"}</p>
+              <p className="text-slate-400 text-xs truncate">{email || "—"}</p>
             </div>
           </div>
         </div>
