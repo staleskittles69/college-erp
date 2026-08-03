@@ -61,9 +61,11 @@ that still show hardcoded data**. That's mechanical work, not architecture work.
 
 ### 🗑️ Dead Code to Delete
 
-- `/admin/student/[rollNumber]` — old route, never reached by any nav link
-- `/api/admin/seed-logins` — remove after initial data is seeded
-- `/api/setup-initial-data` and `/api/debug-users` — remove before deploying
+_Re-audited 2026-08-03: `/api/setup-initial-data` and `/api/debug-users` are already gone.
+`/api/admin/seed-logins` is not dead code — it's admin-gated (`requireAdmin`) and is the live
+"create logins for section" action on `/admin/branches`. Left in place._
+
+- `/admin/student/[rollNumber]` — also already removed, confirmed gone.
 
 ---
 
@@ -116,7 +118,7 @@ These are real features but none block a working first version:
 - [ ] `.env.local` is in `.gitignore` and not committed
 - [ ] `JWT_SECRET` is a random 64-char string (not the current one)
 - [ ] `NODE_ENV=production` in Vercel env vars
-- [ ] All seed/debug API routes deleted
+- [x] Debug/setup API routes deleted (`seed-logins`/`seed-departments` are legitimate, admin-gated features — kept)
 - [ ] `MONGODB_URI` points to Atlas (already does — just verify in Vercel)
 - [ ] Cookie `secure: true` is working (it reads from `NODE_ENV` already — just needs prod env set)
 - [ ] Test login for all 3 roles on the deployed URL

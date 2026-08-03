@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
-    "seed:students": "tsx scripts/seed-students.ts"
+    "seed:students": "tsx scripts/seed-students.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "ajv": "^8.18.0",
@@ -35,6 +36,7 @@
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "4.1.10"
   }
 }

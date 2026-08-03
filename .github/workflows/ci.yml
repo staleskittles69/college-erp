@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Fake values so lib/db.ts and lib/auth.ts (which throw if these are
+      # missing) can be imported during lint/test/build. No real database
+      # or secret is ever contacted in CI.
+      MONGODB_URI: mongodb://localhost:27017/college-erp-ci
+      JWT_SECRET: ci-only-placeholder-secret-never-used-in-production
+      NODE_ENV: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
