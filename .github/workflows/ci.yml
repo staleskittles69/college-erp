@@ -13,9 +13,13 @@ jobs:
       # Fake values so lib/db.ts and lib/auth.ts (which throw if these are
       # missing) can be imported during lint/test/build. No real database
       # or secret is ever contacted in CI.
+      #
+      # NODE_ENV is deliberately NOT set here: npm treats NODE_ENV=production
+      # as "skip devDependencies", which would wipe out typescript, eslint,
+      # and vitest before "npm ci" even runs. `next build` sets production
+      # mode internally on its own, so nothing needs it set externally.
       MONGODB_URI: mongodb://localhost:27017/college-erp-ci
       JWT_SECRET: ci-only-placeholder-secret-never-used-in-production
-      NODE_ENV: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
