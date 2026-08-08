@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Check, X, RefreshCw } from "lucide-react";
+import { getSubjects } from "@/lib/subjects";
 
 interface Branch { slug: string; name: string; label: string; }
 interface Student { _id: string; name: string; rollNo: string; }
@@ -30,8 +31,10 @@ export default function AdminAttendancePage() {
       .catch(() => {});
   }, []);
 
-  function handleBranchChange(value: string) { setBranch(value); setStudents([]); setSubmitted(false); }
-  function handleYearChange(value: number | "") { setYear(value); setStudents([]); setSubmitted(false); }
+  const subjectOptions = branch && year ? getSubjects(branch, year) : [];
+
+  function handleBranchChange(value: string) { setBranch(value); setStudents([]); setSubject(""); setSubmitted(false); }
+  function handleYearChange(value: number | "") { setYear(value); setStudents([]); setSubject(""); setSubmitted(false); }
   function handleSectionChange(value: string) { setSection(value); setStudents([]); setSubmitted(false); }
 
   function loadStudents() {
@@ -62,7 +65,7 @@ export default function AdminAttendancePage() {
   }
 
   async function handleSubmit() {
-    if (!subject.trim()) { setSubmitError("Enter a subject before submitting."); return; }
+    if (!subject.trim()) { setSubmitError("Select a subject before submitting."); return; }
     setSubmitting(true);
     setSubmitError("");
     const bulk = students.map((student) => ({ studentId: student._id, status: attendance[student._id] ?? "present" }));
@@ -99,7 +102,7 @@ export default function AdminAttendancePage() {
             >
               <option value="">Select</option>
               {branches.map((branchOption) => (
-                <option key={branchOption.slug} value={branchOption.slug}>{branchOption.label || branchOption.name}</option>
+                <option key={branchOption.slug} value={branchOption.name}>{branchOption.label || branchOption.name}</option>
               ))}
             </select>
           </div>
@@ -140,13 +143,19 @@ export default function AdminAttendancePage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
-            <input
-              type="text"
+            <select
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="e.g. Data Structures"
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+              disabled={subjectOptions.length === 0}
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:bg-gray-50"
+            >
+              <option value="">
+                {subjectOptions.length === 0 ? "Select branch & year first" : "Select subject"}
+              </option>
+              {subjectOptions.map((subjectOption) => (
+                <option key={subjectOption} value={subjectOption}>{subjectOption}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
