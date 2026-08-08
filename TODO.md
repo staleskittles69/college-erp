@@ -18,6 +18,14 @@ _(jot down anything you think is missing or half-done, per portal)_
 - **Branches are hardcoded** (`src/lib/academics.ts` → `BRANCHES = ["CSE","ECE","ME","CE","EEE"]`). Should come from the database instead so admin can manage them.
 - ~~"Add student" is broken/duplicated~~ — **fixed**: `/api/students` POST now sets `rollNumber`/`branch`/`year` on the User properly (auto-generated, scoped per branch+year) and hashes the password. Deleted the unused duplicate `/api/admin/create-student` route. Also swapped the form's own hardcoded branch list (`MECH/CIVIL/IT`, which didn't match branches used anywhere else) for the shared one.
 
+## Architecture idea (pending decision) — convert to Server Components
+Every single page in the app (`src/app/**/page.tsx`, 30 files) is a client component (`"use client"`) that fetches its own data via `useEffect` + `fetch("/api/...")` after the page loads — see `src/app/student/grades/page.tsx` for the pattern. Next.js 14 App Router supports Server Components, which query the database directly during server-side rendering and send the browser fully-built HTML instead.
+
+- **Why consider it**: no loading-skeleton flash on first load, less JS shipped to the browser per page, one fewer network round trip for the initial read of every page.
+- **Why it's a real lift, not a toggle**: any page with actual interactivity (forms, buttons, edit modals — most admin/teacher pages) still needs a client component for those interactive parts. Realistic end state is a server component wrapper doing the initial data fetch, with a smaller client component nested inside for just the interactive bits — not a blanket find/replace.
+- **Scope if greenlit**: all 30 pages, one at a time; API routes stay (still needed for writes/mutations and any client-side interactivity), but most GET-on-page-load fetches would move into the server component itself.
+- **Status**: not started — pending decision on whether to pitch/prioritize this.
+
 ## Up next: Android app
 Once the web app feels done, build the Android app (Expo/React Native, same backend APIs).
 See plan discussed in chat — short version:

@@ -1,7 +1,7 @@
 # College ERP — Claude Guide
 
 ## Who I'm working with
-The user is brand new to coding (knows basic HTML/CSS only). They vibe code and learn by reverse engineering the output. Keep explanations short, plain English, and jargon-free. Make decisions for them — don't present 5 options and ask which they prefer.
+The user is brand new to coding (knows basic HTML/CSS only). They vibe code and learn by reverse engineering the output. Keep explanations short, plain English, and jargon-free.
 
 ## What this project is
 A college ERP system with three user roles, each with their own portal:
@@ -10,68 +10,31 @@ A college ERP system with three user roles, each with their own portal:
 |------|-----------|--------|
 | Admin | `/admin` | Built ✅ |
 | Teacher | `/teachers` | Built ✅ (redesigned with hierarchical student nav) |
-| Student | `/students` | Built ✅ (modern blue UI) |
+| Student | `/students` | Built ✅ (orange/white theme) |
 
 Single login at `/login` → middleware auto-routes each role to their portal.
-
-## Tech stack
-- **Next.js 14** (App Router) — the framework
-- **React 18** — UI
-- **Tailwind CSS** — all styling, utility classes only
-- **MongoDB + Mongoose** — database
-- **JWT (jose)** — auth via HTTP-only cookie named `token`
-- **lucide-react** — icons
 
 ## How we build
 Every feature is built full-stack from the start — UI and API together. No placeholder pages, no mock data. When adding anything new, wire it to the real database immediately.
 
-## Folder structure
-```
-src/
-├── app/
-│   ├── (auth)/login/       ← login page
-│   ├── admin/              ← admin portal
-│   │   └── teachers/       ← teacher management (dept → teacher list → detail)
-│   ├── teachers/           ← teacher portal (dashboard, attendance, notices, timetable, assignments)
-│   │   └── students/       ← hierarchical student nav (branch → year → section)
-│   ├── students/           ← student portal (dashboard at root)
-│   ├── student/            ← student sub-pages (attendance, grades, timetable, etc.)
-│   ├── dashboard/          ← LEGACY — middleware redirects here to role portal; do not use
-│   └── api/                ← backend API routes
-├── components/
-│   ├── admin/              ← admin components + FeaturePanels/ + teachers/
-│   ├── teacher/            ← TeacherSidebar, TeacherNavbar
-│   ├── sidebar/            ← modern student sidebar
-│   ├── navbar/             ← modern student navbar
-│   ├── student/            ← student widget components
-│   ├── layout/             ← DashboardLayout + Sidebar (legacy, used by /dashboard only)
-│   └── ui/                 ← Button, Card, Input, Table
-├── contexts/               ← React context providers (teacher state, etc.)
-├── lib/                    ← auth.ts, db.ts, api-auth.ts, utils.ts, teachersData.ts
-├── models/                 ← Mongoose schemas (User, Student, Attendance, etc.)
-└── middleware.ts           ← JWT auth + role-based routing
-```
-
 ## Key rules
 - **No unsolicited edits** — only change code when explicitly asked
-- **Tailwind only** — no inline styles, no CSS modules, no new CSS files
-- **No new packages** — lucide-react for icons, everything else already installed
 - **Keep components isolated** — admin, student, and teacher code must not mix
 - **Don't touch** `src/app/dashboard/` — legacy routes kept for redirect fallback only
+
+## Building things well
+When asked to build or improve a feature, prioritize making it good over sticking to a fixed toolkit. Default to Tailwind and existing packages since they're already proven in this codebase, but if a new package or a different approach genuinely makes the requested feature better, use it — just say what you added and why. Don't let a style preference get in the way of the right solution.
+
+## Verification workflow
+Running `npm run build` while the dev server (`npm run dev`) is up corrupts `.next` for that dev server (dev and prod builds aren't compatible in the same folder) — that's what caused the `__webpack_modules__ is not a function` crash. So:
+- Day-to-day, verify changes with `npx tsc --noEmit`, `npx eslint <files>`, and `npm test` — none of these touch `.next`, so they're always safe to run alongside the dev server.
+- Only run `npm run build` when the user says they're done for the day / logging off. After it, clear `.next` (`rm -rf .next`) and tell them to restart `npm run dev` next time they start working.
 
 ## Auth flow
 1. User logs in → `/api/auth/login` sets JWT cookie
 2. Client redirects to `/dashboard`
 3. `middleware.ts` reads cookie → redirects to role's portal
 4. Logout: POST to `/api/auth/logout` → clears cookie → redirect to `/login`
-
-## Design system
-- **Admin portal**: dark slate sidebar (`bg-slate-900`), indigo accents (`indigo-600`)
-- **Teacher portal**: dark slate sidebar (`bg-slate-800`), teal/slate accents
-- **Student portal**: white sidebar, blue accents (`blue-600`), supports dark mode
-- **Spacing**: `p-6` for page padding, `gap-4` or `gap-6` for grids
-- **Cards**: `rounded-xl border border-gray-200 bg-white`
-- **Placeholder empty states**: `rounded-xl border border-dashed border-gray-300`
 
 ## Skills policy
 
