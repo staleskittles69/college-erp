@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Department from "@/models/Department";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 
 export async function DELETE(request: NextRequest, { params }: { params: { slug: string } }) {
   const payload = await getAuth(request);
@@ -11,6 +12,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { slug:
   await connectDB();
   const result = await Department.deleteOne({ slug: params.slug });
   if (result.deletedCount === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  await logAudit(payload, "delete", "Department", `Deleted department ${params.slug}`, params.slug);
 
   return NextResponse.json({ deleted: true });
 }

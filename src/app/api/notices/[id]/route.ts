@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Notice from "@/models/Notice";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 import mongoose from "mongoose";
 
 /* ========================= PATCH ========================= */
@@ -43,6 +44,14 @@ export async function PATCH(
     if (pinned !== undefined) notice.pinned = Boolean(pinned);
 
     await notice.save();
+
+    await logAudit(
+      payload,
+      "update",
+      "Notice",
+      `Updated notice "${notice.title}"`,
+      notice._id.toString()
+    );
 
     return NextResponse.json({
       _id: notice._id.toString(),
@@ -92,6 +101,14 @@ export async function DELETE(
     if (!deleted) {
       return NextResponse.json({ error: "Notice not found" }, { status: 404 });
     }
+
+    await logAudit(
+      payload,
+      "delete",
+      "Notice",
+      `Deleted notice "${deleted.title}"`,
+      deleted._id.toString()
+    );
 
     return NextResponse.json({ success: true });
 

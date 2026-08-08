@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Department from "@/models/Department";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,6 +45,15 @@ export async function POST(request: NextRequest) {
     }
 
     const department = await Department.create({ slug, name, label, color });
+
+    await logAudit(
+      payload,
+      "create",
+      "Department",
+      `Created department ${department.name} (${department.slug})`,
+      department.slug
+    );
+
     return NextResponse.json({
       slug: department.slug,
       name: department.name,

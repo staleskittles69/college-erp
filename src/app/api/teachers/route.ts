@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Teacher from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -77,6 +78,14 @@ export async function POST(request: NextRequest) {
       department,
       teaching: [],
     });
+
+    await logAudit(
+      payload,
+      "create",
+      "Teacher",
+      `Created teacher ${teacher.name} (${teacher.department})`,
+      teacher._id.toString()
+    );
 
     return NextResponse.json({
       id: teacher._id.toString(),

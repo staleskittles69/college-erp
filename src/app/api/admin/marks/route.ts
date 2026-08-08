@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Marks from "@/models/Marks";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 
 // GET /api/admin/marks?studentId=xxx
 export async function GET(request: NextRequest) {
@@ -65,6 +66,14 @@ export async function POST(request: NextRequest) {
       max: Number(max),
     });
 
+    await logAudit(
+      payload,
+      "create",
+      "Marks",
+      `Added ${examType} marks for student ${studentId} in ${subject}: ${record.obtained}/${record.max}`,
+      record._id.toString()
+    );
+
     return NextResponse.json(
       {
         id: record._id.toString(),
@@ -98,7 +107,17 @@ export async function DELETE(request: NextRequest) {
 
     await connectDB();
 
-    await Marks.findByIdAndDelete(id);
+    const deleted = await Marks.findByIdAndDelete(id);
+    if (deleted) {
+      await logAudit(
+        payload,
+        "delete",
+        "Marks",
+        `Deleted ${deleted.examType} marks for student ${deleted.studentId.toString()} in ${deleted.subject}`,
+        deleted._id.toString()
+      );
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("admin/marks DELETE error:", error);

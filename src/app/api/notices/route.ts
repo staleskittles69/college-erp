@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Notice from "@/models/Notice";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -88,6 +89,14 @@ export async function POST(request: NextRequest) {
       targetBranch: targetBranch ?? null,
       targetYear: targetYear ? Number(targetYear) : null,
     });
+
+    await logAudit(
+      payload,
+      "create",
+      "Notice",
+      `Created notice "${notice.title}"`,
+      notice._id.toString()
+    );
 
     return NextResponse.json({
       _id: notice._id.toString(),

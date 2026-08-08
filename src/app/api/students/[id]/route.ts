@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 import mongoose from "mongoose";
 
 export async function GET(
@@ -85,6 +86,14 @@ export async function PATCH(
     if (section != null) student.section = section;
     await student.save();
 
+    await logAudit(
+      payload,
+      "update",
+      "Student",
+      `Updated student ${student.name} (${student.branch} sem ${student.semester}, roll ${student.rollNo})`,
+      student._id.toString()
+    );
+
     return NextResponse.json({
       _id: student._id.toString(),
       name: student.name,
@@ -129,6 +138,14 @@ export async function DELETE(
 
     await User.findByIdAndDelete(id);
     await Student.findByIdAndDelete(student._id);
+
+    await logAudit(
+      payload,
+      "delete",
+      "Student",
+      `Deleted student ${student.name} (${student.branch} sem ${student.semester}, roll ${student.rollNo})`,
+      student._id.toString()
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

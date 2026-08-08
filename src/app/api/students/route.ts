@@ -6,6 +6,7 @@ import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { generateRollNumber } from "@/lib/utils/generateRollNumber";
 import { escapeRegex } from "@/lib/utils";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -126,6 +127,14 @@ export async function POST(request: NextRequest) {
       semester: Number(semester),
       section: sectionLabel,
     });
+
+    await logAudit(
+      payload,
+      "create",
+      "Student",
+      `Created student ${student.name} (${student.branch} sem ${student.semester}, roll ${student.rollNo})`,
+      student._id.toString()
+    );
 
     return NextResponse.json({
       _id: student._id.toString(),

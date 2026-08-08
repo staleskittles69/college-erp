@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Test from "@/models/Test";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -95,6 +96,14 @@ export async function POST(request: NextRequest) {
       notes: notes ?? null,
       attachmentUrl: attachmentUrl ?? null,
     });
+
+    await logAudit(
+      payload,
+      "create",
+      "Test",
+      `Created test "${test.title}" (${test.subject})`,
+      test._id.toString()
+    );
 
     return NextResponse.json({
       _id: test._id.toString(),

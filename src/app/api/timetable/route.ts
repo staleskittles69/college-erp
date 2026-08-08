@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Timetable from "@/models/Timetable";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -92,10 +93,25 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
+    const existed = await Timetable.exists({
+      branch,
+      semester: Number(semester),
+      section,
+      dayOfWeek: Number(dayOfWeek),
+    });
+
     const timetableRow = await Timetable.findOneAndUpdate(
       { branch, semester: Number(semester), section, dayOfWeek: Number(dayOfWeek) },
       { branch, semester: Number(semester), section, dayOfWeek: Number(dayOfWeek), slots },
       { upsert: true, new: true }
+    );
+
+    await logAudit(
+      payload,
+      existed ? "update" : "create",
+      "Timetable",
+      `${existed ? "Updated" : "Created"} timetable for ${branch} sem ${semester} section ${section}, day ${dayOfWeek}`,
+      timetableRow._id.toString()
     );
 
     return NextResponse.json({

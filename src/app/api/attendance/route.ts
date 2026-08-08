@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Attendance from "@/models/Attendance";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(request: NextRequest) {
   try {
@@ -109,6 +110,14 @@ export async function POST(request: NextRequest) {
       }));
       const AttendanceModel = (await import("@/models/Attendance")).default;
       await AttendanceModel.bulkWrite(bulkOps);
+
+      await logAudit(
+        payload,
+        "update",
+        "Attendance",
+        `Marked attendance for ${bulkEntries.length} student(s) in ${subject} on ${dateObj.toDateString()}`
+      );
+
       return NextResponse.json({ success: true, count: bulkEntries.length });
     }
 
@@ -130,6 +139,14 @@ export async function POST(request: NextRequest) {
         markedBy: payload.userId,
       },
       { upsert: true, new: true }
+    );
+
+    await logAudit(
+      payload,
+      "update",
+      "Attendance",
+      `Marked ${record.status} for student ${record.studentId.toString()} in ${record.subject} on ${dateObj.toDateString()}`,
+      record._id.toString()
     );
 
     return NextResponse.json({
@@ -177,6 +194,14 @@ export async function PATCH(request: NextRequest) {
     if (!record) {
       return NextResponse.json({ error: "Attendance record not found" }, { status: 404 });
     }
+
+    await logAudit(
+      payload,
+      "update",
+      "Attendance",
+      `Corrected attendance to ${record.status} for student ${record.studentId.toString()} in ${record.subject} on ${new Date(record.date).toDateString()}`,
+      record._id.toString()
+    );
 
     return NextResponse.json({
       _id: record._id.toString(),

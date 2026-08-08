@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Teacher, { ITeacher } from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { generateRandomPassword, hashPassword } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import mongoose from "mongoose";
 
 export async function PATCH(
@@ -44,6 +45,15 @@ export async function PATCH(
     }
 
     const populated = await Teacher.findById(id).populate("userId", "email").lean() as (ITeacher & { userId: { email?: string } }) | null;
+
+    await logAudit(
+      payload,
+      "update",
+      "Teacher",
+      `Updated teacher ${teacher.name}${body.resetPassword ? " (password reset)" : ""}`,
+      teacher._id.toString()
+    );
+
     return NextResponse.json({
       id: populated!._id.toString(),
       name: populated!.name,
@@ -79,6 +89,14 @@ export async function DELETE(
 
     await User.findByIdAndDelete(teacher.userId);
     await Teacher.findByIdAndDelete(id);
+
+    await logAudit(
+      payload,
+      "delete",
+      "Teacher",
+      `Deleted teacher ${teacher.name} (${teacher.department})`,
+      teacher._id.toString()
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

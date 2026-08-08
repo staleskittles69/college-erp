@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Test from "@/models/Test";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { logAudit } from "@/lib/audit";
 import mongoose from "mongoose";
 
 /* ---------- GET TEST BY ID ---------- */
@@ -104,6 +105,14 @@ export async function PUT(
     if (!updated)
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
 
+    await logAudit(
+      payload,
+      "update",
+      "Test",
+      `Updated test "${updated.title}" (${updated.subject})`,
+      updated._id.toString()
+    );
+
     return NextResponse.json({
       _id: updated._id.toString(),
       subject: updated.subject,
@@ -151,6 +160,14 @@ export async function DELETE(
 
     if (!deleted)
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
+
+    await logAudit(
+      payload,
+      "delete",
+      "Test",
+      `Deleted test "${deleted.title}" (${deleted.subject})`,
+      deleted._id.toString()
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {
