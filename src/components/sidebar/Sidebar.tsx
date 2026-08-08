@@ -49,7 +49,7 @@ export function Sidebar({ isCollapsed, toggleSidebar, mobileOpen, onCloseMobile 
     { icon: <GraduationCap size={18} />, label: 'Grades', href: '/student/grades' },
     { icon: <Bell size={18} />, label: 'Announcements', href: '/student/announcements' },
     { icon: <CalendarDays size={18} />, label: 'Timetable', href: '/student/timetable' },
-    { icon: <MessageSquare size={18} />, label: 'Messages', href: '/student/messages' },
+    { icon: <MessageSquare size={18} />, label: 'Queries', href: '/student/messages' },
     { icon: <Library size={18} />, label: 'Resources', href: '/student/resources' },
     { icon: <User size={18} />, label: 'Profile', href: '/student/profile' },
     { icon: <Settings size={18} />, label: 'Settings', href: '/student/settings' },

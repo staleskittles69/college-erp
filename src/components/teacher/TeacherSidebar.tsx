@@ -10,6 +10,7 @@ import {
   Menu,
   ChevronLeft,
   Bell,
+  Inbox,
   Settings,
   X,
 } from 'lucide-react';
@@ -31,6 +32,7 @@ export function TeacherSidebar({ isCollapsed, toggleSidebar, name, email, mobile
     { icon: <CalendarDays size={18} />,    label: 'Timetable',   href: '/teachers/timetable' },
     { icon: <ClipboardList size={18} />,   label: 'Assignments', href: '/teachers/assignments' },
     { icon: <Bell size={18} />,            label: 'Notices',     href: '/teachers/notices' },
+    { icon: <Inbox size={18} />,           label: 'Queries',     href: '/teachers/queries' },
     { icon: <Settings size={18} />,        label: 'Settings',    href: '/teachers/settings' },
   ];
 

@@ -17,7 +17,7 @@ function formatTimestamp(value: string) {
   });
 }
 
-export default function MessagesPage() {
+export default function TeacherQueriesPage() {
   const [queries, setQueries] = useState<QueryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [subject, setSubject] = useState("");
@@ -60,13 +60,18 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold tracking-tight">Queries</h1>
-        <p className="text-white/80 text-sm mt-1">Send a query to the admin and track its status here.</p>
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center">
+          <Inbox size={20} className="text-white" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">Queries</h1>
+          <p className="text-sm text-gray-500">Send a query to the admin and track its status</p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 space-y-4 max-w-2xl">
         <h2 className="font-semibold text-gray-800">New Query</h2>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
@@ -74,7 +79,7 @@ export default function MessagesPage() {
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            placeholder="e.g. Missing marks for Data Structures"
+            placeholder="e.g. Timetable clash for CSE Year 2"
             required
             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
@@ -100,7 +105,7 @@ export default function MessagesPage() {
         </button>
       </form>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden max-w-2xl">
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="font-semibold text-gray-800">Your Queries</h2>
         </div>
@@ -108,9 +113,7 @@ export default function MessagesPage() {
           <div className="p-16 text-center text-sm text-gray-400">Loading…</div>
         ) : queries.length === 0 ? (
           <div className="p-10 flex flex-col items-center justify-center gap-4 min-h-[200px] text-center">
-            <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
-              <Inbox size={24} className="text-gray-400" />
-            </div>
+            <Inbox size={28} className="text-gray-300" />
             <p className="text-sm text-gray-400">No queries sent yet.</p>
           </div>
         ) : (

@@ -14,6 +14,7 @@ import {
   Settings,
   ClipboardList,
   ListChecks,
+  Inbox,
   ChevronLeft,
   ChevronRight,
   X,
@@ -28,6 +29,7 @@ const navItems = [
   { href: "/admin/features/announcements", label: "Announcements", icon: Bell },
   { href: "/admin/features/timetable", label: "Timetable", icon: Calendar },
   { href: "/admin/attendance", label: "Attendance", icon: CalendarCheck },
+  { href: "/admin/queries", label: "Queries", icon: Inbox },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ClipboardList },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
