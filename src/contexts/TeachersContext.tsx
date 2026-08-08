@@ -26,9 +26,7 @@ interface TeachersContextType {
   teachers: Teacher[];
   departments: Department[];
   loading: boolean;
-  addTeacher: (data: Omit<Teacher, "id" | "teaching"> & { password?: string }) => Promise<string>;
-  addDepartment: (dept: Department) => Promise<void>;
-  updateDepartment: (slug: string, updates: Omit<Department, "slug">) => Promise<void>;
+  addTeacher: (data: Omit<Teacher, "id" | "teaching"> & { password?: string }) => Promise<{ id: string; plainPassword: string }>;
   addAssignment: (teacherId: string, assignment: Assignment) => Promise<void>;
   removeAssignment: (teacherId: string, index: number) => Promise<void>;
   removeSection: (teacherId: string, assignmentIndex: number, section: string) => Promise<void>;
@@ -65,29 +63,7 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
     if (!response.ok) throw new Error(body.error ?? "Failed to add teacher");
     const { plainPassword, ...teacher } = body;
     setTeachers((prev) => [...prev, teacher]);
-    return plainPassword as string;
-  }
-
-  async function addDepartment(dept: Department) {
-    const response = await fetch("/api/departments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dept),
-    });
-    const body = await response.json();
-    if (!response.ok) throw new Error(body.error ?? "Failed to add department");
-    setDepartments((prev) => [...prev, body]);
-  }
-
-  async function updateDepartment(slug: string, updates: Omit<Department, "slug">) {
-    const response = await fetch(`/api/departments/${slug}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updates),
-    });
-    const body = await response.json();
-    if (!response.ok) throw new Error(body.error ?? "Failed to update department");
-    setDepartments((prev) => prev.map((department) => (department.slug === slug ? body : department)));
+    return { id: teacher.id as string, plainPassword: plainPassword as string };
   }
 
   async function addAssignment(teacherId: string, assignment: Assignment) {
@@ -175,7 +151,7 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
 
   return (
     <TeachersContext.Provider
-      value={{ teachers, departments, loading, addTeacher, addDepartment, updateDepartment, addAssignment, removeAssignment, removeSection, resetTeacherPassword }}
+      value={{ teachers, departments, loading, addTeacher, addAssignment, removeAssignment, removeSection, resetTeacherPassword }}
     >
       {children}
     </TeachersContext.Provider>

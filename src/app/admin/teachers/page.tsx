@@ -1,16 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
-import { Department } from "@/contexts/TeachersContext";
 import DepartmentCard from "@/components/admin/teachers/DepartmentCard";
-import DepartmentFormModal from "@/components/admin/teachers/DepartmentFormModal";
 
 export default function TeachersPage() {
   const { teachers, departments } = useTeachers();
-  const [showAdd, setShowAdd] = useState(false);
-  const [editingDept, setEditingDept] = useState<Department | null>(null);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -21,40 +17,41 @@ export default function TeachersPage() {
             Select a department to manage its teachers.
           </p>
         </div>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
+        <Link
+          href="/admin/branches"
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-orange-600 transition-colors"
         >
-          <Plus size={15} /> Add Department
-        </button>
+          Manage branches <ArrowRight size={14} />
+        </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {departments.map((dept) => {
-          const count = teachers.filter((teacher) => teacher.department === dept.slug).length;
-          return (
-            <DepartmentCard
-              key={dept.slug}
-              slug={dept.slug}
-              name={dept.name}
-              label={dept.label}
-              teacherCount={count}
-              color={dept.color}
-              onEdit={() => setEditingDept(dept)}
-            />
-          );
-        })}
-      </div>
-
-      {showAdd && (
-        <DepartmentFormModal mode="add" onClose={() => setShowAdd(false)} />
-      )}
-      {editingDept && (
-        <DepartmentFormModal
-          mode="edit"
-          existing={editingDept}
-          onClose={() => setEditingDept(null)}
-        />
+      {departments.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-gray-300 bg-white p-16 flex flex-col items-center justify-center text-center">
+          <p className="font-semibold text-gray-600">No departments yet</p>
+          <p className="text-sm text-gray-400 mt-1">
+            Departments follow your branches —{" "}
+            <Link href="/admin/branches" className="text-orange-600 hover:underline">
+              add a branch
+            </Link>{" "}
+            to see it here.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {departments.map((dept) => {
+            const count = teachers.filter((teacher) => teacher.department === dept.slug).length;
+            return (
+              <DepartmentCard
+                key={dept.slug}
+                slug={dept.slug}
+                name={dept.name}
+                label={dept.label}
+                teacherCount={count}
+                color={dept.color}
+              />
+            );
+          })}
+        </div>
       )}
     </div>
   );

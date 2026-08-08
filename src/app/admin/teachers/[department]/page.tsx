@@ -1,23 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Search, Plus, Mail, BookOpen, ChevronRight } from "lucide-react";
+import { Search, Plus, BookOpen, ChevronRight } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
 import Breadcrumb from "@/components/admin/Breadcrumb";
-import AddTeacherModal from "@/components/admin/teachers/AddTeacherModal";
+import AddSubjectModal from "@/components/admin/teachers/AddSubjectModal";
+
+interface Subject {
+  id: string;
+  name: string;
+  department: string;
+  teacherCount: number;
+}
 
 export default function DepartmentPage() {
   const { department: slug } = useParams() as { department: string };
-  const { teachers, departments } = useTeachers();
+  const { departments } = useTeachers();
   const dept = departments.find((department) => department.slug === slug);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const filtered = teachers
-    .filter((teacher) => teacher.department === slug)
-    .filter((teacher) => teacher.name.toLowerCase().includes(search.toLowerCase()));
+  function fetchSubjects() {
+    return fetch(`/api/admin/subjects?department=${slug}`, { credentials: "include" })
+      .then((response) => (response.ok ? response.json() : []))
+      .then(setSubjects)
+      .catch(() => setSubjects([]))
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    fetchSubjects();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
+
+  const filtered = subjects.filter((subject) => subject.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -37,7 +57,7 @@ export default function DepartmentPage() {
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
         >
-          <Plus size={15} /> Add Teacher
+          <Plus size={15} /> Add Subject
         </button>
       </div>
 
@@ -45,7 +65,7 @@ export default function DepartmentPage() {
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
-          placeholder="Search teachers..."
+          placeholder="Search subjects..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
@@ -53,44 +73,42 @@ export default function DepartmentPage() {
       </div>
 
       <div className="space-y-3">
-        {filtered.length === 0 ? (
+        {loading ? (
           <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-400">
-            No teachers found.
+            Loading…
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-400">
+            {subjects.length === 0 ? 'No subjects yet. Click "Add Subject" to create one.' : "No subjects found."}
           </div>
         ) : (
-          filtered.map((teacher) => (
-            <div
-              key={teacher.id}
-              className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4"
+          filtered.map((subject) => (
+            <Link
+              key={subject.id}
+              href={`/admin/teachers/${slug}/subjects/${subject.id}`}
+              className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 hover:border-orange-200 transition-colors"
             >
-              <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 text-orange-600 font-bold text-lg">
-                {teacher.name.charAt(0)}
+              <div className="w-11 h-11 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 text-orange-600">
+                <BookOpen size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900">{teacher.name}</p>
-                <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
-                  <Mail size={11} /> {teacher.email}
+                <p className="text-sm font-semibold text-gray-900">{subject.name}</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {subject.teacherCount} teacher{subject.teacherCount !== 1 ? "s" : ""}
                 </p>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-gray-400 flex-shrink-0">
-                <BookOpen size={12} />
-                <span>
-                  {teacher.teaching.length} class{teacher.teaching.length !== 1 ? "es" : ""}
-                </span>
-              </div>
-              <Link
-                href={`/admin/teachers/${slug}/${teacher.id}`}
-                className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-50 transition-colors"
-              >
-                View Details <ChevronRight size={13} />
-              </Link>
-            </div>
+              <ChevronRight size={16} className="text-gray-300 flex-shrink-0" />
+            </Link>
           ))
         )}
       </div>
 
       {showModal && (
-        <AddTeacherModal departmentSlug={slug} onClose={() => setShowModal(false)} />
+        <AddSubjectModal
+          departmentSlug={slug}
+          onCreated={(subject) => setSubjects((prev) => [...prev, subject].sort((subA, subB) => subA.name.localeCompare(subB.name)))}
+          onClose={() => setShowModal(false)}
+        />
       )}
     </div>
   );

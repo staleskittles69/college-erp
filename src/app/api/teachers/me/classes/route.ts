@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Teacher, { ITeacher } from "@/models/Teacher";
+import Subject from "@/models/Subject";
 import { getAuth } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -12,8 +13,13 @@ export async function GET(request: NextRequest) {
   const teacher = await Teacher.findOne({ userId: payload.userId }).lean() as ITeacher | null;
   if (!teacher) return NextResponse.json({ teaching: [], subjects: [] });
 
+  const subjects = await Subject.find({ department: teacher.department, teacherIds: teacher._id })
+    .select("name")
+    .sort({ name: 1 })
+    .lean();
+
   return NextResponse.json({
     teaching: teacher.teaching,
-    subjects: teacher.subjects,
+    subjects: subjects.map((subject) => subject.name),
   });
 }

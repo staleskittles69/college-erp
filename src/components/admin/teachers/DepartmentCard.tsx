@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowRight, Pencil } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface Props {
   slug: string;
@@ -9,10 +9,9 @@ interface Props {
   label: string;
   teacherCount: number;
   color: string;
-  onEdit?: () => void;
 }
 
-export default function DepartmentCard({ slug, name, label, teacherCount, color, onEdit }: Props) {
+export default function DepartmentCard({ slug, name, label, teacherCount, color }: Props) {
   const router = useRouter();
 
   return (
@@ -25,18 +24,7 @@ export default function DepartmentCard({ slug, name, label, teacherCount, color,
           <p className="text-xl font-bold text-gray-900">{name}</p>
           <p className="text-xs text-gray-500 mt-1 leading-snug">{label}</p>
         </div>
-        <div className="flex items-center gap-1 ml-2 flex-shrink-0 mt-0.5">
-          {onEdit && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onEdit(); }}
-              title="Edit department"
-              className="p-1 rounded text-gray-300 hover:text-orange-500 opacity-0 group-hover:opacity-100 transition-all"
-            >
-              <Pencil size={13} />
-            </button>
-          )}
-          <ArrowRight size={16} className="text-gray-300 group-hover:text-gray-500 transition-colors" />
-        </div>
+        <ArrowRight size={16} className="text-gray-300 group-hover:text-gray-500 transition-colors mt-0.5 flex-shrink-0 ml-2" />
       </div>
       <p className="text-sm font-semibold text-gray-700 mt-4">
         {teacherCount}{" "}

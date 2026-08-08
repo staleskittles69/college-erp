@@ -6,10 +6,12 @@ import { useTeachers } from "@/contexts/TeachersContext";
 
 interface Props {
   departmentSlug: string;
+  subjectId?: string;
   onClose: () => void;
+  onDone?: () => void;
 }
 
-export default function AddTeacherModal({ departmentSlug, onClose }: Props) {
+export default function AddTeacherModal({ departmentSlug, subjectId, onClose, onDone }: Props) {
   const { addTeacher, departments } = useTeachers();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,7 +27,16 @@ export default function AddTeacherModal({ departmentSlug, onClose }: Props) {
     setError("");
     setSubmitting(true);
     try {
-      await addTeacher({ name: name.trim(), email: email.trim(), password: password.trim() || "teacher123", department: departmentSlug });
+      const { id: newTeacherId } = await addTeacher({ name: name.trim(), email: email.trim(), password: password.trim() || "teacher123", department: departmentSlug });
+      if (subjectId) {
+        await fetch(`/api/admin/subjects/${subjectId}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ addTeacherId: newTeacherId }),
+        });
+      }
+      onDone?.();
       onClose();
     } catch (error) {
       setError(error instanceof Error ? error.message : "Something went wrong");

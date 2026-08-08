@@ -6,7 +6,6 @@ export interface ITeacher {
   name: string;
   employeeId: string;
   department: string;
-  subjects: string[];
   teaching: { branch: string; year: number; sections: string[] }[];
   createdAt: Date;
   updatedAt: Date;
@@ -18,7 +17,6 @@ const TeacherSchema = new Schema<ITeacher>(
     name: { type: String, required: true },
     employeeId: { type: String, required: true },
     department: { type: String, required: true },
-    subjects: { type: [String], default: [] },
     teaching: {
       type: [{ branch: String, year: Number, sections: [String] }],
       default: [],
