@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
-
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+import { DAYS as DAY_NAMES } from "@/lib/academics";
 
 interface Slot { subject: string; time: string; room: string; }
 interface TimetableRow { _id: string; branch: string; semester: number; section: string; dayOfWeek: number; slots: Slot[]; }

@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
-
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+import { DAYS } from "@/lib/academics";
 
 interface Slot {
   subject: string;
@@ -28,7 +27,7 @@ export default function TimetablePage() {
   }, []);
 
   const byDay = Object.fromEntries(rows.map((row) => [row.dayOfWeek, row.slots]));
-  const activeDays = [1, 2, 3, 4, 5, 6].filter((day) => byDay[day]?.length > 0);
+  const activeDays = [0, 1, 2, 3, 4, 5].filter((day) => byDay[day]?.length > 0);
 
   return (
     <div className="space-y-6 animate-fade-in">

@@ -2,7 +2,7 @@
 
 import { AttendanceSummary } from "@/components/student/AttendanceSummary";
 import { CGPA } from "@/components/student/CGPA";
-import { WeeklyTimetable } from "@/components/student/WeeklyTimetable";
+import { TodayClasses } from "@/components/student/TodayClasses";
 import { UpcomingTests } from "@/components/student/UpcomingTests";
 import { NoticeBoard } from "@/components/student/NoticeBoard";
 
@@ -37,9 +37,9 @@ export default function StudentDashboardPage() {
 
       {/* Timetable */}
       <div>
-        <SectionHeader title="Weekly Schedule" />
+        <SectionHeader title="Today's Classes" />
         <div className="mt-4 animate-slide-up">
-          <WeeklyTimetable />
+          <TodayClasses />
         </div>
       </div>
 
