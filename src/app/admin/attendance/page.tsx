@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Check, X, RefreshCw } from "lucide-react";
-import { getSubjects } from "@/lib/subjects";
 
 interface Branch { slug: string; name: string; label: string; }
 interface Student { _id: string; name: string; rollNo: string; }
@@ -13,7 +12,10 @@ export default function AdminAttendancePage() {
   const [branch, setBranch] = useState("");
   const [year, setYear] = useState<number | "">("");
   const [section, setSection] = useState("");
+  const [sections, setSections] = useState<string[]>([]);
+  const [loadingSections, setLoadingSections] = useState(false);
   const [subject, setSubject] = useState("");
+  const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
 
   const [students, setStudents] = useState<Student[]>([]);
@@ -31,10 +33,31 @@ export default function AdminAttendancePage() {
       .catch(() => {});
   }, []);
 
-  const subjectOptions = branch && year ? getSubjects(branch, year) : [];
+  // Subjects come from the real Subject collection for this branch's department.
+  useEffect(() => {
+    setSubject("");
+    const department = branches.find((branchOption) => branchOption.name === branch)?.slug;
+    if (!department) { setSubjectOptions([]); return; }
+    fetch(`/api/admin/subjects?department=${encodeURIComponent(department)}`, { credentials: "include" })
+      .then((response) => response.ok ? response.json() : [])
+      .then((data: { name: string }[]) => setSubjectOptions(data.map((subjectItem) => subjectItem.name)))
+      .catch(() => setSubjectOptions([]));
+  }, [branch, branches]);
 
-  function handleBranchChange(value: string) { setBranch(value); setStudents([]); setSubject(""); setSubmitted(false); }
-  function handleYearChange(value: number | "") { setYear(value); setStudents([]); setSubject(""); setSubmitted(false); }
+  // Sections are fetched from actual enrolled students for this branch/year, not typed by hand.
+  useEffect(() => {
+    setSection("");
+    if (!branch || !year) { setSections([]); return; }
+    setLoadingSections(true);
+    fetch(`/api/admin/sections?branch=${encodeURIComponent(branch)}&year=${year}`, { credentials: "include" })
+      .then((response) => response.ok ? response.json() : [])
+      .then((data: string[]) => setSections(data))
+      .catch(() => setSections([]))
+      .finally(() => setLoadingSections(false));
+  }, [branch, year]);
+
+  function handleBranchChange(value: string) { setBranch(value); setStudents([]); setSubmitted(false); }
+  function handleYearChange(value: number | "") { setYear(value); setStudents([]); setSubmitted(false); }
   function handleSectionChange(value: string) { setSection(value); setStudents([]); setSubmitted(false); }
 
   function loadStudents() {
@@ -119,14 +142,19 @@ export default function AdminAttendancePage() {
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Section</label>
-            <input
-              type="number"
-              min={1}
+            <select
               value={section}
               onChange={(e) => handleSectionChange(e.target.value)}
-              placeholder="e.g. 1"
-              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+              disabled={!branch || !year || loadingSections}
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:bg-gray-50"
+            >
+              <option value="">
+                {!branch || !year ? "Select branch & year first" : loadingSections ? "Loading…" : sections.length === 0 ? "No sections found" : "Select"}
+              </option>
+              {sections.map((sectionOption) => (
+                <option key={sectionOption} value={sectionOption}>{sectionOption}</option>
+              ))}
+            </select>
           </div>
           <div className="flex items-end">
             <button
@@ -150,7 +178,7 @@ export default function AdminAttendancePage() {
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:bg-gray-50"
             >
               <option value="">
-                {subjectOptions.length === 0 ? "Select branch & year first" : "Select subject"}
+                {!branch ? "Select branch first" : subjectOptions.length === 0 ? "No subjects found" : "Select subject"}
               </option>
               {subjectOptions.map((subjectOption) => (
                 <option key={subjectOption} value={subjectOption}>{subjectOption}</option>
