@@ -8,6 +8,7 @@ interface QueryItem {
   _id: string;
   fromName: string;
   fromRole: "student" | "teacher";
+  toName: string;
   subject: string;
   message: string;
   status: "open" | "resolved";
@@ -122,7 +123,7 @@ export default function AdminQueriesPage() {
                       </span>
                     </div>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {query.fromName} <span className="capitalize">({query.fromRole})</span> · {formatTimestamp(query.createdAt)}
+                      {query.fromName} <span className="capitalize">({query.fromRole})</span> → {query.toName} · {formatTimestamp(query.createdAt)}
                     </p>
                     <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{query.message}</p>
                   </div>

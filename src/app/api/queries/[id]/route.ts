@@ -12,7 +12,6 @@ export async function PATCH(
   try {
     const payload = await getAuth(request);
     if (!payload) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (!requireAdmin(payload)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const { id } = await context.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -26,6 +25,21 @@ export async function PATCH(
     }
 
     await connectDB();
+
+    const existing = await Query.findById(id).select("toRole toUserId").lean<{
+      toRole: "admin" | "teacher";
+      toUserId?: mongoose.Types.ObjectId;
+    }>();
+    if (!existing) return NextResponse.json({ error: "Query not found" }, { status: 404 });
+
+    const isRecipientTeacher =
+      payload.role === "teacher" &&
+      existing.toRole === "teacher" &&
+      existing.toUserId?.toString() === payload.userId;
+
+    if (!requireAdmin(payload) && !isRecipientTeacher) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const query = await Query.findByIdAndUpdate(id, { status }, { new: true });
     if (!query) return NextResponse.json({ error: "Query not found" }, { status: 404 });
@@ -42,6 +56,8 @@ export async function PATCH(
       _id: query._id.toString(),
       fromName: query.fromName,
       fromRole: query.fromRole,
+      toRole: query.toRole,
+      toName: query.toName,
       subject: query.subject,
       message: query.message,
       status: query.status,

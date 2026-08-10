@@ -7,8 +7,15 @@ interface QueryItem {
   _id: string;
   subject: string;
   message: string;
+  toRole: "admin" | "teacher";
+  toName: string;
   status: "open" | "resolved";
   createdAt: string;
+}
+
+interface TeacherOption {
+  userId: string;
+  name: string;
 }
 
 function formatTimestamp(value: string) {
@@ -20,8 +27,10 @@ function formatTimestamp(value: string) {
 export default function MessagesPage() {
   const [queries, setQueries] = useState<QueryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [recipient, setRecipient] = useState("admin");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,7 +42,13 @@ export default function MessagesPage() {
       .finally(() => setLoading(false));
   }
 
-  useEffect(() => { fetchQueries(); }, []);
+  useEffect(() => {
+    fetchQueries();
+    fetch("/api/students/me/teachers", { credentials: "include" })
+      .then((response) => (response.ok ? response.json() : []))
+      .then(setTeachers)
+      .catch(() => setTeachers([]));
+  }, []);
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();
@@ -45,13 +60,18 @@ export default function MessagesPage() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject: subject.trim(), message: message.trim() }),
+        body: JSON.stringify({
+          subject: subject.trim(),
+          message: message.trim(),
+          toTeacherUserId: recipient === "admin" ? undefined : recipient,
+        }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Failed to send");
       setQueries((prev) => [body, ...prev]);
       setSubject("");
       setMessage("");
+      setRecipient("admin");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -63,11 +83,26 @@ export default function MessagesPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
         <h1 className="text-2xl font-bold tracking-tight">Queries</h1>
-        <p className="text-white/80 text-sm mt-1">Send a query to the admin and track its status here.</p>
+        <p className="text-white/80 text-sm mt-1">Send a query to the admin or a teacher and track its status here.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 space-y-4">
         <h2 className="font-semibold text-gray-800">New Query</h2>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Send To</label>
+          <select
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 bg-white"
+          >
+            <option value="admin">Admin</option>
+            {teachers.map((teacher) => (
+              <option key={teacher.userId} value={teacher.userId}>
+                {teacher.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
           <input
@@ -127,7 +162,9 @@ export default function MessagesPage() {
                     {query.status}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5">{formatTimestamp(query.createdAt)}</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  To: {query.toName} · {formatTimestamp(query.createdAt)}
+                </p>
                 <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{query.message}</p>
               </li>
             ))}
