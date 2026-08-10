@@ -9,6 +9,7 @@
     "lint": "next lint",
     "seed": "tsx scripts/seed.ts",
     "seed:students": "tsx scripts/seed-students.ts",
+    "seed:subjects": "tsx scripts/seed-subjects-teachers.ts",
     "test": "vitest run"
   },
   "dependencies": {
