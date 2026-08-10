@@ -190,7 +190,7 @@ export default function TeacherDetailsPage() {
                 <div key={`${assignmentIdx}-${section}`} className="flex items-center justify-between py-3">
                   <p className="text-sm font-medium text-gray-800">
                     {assignment.branch} — Year {assignment.year} —{" "}
-                    <span className="text-orange-600">Section {section}</span>
+                    <span className="text-orange-600">{section}</span>
                   </p>
                   <button
                     onClick={() => removeSection(teacher.id, assignmentIdx, section)}

@@ -144,7 +144,7 @@ export default function AttendancePage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
             >
               <option value="">Select</option>
-              {sectionsForClass.map((sectionOption) => <option key={sectionOption} value={sectionOption}>Section {sectionOption}</option>)}
+              {sectionsForClass.map((sectionOption) => <option key={sectionOption} value={sectionOption}>{sectionOption}</option>)}
             </select>
           </div>
           <div>
