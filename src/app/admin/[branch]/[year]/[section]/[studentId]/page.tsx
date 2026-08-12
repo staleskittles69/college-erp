@@ -108,7 +108,7 @@ export default function StudentDetailPage() {
       {/* Tab Content */}
       <div>
         {activeTab === "marks" && <MarksPanel studentId={studentId} context={context} />}
-        {activeTab === "attendance" && <AttendancePanel studentId={studentId} context={context} />}
+        {activeTab === "attendance" && <AttendancePanel studentId={studentId} context={context} branch={student?.branch} />}
       </div>
 
       <div className="mt-6">
