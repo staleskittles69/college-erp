@@ -179,7 +179,7 @@ export default function LoginPage() {
               ) : (
                 <>
                   <LogIn size={16} />
-                  Sign in
+                  Log in
                 </>
               )}
             </button>

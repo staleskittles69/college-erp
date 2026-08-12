@@ -14,17 +14,21 @@ interface MarkRecord {
 interface MarksPanelProps {
   studentId?: string;
   context?: string;
+  branch?: string;
 }
+
+interface Dept { slug: string; name: string; }
 
 const EMPTY_FORM = { subject: "", examType: "Mid Term", obtained: "", max: "100" };
 
-export default function MarksPanel({ studentId = "", context }: MarksPanelProps) {
+export default function MarksPanel({ studentId = "", context, branch }: MarksPanelProps) {
   const [marks, setMarks] = useState<MarkRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
 
   function loadMarks() {
     if (!studentId) { setLoading(false); return; }
@@ -39,6 +43,21 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
   useEffect(() => {
     loadMarks();
   }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Subjects come from the real Subject collection for this student's department.
+  useEffect(() => {
+    if (!branch) { setSubjectOptions([]); return; }
+    fetch("/api/departments", { credentials: "include" })
+      .then((response) => (response.ok ? response.json() : []))
+      .then((depts: Dept[]) => depts.find((dept) => dept.name === branch)?.slug)
+      .then((slug) => {
+        if (!slug) { setSubjectOptions([]); return; }
+        return fetch(`/api/admin/subjects?department=${encodeURIComponent(slug)}`, { credentials: "include" })
+          .then((response) => (response.ok ? response.json() : []))
+          .then((data: { name: string }[]) => setSubjectOptions(data.map((subjectItem) => subjectItem.name)));
+      })
+      .catch(() => setSubjectOptions([]));
+  }, [branch]);
 
   const subjectCount = new Set(marks.map((mark) => mark.subject)).size;
   const cgpa = computeCGPA(marks);
@@ -117,13 +136,17 @@ export default function MarksPanel({ studentId = "", context }: MarksPanelProps)
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
             <div className="sm:col-span-2">
               <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
-              <input
-                type="text"
+              <select
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                placeholder="e.g. Mathematics"
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-              />
+                disabled={subjectOptions.length === 0}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 disabled:opacity-50 disabled:bg-gray-50"
+              >
+                <option value="">{subjectOptions.length === 0 ? "No subjects found" : "Select subject"}</option>
+                {subjectOptions.map((subjectOption) => (
+                  <option key={subjectOption} value={subjectOption}>{subjectOption}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Exam Type</label>
