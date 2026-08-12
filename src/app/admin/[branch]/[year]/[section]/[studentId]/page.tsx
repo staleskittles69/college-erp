@@ -6,11 +6,13 @@ import Link from "next/link";
 import Breadcrumb from "@/components/admin/Breadcrumb";
 import MarksPanel from "@/components/admin/FeaturePanels/MarksPanel";
 import AttendancePanel from "@/components/admin/FeaturePanels/AttendancePanel";
+import StudentDetailsPanel from "@/components/admin/FeaturePanels/StudentDetailsPanel";
 import { User } from "lucide-react";
 
 const TABS = [
   { id: "marks", label: "Marks" },
   { id: "attendance", label: "Attendance" },
+  { id: "details", label: "Details" },
 ];
 
 interface StudentData {
@@ -107,8 +109,9 @@ export default function StudentDetailPage() {
 
       {/* Tab Content */}
       <div>
-        {activeTab === "marks" && <MarksPanel studentId={studentId} context={context} />}
+        {activeTab === "marks" && <MarksPanel studentId={studentId} context={context} branch={student?.branch} />}
         {activeTab === "attendance" && <AttendancePanel studentId={studentId} context={context} branch={student?.branch} />}
+        {activeTab === "details" && <StudentDetailsPanel studentId={studentId} context={context} />}
       </div>
 
       <div className="mt-6">

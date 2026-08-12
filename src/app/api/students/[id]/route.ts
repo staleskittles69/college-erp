@@ -41,6 +41,10 @@ export async function GET(
       branch: student.branch,
       semester: student.semester,
       section: student.section,
+      personalDetails: student.personalDetails ?? {},
+      educationDetails: student.educationDetails ?? [],
+      parentDetails: student.parentDetails ?? {},
+      guardianDetails: student.guardianDetails ?? {},
     });
   } catch (error) {
     console.error("Student GET error:", error);
@@ -70,7 +74,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, rollNo, branch, semester, section } = body;
+    const { name, rollNo, branch, semester, section, personalDetails, educationDetails, parentDetails, guardianDetails } = body;
 
     await connectDB();
 
@@ -84,6 +88,10 @@ export async function PATCH(
     if (branch != null) student.branch = branch;
     if (semester != null) student.semester = Number(semester);
     if (section != null) student.section = section;
+    if (personalDetails != null) student.personalDetails = personalDetails;
+    if (educationDetails != null) student.educationDetails = educationDetails;
+    if (parentDetails != null) student.parentDetails = parentDetails;
+    if (guardianDetails != null) student.guardianDetails = guardianDetails;
     await student.save();
 
     await logAudit(
@@ -101,6 +109,10 @@ export async function PATCH(
       branch: student.branch,
       semester: student.semester,
       section: student.section,
+      personalDetails: student.personalDetails ?? {},
+      educationDetails: student.educationDetails ?? [],
+      parentDetails: student.parentDetails ?? {},
+      guardianDetails: student.guardianDetails ?? {},
     });
   } catch (error) {
     console.error("Student PATCH error:", error);
