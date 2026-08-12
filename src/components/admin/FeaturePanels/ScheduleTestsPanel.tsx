@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BRANCHES, TEST_TYPES, YEARS, yearLabel } from "@/lib/academics";
 import { getSubjects } from "@/lib/subjects";
+import { isValidTestTime } from "@/lib/utils";
 
 interface Test {
   _id: string;
@@ -34,6 +35,11 @@ const EMPTY_FORM = {
 function formatDate(dateString: string) {
   try { return new Date(dateString).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
   catch { return dateString; }
+}
+
+function todayString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 export default function ScheduleTestsPanel() {
@@ -85,6 +91,13 @@ export default function ScheduleTestsPanel() {
   async function handleSave() {
     if (!form.title.trim() || !form.subject || !form.date) {
       setError("Title, subject and date are required.");
+      return;
+    }
+    if (form.dueTime.trim() && !isValidTestTime(form.dueTime)) {
+      setError("Time / Period must look like '10:00 AM' or 'Period 3'.");
+      return;
+    }
+    if (form.date < todayString() && !confirm("This date is in the past — the test will be logged as already having happened. Schedule it anyway?")) {
       return;
     }
     setSaving(true);

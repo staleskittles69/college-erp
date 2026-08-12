@@ -31,9 +31,20 @@ export async function GET(request: NextRequest) {
     const filter: Record<string, unknown> = { role: "student" };
     if (search) {
       const safeSearch = escapeRegex(search);
+
+      // rollNo lives on the Student document, not User, so a roll-number
+      // search needs a separate lookup merged into the User query.
+      const matchingStudents = await Student.find({
+        rollNo: { $regex: safeSearch, $options: "i" },
+      })
+        .select("userId")
+        .lean();
+      const matchingUserIds = matchingStudents.map((s) => s.userId);
+
       filter.$or = [
         { name: { $regex: safeSearch, $options: "i" } },
         { email: { $regex: safeSearch, $options: "i" } },
+        { _id: { $in: matchingUserIds } },
       ];
     } else {
       if (branch) filter.branch = branch;
@@ -48,15 +59,29 @@ export async function GET(request: NextRequest) {
       .limit(search ? 10 : 0)
       .lean();
 
-    const result = students.map((student) => ({
-      _id: (student._id as { toString: () => string }).toString(),
-      name: student.name,
-      rollNo: student.rollNumber != null ? String(student.rollNumber) : "",
-      email: student.email,
-      branch: student.branch,
-      year: student.year,
-      section: student.section,
-    }));
+    // rollNo shown to admins is always the human-entered Student.rollNo,
+    // never the auto-generated User.rollNumber.
+    const studentDocs = await Student.find({
+      userId: { $in: students.map((s) => s._id) },
+    })
+      .select("userId rollNo")
+      .lean();
+    const rollNoByUserId = new Map(
+      studentDocs.map((s) => [s.userId.toString(), s.rollNo])
+    );
+
+    const result = students.map((student) => {
+      const id = (student._id as { toString: () => string }).toString();
+      return {
+        _id: id,
+        name: student.name,
+        rollNo: rollNoByUserId.get(id) ?? "",
+        email: student.email,
+        branch: student.branch,
+        year: student.year,
+        section: student.section,
+      };
+    });
 
     return NextResponse.json(result);
   } catch (error) {

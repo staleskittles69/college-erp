@@ -9,8 +9,15 @@ interface QueryItem {
   message: string;
   toRole: "admin" | "teacher";
   toName: string;
-  status: "open" | "resolved";
+  status: "open" | "resolved" | "closed";
+  reply?: string | null;
   createdAt: string;
+}
+
+function statusBadgeClass(status: QueryItem["status"]) {
+  if (status === "open") return "bg-amber-100 text-amber-700";
+  if (status === "resolved") return "bg-green-100 text-green-700";
+  return "bg-gray-100 text-gray-600";
 }
 
 interface TeacherOption {
@@ -154,11 +161,7 @@ export default function MessagesPage() {
               <li key={query._id} className="px-6 py-4">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-sm font-semibold text-gray-900">{query.subject}</p>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                      query.status === "open" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
-                    }`}
-                  >
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${statusBadgeClass(query.status)}`}>
                     {query.status}
                   </span>
                 </div>
@@ -166,6 +169,13 @@ export default function MessagesPage() {
                   To: {query.toName} · {formatTimestamp(query.createdAt)}
                 </p>
                 <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{query.message}</p>
+                {query.status === "resolved" && (
+                  <div className="mt-3 rounded-lg bg-green-50 border border-green-100 px-3 py-2">
+                    <p className="text-xs font-medium text-green-700 mb-1">Reply from {query.toName}</p>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{query.reply}</p>
+                    <p className="text-xs text-gray-400 italic mt-1">For further discussion, please meet the teacher in person.</p>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

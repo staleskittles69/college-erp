@@ -19,9 +19,12 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { status } = body;
-    if (status !== "open" && status !== "resolved") {
-      return NextResponse.json({ error: "status must be 'open' or 'resolved'" }, { status: 400 });
+    const { status, reply } = body;
+    if (status !== "open" && status !== "resolved" && status !== "closed") {
+      return NextResponse.json({ error: "status must be 'open', 'resolved' or 'closed'" }, { status: 400 });
+    }
+    if (status === "resolved" && !reply?.trim()) {
+      return NextResponse.json({ error: "A reply is required to mark a query resolved." }, { status: 400 });
     }
 
     await connectDB();
@@ -41,7 +44,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const query = await Query.findByIdAndUpdate(id, { status }, { new: true });
+    const update: { status: string; reply?: string } = { status };
+    if (status === "resolved") update.reply = reply.trim();
+
+    const query = await Query.findByIdAndUpdate(id, update, { new: true });
     if (!query) return NextResponse.json({ error: "Query not found" }, { status: 404 });
 
     await logAudit(
@@ -61,6 +67,7 @@ export async function PATCH(
       subject: query.subject,
       message: query.message,
       status: query.status,
+      reply: query.reply,
       createdAt: query.createdAt,
     });
   } catch (error) {

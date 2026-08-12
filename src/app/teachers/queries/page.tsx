@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Inbox, Send, Check, RotateCcw } from "lucide-react";
+import { Inbox, Send, Check, RotateCcw, X } from "lucide-react";
 
 interface QueryItem {
   _id: string;
@@ -10,7 +10,8 @@ interface QueryItem {
   toName: string;
   subject: string;
   message: string;
-  status: "open" | "resolved";
+  status: "open" | "resolved" | "closed";
+  reply?: string | null;
   createdAt: string;
 }
 
@@ -18,6 +19,12 @@ function formatTimestamp(value: string) {
   return new Date(value).toLocaleString("en-IN", {
     day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit",
   });
+}
+
+function statusBadgeClass(status: QueryItem["status"]) {
+  if (status === "open") return "bg-amber-100 text-amber-700";
+  if (status === "resolved") return "bg-green-100 text-green-700";
+  return "bg-gray-100 text-gray-600";
 }
 
 export default function TeacherQueriesPage() {
@@ -30,6 +37,8 @@ export default function TeacherQueriesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [actionError, setActionError] = useState<Record<string, string>>({});
 
   function fetchSentQueries() {
     return fetch("/api/queries", { credentials: "include" })
@@ -76,18 +85,47 @@ export default function TeacherQueriesPage() {
     }
   }
 
-  async function toggleStatus(query: QueryItem) {
+  async function resolveQuery(query: QueryItem) {
+    const reply = (replyDrafts[query._id] ?? "").trim();
+    if (!reply) {
+      setActionError((prev) => ({ ...prev, [query._id]: "Enter a reply before resolving." }));
+      return;
+    }
     setUpdatingId(query._id);
-    const nextStatus = query.status === "open" ? "resolved" : "open";
+    setActionError((prev) => ({ ...prev, [query._id]: "" }));
     const response = await fetch(`/api/queries/${query._id}`, {
       method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: nextStatus }),
+      body: JSON.stringify({ status: "resolved", reply }),
     });
     if (response.ok) {
       setReceivedQueries((prev) =>
-        prev.map((item) => (item._id === query._id ? { ...item, status: nextStatus } : item))
+        prev.map((item) => (item._id === query._id ? { ...item, status: "resolved", reply } : item))
+      );
+      setReplyDrafts((prev) => {
+        const next = { ...prev };
+        delete next[query._id];
+        return next;
+      });
+    } else {
+      const body = await response.json().catch(() => ({}));
+      setActionError((prev) => ({ ...prev, [query._id]: body.error ?? "Failed to resolve." }));
+    }
+    setUpdatingId(null);
+  }
+
+  async function setQueryStatus(query: QueryItem, status: "open" | "closed") {
+    setUpdatingId(query._id);
+    const response = await fetch(`/api/queries/${query._id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    if (response.ok) {
+      setReceivedQueries((prev) =>
+        prev.map((item) => (item._id === query._id ? { ...item, status } : item))
       );
     }
     setUpdatingId(null);
@@ -120,34 +158,73 @@ export default function TeacherQueriesPage() {
           <ul className="divide-y divide-gray-100">
             {receivedQueries.map((query) => (
               <li key={query._id} className="px-6 py-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-gray-900">{query.subject}</p>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                          query.status === "open" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
-                        }`}
-                      >
-                        {query.status}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {query.fromName} · {formatTimestamp(query.createdAt)}
-                    </p>
-                    <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{query.message}</p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-semibold text-gray-900">{query.subject}</p>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${statusBadgeClass(query.status)}`}>
+                      {query.status}
+                    </span>
                   </div>
-                  <button
-                    onClick={() => toggleStatus(query)}
-                    disabled={updatingId === query._id}
-                    className={`shrink-0 flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
-                      query.status === "open"
-                        ? "text-green-700 border-green-200 hover:bg-green-50"
-                        : "text-gray-600 border-gray-200 hover:bg-gray-50"
-                    }`}
-                  >
-                    {query.status === "open" ? <><Check size={12} /> Resolve</> : <><RotateCcw size={12} /> Reopen</>}
-                  </button>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {query.fromName} · {formatTimestamp(query.createdAt)}
+                  </p>
+                  <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{query.message}</p>
+
+                  {query.status === "open" && (
+                    <div className="mt-3 space-y-2">
+                      <textarea
+                        value={replyDrafts[query._id] ?? ""}
+                        onChange={(e) => setReplyDrafts((prev) => ({ ...prev, [query._id]: e.target.value }))}
+                        placeholder="Type your reply…"
+                        rows={2}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 resize-none"
+                      />
+                      {actionError[query._id] && <p className="text-xs text-red-500">{actionError[query._id]}</p>}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => resolveQuery(query)}
+                          disabled={updatingId === query._id}
+                          className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border text-green-700 border-green-200 hover:bg-green-50 disabled:opacity-50"
+                        >
+                          <Check size={12} /> Resolve
+                        </button>
+                        <button
+                          onClick={() => setQueryStatus(query, "closed")}
+                          disabled={updatingId === query._id}
+                          className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border text-gray-600 border-gray-200 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          <X size={12} /> Close
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {query.status === "resolved" && (
+                    <div className="mt-3 rounded-lg bg-green-50 border border-green-100 px-3 py-2">
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{query.reply}</p>
+                      <p className="text-xs text-gray-400 italic mt-1">For further discussion, please meet the teacher in person.</p>
+                      <button
+                        onClick={() => setQueryStatus(query, "open")}
+                        disabled={updatingId === query._id}
+                        className="mt-2 flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                      >
+                        <RotateCcw size={12} /> Reopen
+                      </button>
+                    </div>
+                  )}
+
+                  {query.status === "closed" && (
+                    <div className="mt-3 flex items-center justify-between">
+                      <p className="text-xs text-gray-400 italic">Closed without a reply.</p>
+                      <button
+                        onClick={() => setQueryStatus(query, "open")}
+                        disabled={updatingId === query._id}
+                        className="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                      >
+                        <RotateCcw size={12} /> Reopen
+                      </button>
+                    </div>
+                  )}
                 </div>
               </li>
             ))}
@@ -206,16 +283,18 @@ export default function TeacherQueriesPage() {
               <li key={query._id} className="px-6 py-4">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-sm font-semibold text-gray-900">{query.subject}</p>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
-                      query.status === "open" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"
-                    }`}
-                  >
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${statusBadgeClass(query.status)}`}>
                     {query.status}
                   </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-0.5">{formatTimestamp(query.createdAt)}</p>
                 <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{query.message}</p>
+                {query.status === "resolved" && (
+                  <div className="mt-3 rounded-lg bg-green-50 border border-green-100 px-3 py-2">
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{query.reply}</p>
+                    <p className="text-xs text-gray-400 italic mt-1">For further discussion, please meet the teacher in person.</p>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

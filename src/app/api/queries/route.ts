@@ -14,7 +14,8 @@ function serializeQuery(query: {
   toName: string;
   subject: string;
   message: string;
-  status: "open" | "resolved";
+  status: "open" | "resolved" | "closed";
+  reply?: string;
   createdAt: Date;
 }) {
   return {
@@ -26,6 +27,7 @@ function serializeQuery(query: {
     subject: query.subject,
     message: query.message,
     status: query.status,
+    reply: query.reply ?? null,
     createdAt: query.createdAt,
   };
 }
@@ -45,12 +47,12 @@ export async function GET(request: NextRequest) {
     const filter: Record<string, unknown> = {};
 
     if (requireAdmin(payload)) {
-      if (status === "open" || status === "resolved") filter.status = status;
+      if (status === "open" || status === "resolved" || status === "closed") filter.status = status;
       if (role === "student" || role === "teacher") filter.fromRole = role;
     } else if (payload.role === "teacher" && box === "received") {
       filter.toRole = "teacher";
       filter.toUserId = payload.userId;
-      if (status === "open" || status === "resolved") filter.status = status;
+      if (status === "open" || status === "resolved" || status === "closed") filter.status = status;
     } else {
       filter.fromUserId = payload.userId;
     }

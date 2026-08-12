@@ -21,6 +21,11 @@ interface Dept { slug: string; name: string; }
 
 const EMPTY_FORM = { title: "", subject: "", branch: "", semester: "", date: "", maxMarks: "", testType: "Assignment" };
 
+function todayString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export default function AssignmentsPage() {
   const [tests, setTests] = useState<Test[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +66,9 @@ export default function AssignmentsPage() {
   async function handleCreate() {
     if (!form.title.trim() || !form.subject.trim() || !form.date) {
       setFormError("Title, subject, and due date are required.");
+      return;
+    }
+    if (form.date < todayString() && !confirm("This date is in the past — it will be logged as already having happened. Create it anyway?")) {
       return;
     }
     setSaving(true);

@@ -10,7 +10,8 @@ export interface IQuery {
   toName: string;
   subject: string;
   message: string;
-  status: "open" | "resolved";
+  status: "open" | "resolved" | "closed";
+  reply?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,7 +26,8 @@ const QuerySchema = new Schema<IQuery>(
     toName: { type: String, default: "Admin" },
     subject: { type: String, required: true },
     message: { type: String, required: true },
-    status: { type: String, enum: ["open", "resolved"], default: "open" },
+    status: { type: String, enum: ["open", "resolved", "closed"], default: "open" },
+    reply: { type: String, default: null },
   },
   { timestamps: true }
 );

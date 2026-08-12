@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import Test from "@/models/Test";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
+import { isValidTestTime } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -77,6 +78,12 @@ export async function POST(request: NextRequest) {
     if (!subject || !title || !date) {
       return NextResponse.json(
         { error: "Missing required fields: subject, title, date" },
+        { status: 400 }
+      );
+    }
+    if (dueTime && !isValidTestTime(dueTime)) {
+      return NextResponse.json(
+        { error: "Time / Period must look like '10:00 AM' or 'Period 3'." },
         { status: 400 }
       );
     }
