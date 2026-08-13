@@ -9,11 +9,12 @@ interface SidebarItemProps {
   href: string;
   isCollapsed: boolean;
   onNavigate?: () => void;
+  exact?: boolean;
 }
 
-export function SidebarItem({ icon, label, href, isCollapsed, onNavigate }: SidebarItemProps) {
+export function SidebarItem({ icon, label, href, isCollapsed, onNavigate, exact }: SidebarItemProps) {
   const pathname = usePathname();
-  const isActive = pathname === href || pathname?.startsWith(`${href}/`);
+  const isActive = exact ? pathname === href : pathname === href || pathname?.startsWith(`${href}/`);
 
   return (
     <Link
