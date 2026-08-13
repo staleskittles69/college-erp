@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Users,
-  GitBranch,
+  Building2,
   Bell,
   Calendar,
   ClipboardList,
@@ -60,7 +60,7 @@ export default function AdminDashboard() {
 
   const statCards = [
     { label: "Total Students", value: stats ? stats.totalStudents.toLocaleString() : "—", icon: Users, color: "bg-orange-50 text-orange-600" },
-    { label: "Branches", value: stats ? String(stats.totalBranches) : "—", icon: GitBranch, color: "bg-orange-50 text-orange-600" },
+    { label: "Branches", value: stats ? String(stats.totalBranches) : "—", icon: Building2, color: "bg-orange-50 text-orange-600" },
     { label: "Active Notices", value: stats ? String(stats.noticeCount) : "—", icon: Bell, color: "bg-amber-50 text-amber-600" },
     { label: "Tests Scheduled", value: testCount !== null ? String(testCount) : "—", icon: ClipboardList, color: "bg-green-50 text-green-600" },
   ];

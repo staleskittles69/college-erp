@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  GitBranch,
+  Building2,
   Users,
   GraduationCap,
   Bell,
@@ -22,7 +22,7 @@ import {
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/branches", label: "Branches", icon: GitBranch },
+  { href: "/admin/branches", label: "Branches", icon: Building2 },
   { href: "/admin/features/students", label: "Students", icon: Users },
   { href: "/admin/teachers", label: "Teachers", icon: GraduationCap },
   { href: "/admin/tests", label: "Schedule Tests", icon: ListChecks },
