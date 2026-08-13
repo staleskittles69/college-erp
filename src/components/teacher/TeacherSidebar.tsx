@@ -26,7 +26,7 @@ interface TeacherSidebarProps {
 
 export function TeacherSidebar({ isCollapsed, toggleSidebar, name, email, mobileOpen, onCloseMobile }: TeacherSidebarProps) {
   const menuItems = [
-    { icon: <LayoutDashboard size={18} />, label: 'Dashboard',   href: '/teachers', exact: true },
+    { icon: <LayoutDashboard size={18} />, label: 'Dashboard',   href: '/teachers/dashboard' },
     { icon: <Users size={18} />,           label: 'Students',    href: '/teachers/students' },
     { icon: <CalendarCheck size={18} />,   label: 'Attendance',  href: '/teachers/attendance' },
     { icon: <CalendarDays size={18} />,    label: 'Timetable',   href: '/teachers/timetable' },
