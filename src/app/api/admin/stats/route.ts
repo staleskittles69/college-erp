@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import Student from "@/models/Student";
 import Notice from "@/models/Notice";
 import { getAuth } from "@/lib/api-auth";
+import { BRANCHES } from "@/lib/academics";
 
 const BRANCH_LABELS: Record<string, string> = {
   CSE: "Computer Science & Engineering",
@@ -22,16 +23,18 @@ export async function GET(request: NextRequest) {
 
     const [totalStudents, branchCounts, noticeCount] = await Promise.all([
       Student.countDocuments(),
-      Student.aggregate([{ $group: { _id: "$branch", count: { $sum: 1 } } }, { $sort: { count: -1, _id: 1 } }]),
+      Student.aggregate([{ $group: { _id: "$branch", count: { $sum: 1 } } }]),
       Notice.countDocuments(),
     ]);
 
-    const branches = branchCounts.map((branchCount) => ({
-      slug: branchCount._id.toLowerCase(),
-      name: branchCount._id,
-      label: BRANCH_LABELS[branchCount._id] ?? branchCount._id,
-      students: branchCount.count,
-    }));
+    const branches = branchCounts
+      .map((branchCount) => ({
+        slug: branchCount._id.toLowerCase(),
+        name: branchCount._id,
+        label: BRANCH_LABELS[branchCount._id] ?? branchCount._id,
+        students: branchCount.count,
+      }))
+      .sort((a, b) => BRANCHES.indexOf(a.name) - BRANCHES.indexOf(b.name));
 
     return NextResponse.json({
       totalStudents,
