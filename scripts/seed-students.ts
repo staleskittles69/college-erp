@@ -10,6 +10,7 @@ import { config } from "dotenv";
 import { resolve } from "path";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { formatRollNo, rollNoToEmail } from "../src/lib/utils/rollNumber";
 
 config({ path: resolve(process.cwd(), ".env.local") });
 
@@ -63,7 +64,6 @@ async function seedStudents() {
 
   for (const year of YEARS) {
     const semester = year * 2 - 1; // year 1→sem 1, year 2→sem 3, etc.
-    const batchYear = 26 - year;   // year 1→batch 25, year 4→batch 22
 
     for (const branch of BRANCHES) {
       let rollCounter = 1; // roll numbers restart at 1 for each branch+year batch
@@ -75,8 +75,8 @@ async function seedStudents() {
           const userId = new mongoose.Types.ObjectId();
           const name = SECTION_NAMES[i]; // unique within section, repeats across sections
           const rollNumber = rollCounter++;
-          const rollNo = `${batchYear}${branch.slice(0, 2)}S${String(sec).padStart(2, "0")}${String(i + 1).padStart(3, "0")}`;
-          const email = `${branch.toLowerCase()}${year}.${sectionLabel.replace(" ", "").toLowerCase()}.${rollNumber}@college.edu`;
+          const rollNo = formatRollNo(branch, year, rollNumber);
+          const email = rollNoToEmail(rollNo);
 
           userDocs.push({
             _id: userId,

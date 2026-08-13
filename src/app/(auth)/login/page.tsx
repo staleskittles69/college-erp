@@ -30,7 +30,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    if (!email.trim()) { setError("Email is required"); return; }
+    if (!email.trim()) { setError("Roll number or email is required"); return; }
     if (!password) { setError("Password is required"); return; }
 
     setLoading(true);
@@ -84,7 +84,7 @@ export default function LoginPage() {
               {[
                 { label: "Admin", email: "admin@college.edu", password: "admin123" },
                 { label: "Teacher", email: "praful@college.edu", password: "asdfghjkl" },
-                { label: "Student", email: "cse1.section1.1@college.edu", password: "student123" },
+                { label: "Student", email: "25CSE00001", password: "student123" },
               ].map(({ label, email: quickEmail, password: quickPassword }) => (
                 <button
                   key={label}
@@ -113,18 +113,18 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Email */}
+            {/* Roll number or email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Email address
+                Roll number or email
               </label>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                placeholder="you@college.edu"
+                placeholder="Students: roll number · Staff: name@college.edu"
                 autoFocus
-                autoComplete="email"
+                autoComplete="username"
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
               />
             </div>

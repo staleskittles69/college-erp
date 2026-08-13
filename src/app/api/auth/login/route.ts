@@ -17,7 +17,12 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    // Students log in with a bare roll number (e.g. 25CSE00001); staff use their
+    // full name@college.edu. Anything without "@" is treated as a roll number.
+    const identifier = email.trim().toLowerCase();
+    const lookupEmail = identifier.includes("@") ? identifier : `${identifier}@college.edu`;
+
+    const user = await User.findOne({ email: lookupEmail });
 
     if (!user || !user.password) {
       return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });

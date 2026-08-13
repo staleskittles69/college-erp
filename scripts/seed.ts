@@ -7,6 +7,7 @@ import { config } from "dotenv";
 import { resolve } from "path";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { formatRollNo, rollNoToEmail } from "../src/lib/utils/rollNumber";
 
 // Load .env.local file
 config({ path: resolve(process.cwd(), ".env.local") });
@@ -40,7 +41,10 @@ async function seed() {
     console.log("Created admin:", adminEmail, "(password:", adminPassword + ")");
   }
 
-  const studentEmail = process.env.SEED_STUDENT_EMAIL ?? "student@college.edu";
+  const studentBranch = "CSE";
+  const studentYear = 2; // semester 3 → year 2
+  const studentRollNo = formatRollNo(studentBranch, studentYear, 1);
+  const studentEmail = process.env.SEED_STUDENT_EMAIL ?? rollNoToEmail(studentRollNo);
   const studentPassword = process.env.SEED_STUDENT_PASSWORD ?? "student123";
 
   const existingUser = await User.findOne({ email: studentEmail });
@@ -49,17 +53,22 @@ async function seed() {
   } else {
     const hashedPassword = await bcrypt.hash(studentPassword, 10);
     const user = await User.create({
+      name: "Sample Student",
       email: studentEmail,
+      rollNumber: 1,
+      branch: studentBranch,
+      year: studentYear,
+      section: "Section 1",
       password: hashedPassword,
       role: "student",
     });
     const student = await Student.create({
       userId: user._id,
       name: "Sample Student",
-      rollNo: "001",
-      branch: "CSE",
+      rollNo: studentRollNo,
+      branch: studentBranch,
       semester: 3,
-      section: "A",
+      section: "Section 1",
     });
     await User.findByIdAndUpdate(user._id, { studentId: student._id });
     console.log("Created student:", studentEmail, "(password:", studentPassword + ")");

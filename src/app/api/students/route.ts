@@ -5,6 +5,7 @@ import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { generateRollNumber } from "@/lib/utils/generateRollNumber";
+import { formatRollNo, rollNoToEmail } from "@/lib/utils/rollNumber";
 import { escapeRegex } from "@/lib/utils";
 import { logAudit } from "@/lib/audit";
 
@@ -104,11 +105,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, password, name, rollNo, branch, semester, section } = body;
+    const { password, name, branch, semester, section } = body;
 
-    if (!email || !password || !name || !rollNo || !branch || semester == null || !section) {
+    if (!password || !name || !branch || semester == null || !section) {
       return NextResponse.json(
-        { error: "Missing required fields: email, password, name, rollNo, branch, semester, section" },
+        { error: "Missing required fields: password, name, branch, semester, section" },
         { status: 400 }
       );
     }
@@ -120,17 +121,22 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
+    const year = Math.ceil(Number(semester) / 2);
+    const sectionLabel = /^\d+$/.test(String(section)) ? `Section ${section}` : section;
+    const rollNumber = await generateRollNumber(branch, year);
+    // rollNo (and the email derived from it) is always generated, never entered manually —
+    // students log in with this roll number, so it must match what's stored here exactly.
+    const rollNo = formatRollNo(branch, year, rollNumber);
+    const email = rollNoToEmail(rollNo);
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
-        { error: "Email already registered" },
+        { error: "A student with this roll number already exists" },
         { status: 400 }
       );
     }
 
-    const year = Math.ceil(Number(semester) / 2);
-    const sectionLabel = /^\d+$/.test(String(section)) ? `Section ${section}` : section;
-    const rollNumber = await generateRollNumber(branch, year);
     const hashedPassword = await hashPassword(password);
 
     const user = await User.create({
