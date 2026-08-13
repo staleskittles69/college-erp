@@ -122,7 +122,7 @@ export default function LoginPage() {
                 type="text"
                 value={email}
                 onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                placeholder="Students: roll number · Staff: name@college.edu"
+                placeholder="Enter your mail address"
                 autoFocus
                 autoComplete="username"
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-500/20"
