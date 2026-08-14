@@ -4,44 +4,56 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { X, Calendar, Eye, EyeOff, Copy, Check } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
+import { validatePasswordStrength } from "@/lib/passwordRules";
 import Breadcrumb from "@/components/admin/Breadcrumb";
 import AssignClassModal from "@/components/admin/teachers/AssignClassModal";
 import TeacherTimetableModal from "@/components/admin/teachers/TeacherTimetableModal";
 
 export default function TeacherDetailsPage() {
   const { department: slug, teacherId } = useParams() as { department: string; teacherId: string };
-  const { teachers, departments, removeSection, resetTeacherPassword } = useTeachers();
+  const { teachers, departments, removeSection, setTeacherPassword } = useTeachers();
   const dept = departments.find((department) => department.slug === slug);
   const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
   const [showTimetable, setShowTimetable] = useState(false);
   const [showAssign, setShowAssign] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [copiedPassword, setCopiedPassword] = useState(false);
-  const [resetPasswordValue, setResetPasswordValue] = useState<string | null>(null);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState("");
+  const [resetSuccess, setResetSuccess] = useState(false);
 
-  function copyToClipboard(text: string, which: "email" | "password") {
+  function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
-    if (which === "email") {
-      setCopiedEmail(true);
-      setTimeout(() => setCopiedEmail(false), 1500);
-    } else {
-      setCopiedPassword(true);
-      setTimeout(() => setCopiedPassword(false), 1500);
-    }
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 1500);
   }
 
-  async function handleResetPassword() {
+  function openPasswordForm() {
+    setNewPassword("");
+    setConfirmPassword("");
     setResetError("");
+    setResetSuccess(false);
+    setShowPasswordForm(true);
+  }
+
+  async function handleSetPassword() {
+    setResetError("");
+    const strengthError = validatePasswordStrength(newPassword);
+    if (strengthError) { setResetError(strengthError); return; }
+    if (newPassword !== confirmPassword) { setResetError("Passwords do not match"); return; }
+
     setResetting(true);
     try {
-      const newPassword = await resetTeacherPassword(teacherId);
-      setResetPasswordValue(newPassword);
-      setShowPassword(true);
+      await setTeacherPassword(teacherId, newPassword);
+      setResetSuccess(true);
+      setShowPasswordForm(false);
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (error) {
-      setResetError(error instanceof Error ? error.message : "Failed to reset password");
+      setResetError(error instanceof Error ? error.message : "Failed to set password");
     } finally {
       setResetting(false);
     }
@@ -116,7 +128,7 @@ export default function TeacherDetailsPage() {
               <p className="text-sm font-medium text-gray-800 truncate">{teacher.email}</p>
             </div>
             <button
-              onClick={() => copyToClipboard(teacher.email, "email")}
+              onClick={() => copyToClipboard(teacher.email)}
               className="flex-shrink-0 flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 px-2.5 py-1.5 rounded-lg transition-colors"
             >
               {copiedEmail ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
@@ -124,49 +136,68 @@ export default function TeacherDetailsPage() {
             </button>
           </div>
           {/* Password row */}
-          <div className="flex items-center justify-between gap-3 bg-gray-50 rounded-lg px-3 py-2.5">
-            <div className="min-w-0">
-              <p className="text-xs text-gray-400 mb-0.5">Password</p>
-              <p className="text-sm font-medium text-gray-800 font-mono">
-                {resetPasswordValue
-                  ? showPassword ? resetPasswordValue : "•".repeat(Math.min(resetPasswordValue.length, 12))
-                  : <span className="text-gray-400 italic text-xs">Not stored — reset to generate a new one</span>}
-              </p>
-            </div>
-            <div className="flex-shrink-0 flex items-center gap-1.5">
-              {resetPasswordValue && (
-                <>
-                  <button
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 px-2.5 py-1.5 rounded-lg transition-colors"
-                  >
-                    {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-                  <button
-                    onClick={() => copyToClipboard(resetPasswordValue, "password")}
-                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 px-2.5 py-1.5 rounded-lg transition-colors"
-                  >
-                    {copiedPassword ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
-                    {copiedPassword ? "Copied" : "Copy"}
-                  </button>
-                </>
+          <div className="bg-gray-50 rounded-lg px-3 py-2.5 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs text-gray-400 mb-0.5">Password</p>
+                <p className="text-sm text-gray-400 italic">Not stored — set a new one to change it</p>
+              </div>
+              {!showPasswordForm && (
+                <button
+                  onClick={openPasswordForm}
+                  className="flex-shrink-0 flex items-center gap-1 text-xs text-white bg-orange-600 hover:bg-orange-700 px-2.5 py-1.5 rounded-lg transition-colors"
+                >
+                  Set new password
+                </button>
               )}
-              <button
-                onClick={handleResetPassword}
-                disabled={resetting}
-                className="flex items-center gap-1 text-xs text-white bg-orange-600 hover:bg-orange-700 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-60"
-              >
-                {resetting ? "Resetting..." : resetPasswordValue ? "Reset again" : "Reset password"}
-              </button>
             </div>
+
+            {showPasswordForm && (
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New password"
+                    className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="flex-shrink-0 p-1.5 text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 rounded-lg transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400">At least 8 characters, with a letter and a number.</p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSetPassword}
+                    disabled={resetting}
+                    className="text-xs text-white bg-orange-600 hover:bg-orange-700 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+                  >
+                    {resetting ? "Saving..." : "Save password"}
+                  </button>
+                  <button
+                    onClick={() => setShowPasswordForm(false)}
+                    className="text-xs text-gray-600 border border-gray-200 hover:bg-gray-100 px-2.5 py-1.5 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           {resetError && <p className="text-xs text-red-500">{resetError}</p>}
-          {resetPasswordValue && (
-            <p className="text-xs text-amber-600">
-              This is shown once — save it now. It won&apos;t be retrievable after you leave this page.
-            </p>
-          )}
+          {resetSuccess && <p className="text-xs text-green-600">Password updated.</p>}
         </div>
       </div>
 

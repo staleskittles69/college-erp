@@ -3,7 +3,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Teacher, { ITeacher } from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
-import { generateRandomPassword, hashPassword } from "@/lib/auth";
+import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import mongoose from "mongoose";
 
@@ -28,15 +28,18 @@ export async function PATCH(
     const teacher = await Teacher.findById(id);
     if (!teacher) return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
 
+    if (body.newPassword != null) {
+      const strengthError = validatePasswordStrength(body.newPassword);
+      if (strengthError) return NextResponse.json({ error: strengthError }, { status: 400 });
+    }
+
     if (body.teaching != null) teacher.teaching = body.teaching;
     if (body.name != null) teacher.name = body.name;
     if (body.department != null) teacher.department = body.department;
     await teacher.save();
 
-    let newPassword: string | undefined;
-    if (body.resetPassword) {
-      newPassword = generateRandomPassword();
-      const hashedPassword = await hashPassword(newPassword);
+    if (body.newPassword != null) {
+      const hashedPassword = await hashPassword(body.newPassword);
       await User.findByIdAndUpdate(teacher.userId, {
         password: hashedPassword,
         failedLoginAttempts: 0,
@@ -50,7 +53,7 @@ export async function PATCH(
       payload,
       "update",
       "Teacher",
-      `Updated teacher ${teacher.name}${body.resetPassword ? " (password reset)" : ""}`,
+      `Updated teacher ${teacher.name}${body.newPassword != null ? " (password reset)" : ""}`,
       teacher._id.toString()
     );
 
@@ -60,7 +63,6 @@ export async function PATCH(
       email: (populated!.userId as { email?: string })?.email ?? "",
       department: populated!.department,
       teaching: populated!.teaching ?? [],
-      ...(newPassword ? { newPassword } : {}),
     });
   } catch (error) {
     console.error("Teacher PATCH error:", error);

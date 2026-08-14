@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import mongoose from "mongoose";
 
@@ -74,7 +75,12 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { name, rollNo, branch, semester, section, personalDetails, educationDetails, parentDetails, guardianDetails } = body;
+    const { name, rollNo, branch, semester, section, personalDetails, educationDetails, parentDetails, guardianDetails, newPassword } = body;
+
+    if (newPassword != null) {
+      const strengthError = validatePasswordStrength(newPassword);
+      if (strengthError) return NextResponse.json({ error: strengthError }, { status: 400 });
+    }
 
     await connectDB();
 
@@ -94,11 +100,20 @@ export async function PATCH(
     if (guardianDetails != null) student.guardianDetails = guardianDetails;
     await student.save();
 
+    if (newPassword != null) {
+      const hashedPassword = await hashPassword(newPassword);
+      await User.findByIdAndUpdate(id, {
+        password: hashedPassword,
+        failedLoginAttempts: 0,
+        lockUntil: null,
+      });
+    }
+
     await logAudit(
       payload,
       "update",
       "Student",
-      `Updated student ${student.name} (${student.branch} sem ${student.semester}, roll ${student.rollNo})`,
+      `Updated student ${student.name} (${student.branch} sem ${student.semester}, roll ${student.rollNo})${newPassword != null ? " (password reset)" : ""}`,
       student._id.toString()
     );
 

@@ -30,7 +30,7 @@ interface TeachersContextType {
   addAssignment: (teacherId: string, assignment: Assignment) => Promise<void>;
   removeAssignment: (teacherId: string, index: number) => Promise<void>;
   removeSection: (teacherId: string, assignmentIndex: number, section: string) => Promise<void>;
-  resetTeacherPassword: (teacherId: string) => Promise<string>;
+  setTeacherPassword: (teacherId: string, newPassword: string) => Promise<void>;
 }
 
 const TeachersContext = createContext<TeachersContextType | null>(null);
@@ -136,22 +136,20 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
     setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? body : teacherItem)));
   }
 
-  async function resetTeacherPassword(teacherId: string) {
+  async function setTeacherPassword(teacherId: string, newPassword: string) {
     const response = await fetch(`/api/teachers/${teacherId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ resetPassword: true }),
+      body: JSON.stringify({ newPassword }),
     });
     const body = await response.json();
-    if (!response.ok) throw new Error(body.error ?? "Failed to reset password");
-    const { newPassword, ...teacher } = body;
-    setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? teacher : teacherItem)));
-    return newPassword as string;
+    if (!response.ok) throw new Error(body.error ?? "Failed to set password");
+    setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? body : teacherItem)));
   }
 
   return (
     <TeachersContext.Provider
-      value={{ teachers, departments, loading, addTeacher, addAssignment, removeAssignment, removeSection, resetTeacherPassword }}
+      value={{ teachers, departments, loading, addTeacher, addAssignment, removeAssignment, removeSection, setTeacherPassword }}
     >
       {children}
     </TeachersContext.Provider>

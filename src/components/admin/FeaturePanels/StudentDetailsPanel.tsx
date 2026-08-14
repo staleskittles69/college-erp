@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Eye, EyeOff, Copy, Check } from "lucide-react";
+import { validatePasswordStrength } from "@/lib/passwordRules";
 
 interface PersonalDetails {
   admissionNo?: string;
@@ -178,11 +179,21 @@ function SectionCard({ title, children, action }: { title: string; children: Rea
 
 export default function StudentDetailsPanel({ studentId, context }: { studentId?: string; context?: string }) {
   const [data, setData] = useState<DetailsState>(EMPTY);
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<DetailsState>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState("");
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   function load() {
     if (!studentId) { setLoading(false); return; }
@@ -192,6 +203,7 @@ export default function StudentDetailsPanel({ studentId, context }: { studentId?
       .then((student) => {
         if (!student) return;
         const educationDetails = student.educationDetails?.length ? student.educationDetails : EMPTY.educationDetails;
+        setEmail(student.email ?? "");
         setData({
           personalDetails: student.personalDetails ?? {},
           educationDetails,
@@ -204,6 +216,50 @@ export default function StudentDetailsPanel({ studentId, context }: { studentId?
   }
 
   useEffect(load, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function copyEmail() {
+    navigator.clipboard.writeText(email);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 1500);
+  }
+
+  function openPasswordForm() {
+    setNewPassword("");
+    setConfirmPassword("");
+    setResetError("");
+    setResetSuccess(false);
+    setShowPasswordForm(true);
+  }
+
+  async function handleSetPassword() {
+    setResetError("");
+    const strengthError = validatePasswordStrength(newPassword);
+    if (strengthError) { setResetError(strengthError); return; }
+    if (newPassword !== confirmPassword) { setResetError("Passwords do not match"); return; }
+
+    setResetting(true);
+    try {
+      const response = await fetch(`/api/students/${studentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ newPassword }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        setResetError(errorData.error ?? "Failed to set password");
+        return;
+      }
+      setResetSuccess(true);
+      setShowPasswordForm(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch {
+      setResetError("Network error");
+    } finally {
+      setResetting(false);
+    }
+  }
 
   function startEdit() {
     setForm(data);
@@ -265,6 +321,89 @@ export default function StudentDetailsPanel({ studentId, context }: { studentId?
       {error && (
         <div className="px-4 py-2.5 bg-red-50 border border-red-100 rounded-lg text-sm text-red-600">{error}</div>
       )}
+
+      {/* Login Credentials */}
+      <SectionCard title="Login Credentials">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3 bg-gray-50 rounded-lg px-3 py-2.5">
+            <div className="min-w-0">
+              <p className="text-xs text-gray-400 mb-0.5">Email</p>
+              <p className="text-sm font-medium text-gray-800 truncate">{email || "—"}</p>
+            </div>
+            <button
+              onClick={copyEmail}
+              disabled={!email}
+              className="flex-shrink-0 flex items-center gap-1 text-xs text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {copiedEmail ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
+              {copiedEmail ? "Copied" : "Copy"}
+            </button>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg px-3 py-2.5 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs text-gray-400 mb-0.5">Password</p>
+                <p className="text-sm text-gray-400 italic">Not stored — set a new one to change it</p>
+              </div>
+              {!showPasswordForm && (
+                <button
+                  onClick={openPasswordForm}
+                  className="flex-shrink-0 flex items-center gap-1 text-xs text-white bg-orange-600 hover:bg-orange-700 px-2.5 py-1.5 rounded-lg transition-colors"
+                >
+                  Set new password
+                </button>
+              )}
+            </div>
+
+            {showPasswordForm && (
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New password"
+                    className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="flex-shrink-0 p-1.5 text-gray-500 hover:text-orange-600 border border-gray-200 hover:border-orange-200 rounded-lg transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400">At least 8 characters, with a letter and a number.</p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSetPassword}
+                    disabled={resetting}
+                    className="text-xs text-white bg-orange-600 hover:bg-orange-700 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+                  >
+                    {resetting ? "Saving..." : "Save password"}
+                  </button>
+                  <button
+                    onClick={() => setShowPasswordForm(false)}
+                    className="text-xs text-gray-600 border border-gray-200 hover:bg-gray-100 px-2.5 py-1.5 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          {resetError && <p className="text-xs text-red-500">{resetError}</p>}
+          {resetSuccess && <p className="text-xs text-green-600">Password updated.</p>}
+        </div>
+      </SectionCard>
 
       {/* Personal Details */}
       <SectionCard title="Personal Details" action={editAction}>
