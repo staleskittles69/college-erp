@@ -16,7 +16,6 @@ _Audit from 2026-07-19. Combines a scan of the current codebase with a compariso
 - `src/app/admin/audit-logs/page.tsx` — has an empty/placeholder state, worth checking if logs are actually being recorded anywhere yet.
 
 **Teacher**
-- `src/app/teachers/page.tsx` (dashboard) — "Today's Classes" and "Recent Activity" are permanently-empty placeholder boxes, not wired to data.
 - `src/app/teachers/settings/page.tsx` — only password change; no profile/notification settings.
 
 **Student**
