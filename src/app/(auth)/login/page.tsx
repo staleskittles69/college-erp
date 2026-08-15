@@ -83,7 +83,7 @@ export default function LoginPage() {
             <div className="flex gap-2">
               {[
                 { label: "Admin", email: "admin@college.edu", password: "admin123" },
-                { label: "Teacher", email: "drrameshiyer.cse@college.edu", password: "asdfghjkl" },
+                { label: "Teacher", email: "drrameshiyer.cse@college.edu", password: "asdfghjkl4" },
                 { label: "Student", email: "25CSE00001", password: "student123" },
               ].map(({ label, email: quickEmail, password: quickPassword }) => (
                 <button
