@@ -36,7 +36,7 @@ export async function getTeacherClasses(
 
   const rows = await Timetable.find({ $or: orConditions }).lean();
 
-  return rows
+  const candidates = rows
     .flatMap((row) =>
       row.slots
         .filter((slot: ITimetableSlot) => subjectNames.has(slot.subject))
@@ -51,5 +51,19 @@ export async function getTeacherClasses(
           dayOfWeek: row.dayOfWeek,
         }))
     )
-    .sort((a, b) => a.dayOfWeek - b.dayOfWeek || a.period - b.period);
+    .sort((a, b) =>
+      a.dayOfWeek - b.dayOfWeek || a.period - b.period || a.branch.localeCompare(b.branch) || a.section.localeCompare(b.section)
+    );
+
+  // A subject can have several teachers, but a Timetable slot doesn't record which one
+  // actually covers a given section — so a teacher's own matches can collide on the same
+  // day/period across different sections. Only one class can really happen then, so keep
+  // the first (deterministic) match per day/period and drop the rest.
+  const seenCells = new Set<string>();
+  return candidates.filter((entry) => {
+    const cellKey = `${entry.dayOfWeek}-${entry.period}`;
+    if (seenCells.has(cellKey)) return false;
+    seenCells.add(cellKey);
+    return true;
+  });
 }

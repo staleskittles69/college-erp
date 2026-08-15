@@ -62,16 +62,15 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
     }))
   );
 
-  const cellMap = classes.reduce<Record<string, ClassEntry[]>>((acc, cls) => {
-    const key = `${cls.dayOfWeek}-${cls.period}`;
-    (acc[key] ??= []).push(cls);
+  const cellMap = classes.reduce<Record<string, ClassEntry>>((acc, cls) => {
+    acc[`${cls.dayOfWeek}-${cls.period}`] = cls;
     return acc;
   }, {});
 
   function openCell(day: number, period: number) {
     if (!editing || saving) return;
     const key = `${day}-${period}`;
-    const existing = cellMap[key]?.[0];
+    const existing = cellMap[key];
     setDraftSubject(existing?.subject ?? "");
     setDraftClassKey(existing ? `${existing.branch}|${existing.semester}|${existing.section}` : classOptions[0]?.key ?? "");
     setActiveCell(key);
@@ -179,7 +178,7 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
                       </td>
                       {DAYS.map((day, dayIdx) => {
                         const key = `${dayIdx}-${period}`;
-                        const entries = cellMap[key] ?? [];
+                        const entry = cellMap[key];
                         const isActive = activeCell === key;
                         return (
                           <td key={day} className="py-1.5 px-2 align-top">
@@ -225,18 +224,11 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
                                 disabled={!editing}
                                 className={`w-full min-h-[44px] text-left rounded-md p-2 ${editing ? "hover:bg-orange-50 cursor-pointer" : "cursor-default"}`}
                               >
-                                {entries.length > 0 ? (
-                                  <div className="space-y-1">
-                                    {entries.map((entry, entryIdx) => (
-                                      <span
-                                        key={entryIdx}
-                                        className="block bg-orange-50 text-orange-700 text-xs rounded-md px-2 py-1 leading-snug"
-                                      >
-                                        {entry.subject}
-                                        <span className="block text-[10px] text-orange-400">{entry.branch} · {entry.section}</span>
-                                      </span>
-                                    ))}
-                                  </div>
+                                {entry ? (
+                                  <span className="block bg-orange-50 text-orange-700 text-xs rounded-md px-2 py-1 leading-snug">
+                                    {entry.subject}
+                                    <span className="block text-[10px] text-orange-400">{entry.branch} · {entry.section}</span>
+                                  </span>
                                 ) : (
                                   <span className="text-gray-200 text-xs">—</span>
                                 )}
