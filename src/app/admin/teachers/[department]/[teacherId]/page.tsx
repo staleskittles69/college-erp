@@ -238,6 +238,7 @@ export default function TeacherDetailsPage() {
 
       {showTimetable && (
         <TeacherTimetableModal
+          teacherId={teacher.id}
           teacherName={teacher.name}
           onClose={() => setShowTimetable(false)}
         />

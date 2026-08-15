@@ -4,12 +4,6 @@ import Teacher, { ITeacher } from "@/models/Teacher";
 import { getAuth } from "@/lib/api-auth";
 import { getTeacherClasses } from "@/lib/teacherSchedule";
 
-// dayOfWeek is stored Monday-first (0=Mon..5=Sat), matching src/lib/academics.ts DAYS.
-function todayIndex(): number {
-  const jsDay = new Date().getDay(); // JS Date: 0=Sun..6=Sat
-  return jsDay === 0 ? 6 : jsDay - 1;
-}
-
 export async function GET(request: NextRequest) {
   try {
     const payload = await getAuth(request);
@@ -21,19 +15,10 @@ export async function GET(request: NextRequest) {
     const teacher = await Teacher.findOne({ userId: payload.userId }).lean() as ITeacher | null;
     if (!teacher) return NextResponse.json({ classes: [] });
 
-    const entries = await getTeacherClasses(teacher, todayIndex());
-    const classes = entries.map(({ subject, period, time, room, branch, section }) => ({
-      subject,
-      period,
-      time,
-      room,
-      branch,
-      section,
-    }));
-
+    const classes = await getTeacherClasses(teacher);
     return NextResponse.json({ classes });
   } catch (error) {
-    console.error("Teacher schedule GET error:", error);
+    console.error("Teacher timetable GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

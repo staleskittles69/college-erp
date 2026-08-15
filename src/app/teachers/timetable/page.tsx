@@ -4,24 +4,32 @@ import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { DAYS as DAY_NAMES } from "@/lib/academics";
 
-interface Slot { subject: string; time: string; room: string; }
-interface TimetableRow { _id: string; branch: string; semester: number; section: string; dayOfWeek: number; slots: Slot[]; }
+interface ClassEntry {
+  subject: string;
+  period: number;
+  time: string;
+  room: string;
+  branch: string;
+  semester: number;
+  section: string;
+  dayOfWeek: number;
+}
 
 export default function TimetablePage() {
-  const [rows, setRows] = useState<TimetableRow[]>([]);
+  const [classes, setClasses] = useState<ClassEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch("/api/timetable", { credentials: "include" })
+    fetch("/api/teachers/me/timetable", { credentials: "include" })
       .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then(setRows)
+      .then((data: { classes: ClassEntry[] }) => setClasses(data.classes ?? []))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
-  const byDay = rows.reduce<Record<number, TimetableRow[]>>((acc, row) => {
-    (acc[row.dayOfWeek] ??= []).push(row);
+  const byDay = classes.reduce<Record<number, ClassEntry[]>>((acc, cls) => {
+    (acc[cls.dayOfWeek] ??= []).push(cls);
     return acc;
   }, {});
   const activeDays = Object.keys(byDay).map(Number).sort((dayA, dayB) => dayA - dayB);
@@ -59,20 +67,21 @@ export default function TimetablePage() {
                 <span className="text-sm font-semibold text-gray-700">{DAY_NAMES[day]}</span>
               </div>
               <div className="divide-y divide-gray-100">
-                {byDay[day].flatMap((row) =>
-                  row.slots.map((slot, slotIdx) => (
-                    <div key={`${row._id}-${slotIdx}`} className="px-5 py-3 flex items-center justify-between gap-4">
+                {byDay[day]
+                  .slice()
+                  .sort((a, b) => a.period - b.period)
+                  .map((cls, clsIdx) => (
+                    <div key={`${day}-${clsIdx}`} className="px-5 py-3 flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-sm font-medium text-gray-800">{slot.subject}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{row.branch} · Year {row.semester} · {row.section}</p>
+                        <p className="text-sm font-medium text-gray-800">{cls.subject}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{cls.branch} · Year {cls.semester} · {cls.section}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-xs font-medium text-gray-600">{slot.time}</p>
-                        <p className="text-xs text-gray-400">{slot.room}</p>
+                        <p className="text-xs font-medium text-gray-600">{cls.time}</p>
+                        <p className="text-xs text-gray-400">{cls.room}</p>
                       </div>
                     </div>
-                  ))
-                )}
+                  ))}
               </div>
             </div>
           ))}
