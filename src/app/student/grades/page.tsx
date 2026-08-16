@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { GraduationCap } from "lucide-react";
 import { GRADE_COLORS, calcGrade } from "@/lib/grades";
+import { useFetch } from "@/hooks/useFetch";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface MarkRecord {
   id: string;
@@ -13,23 +15,11 @@ interface MarkRecord {
 }
 
 export default function GradesPage() {
-  const [marks, setMarks] = useState<MarkRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/student/marks", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setMarks)
-      .catch(() => setMarks([]))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: marks, loading } = useFetch<MarkRecord[]>("/api/student/marks", []);
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold tracking-tight">Grades</h1>
-        <p className="text-white/80 text-sm mt-1">Your subject-wise marks and performance.</p>
-      </div>
+      <PageHeader title="Grades" subtitle="Your subject-wise marks and performance." />
 
       {loading ? (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-8 animate-pulse space-y-3">
@@ -38,15 +28,12 @@ export default function GradesPage() {
           ))}
         </div>
       ) : marks.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-16 flex flex-col items-center justify-center min-h-[300px] gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center">
-            <GraduationCap size={30} className="text-amber-500" />
-          </div>
-          <div className="text-center">
-            <p className="font-semibold text-gray-700">No grades yet</p>
-            <p className="text-sm text-gray-400 mt-1">Your marks will appear here once the admin adds them.</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={<GraduationCap size={30} />}
+          iconClassName="bg-amber-50 text-amber-500"
+          title="No grades yet"
+          subtitle="Your marks will appear here once the admin adds them."
+        />
       ) : (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
           <table className="w-full text-sm">

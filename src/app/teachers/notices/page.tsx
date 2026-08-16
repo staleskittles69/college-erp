@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Plus, X } from "lucide-react";
+import { Bell, Plus } from "lucide-react";
+import Modal from "@/components/ui/Modal";
+import { useFetch } from "@/hooks/useFetch";
 
 interface Notice {
   _id: string;
@@ -23,8 +25,7 @@ function formatDate(dateString: string) {
 const EMPTY_FORM = { title: "", body: "", targetBranch: "", targetYear: "" };
 
 export default function TeacherNoticesPage() {
-  const [notices, setNotices] = useState<Notice[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: notices, loading, refetch: fetchNotices } = useFetch<Notice[]>("/api/notices", []);
   const [teaching, setTeaching] = useState<Teaching[]>([]);
 
   const [open, setOpen] = useState(false);
@@ -32,16 +33,7 @@ export default function TeacherNoticesPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
-  function fetchNotices() {
-    return fetch("/api/notices", { credentials: "include" })
-      .then((response) => response.ok ? response.json() : [])
-      .then(setNotices)
-      .catch(() => setNotices([]))
-      .finally(() => setLoading(false));
-  }
-
   useEffect(() => {
-    fetchNotices();
     fetch("/api/teachers/me/classes", { credentials: "include" })
       .then((response) => response.ok ? response.json() : { teaching: [] })
       .then((classesData) => setTeaching(classesData.teaching ?? []))
@@ -80,7 +72,6 @@ export default function TeacherNoticesPage() {
     setForm(EMPTY_FORM);
     setOpen(false);
     setSaving(false);
-    setLoading(true);
     fetchNotices();
   }
 
@@ -141,12 +132,7 @@ export default function TeacherNoticesPage() {
       )}
 
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h2 className="font-semibold text-gray-900">Post Notice</h2>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
-            </div>
+        <Modal title="Post Notice" onClose={() => setOpen(false)} maxWidth="max-w-lg">
             <div className="px-6 py-5 space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Title <span className="text-red-400">*</span></label>
@@ -207,8 +193,7 @@ export default function TeacherNoticesPage() {
                 {saving ? "Posting…" : "Post Notice"}
               </button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

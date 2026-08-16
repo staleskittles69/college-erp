@@ -1,24 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { CheckCircle2 } from "lucide-react";
+import { useFetch } from "@/hooks/useFetch";
+
+interface AttendanceRecord { status: string; }
 
 export function AttendanceSummary() {
-  const [percent, setPercent] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: records, loading } = useFetch<AttendanceRecord[]>("/api/attendance", []);
 
-  useEffect(() => {
-    fetch("/api/attendance", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then((records: Array<{ status: string }>) => {
-        const total = records.length;
-        const present = records.filter((record) => record.status === "present").length;
-        setPercent(total > 0 ? Math.round((present / total) * 100) : 0);
-      })
-      .catch(() => setPercent(0))
-      .finally(() => setLoading(false));
-  }, []);
+  const pct = useMemo(() => {
+    const total = records.length;
+    const present = records.filter((record) => record.status === "present").length;
+    return total > 0 ? Math.round((present / total) * 100) : 0;
+  }, [records]);
 
   if (loading) {
     return (
@@ -31,8 +27,6 @@ export function AttendanceSummary() {
       </Card>
     );
   }
-
-  const pct = percent ?? 0;
 
   const colorClass = pct >= 75 ? "text-green-600" : pct >= 50 ? "text-amber-600" : "text-red-600";
   const iconBg     = pct >= 75 ? "bg-green-100"  : pct >= 50 ? "bg-amber-100"  : "bg-red-100";

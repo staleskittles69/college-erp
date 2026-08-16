@@ -5,6 +5,7 @@ import Teacher from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
+import { toIdString } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       teachers.map((teacher) => ({
-        id: (teacher._id as { toString: () => string }).toString(),
+        id: toIdString(teacher._id),
         name: teacher.name,
         email: (teacher.userId as { email?: string })?.email ?? "",
         department: teacher.department,

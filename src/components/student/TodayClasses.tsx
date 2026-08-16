@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { DAYS } from "@/lib/academics";
+import { useFetch } from "@/hooks/useFetch";
 
 const SUBJECT_COLORS = [
   "bg-orange-100 text-orange-700",
@@ -23,16 +23,7 @@ function todayIndex(): number {
 }
 
 export function TodayClasses() {
-  const [rows, setRows] = useState<TimetableRow[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/timetable", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setRows)
-      .catch(() => setRows([]))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: rows, loading } = useFetch<TimetableRow[]>("/api/timetable", []);
 
   if (loading) {
     return (

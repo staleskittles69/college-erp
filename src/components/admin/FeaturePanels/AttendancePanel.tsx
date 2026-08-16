@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSubjectOptions } from "@/hooks/useSubjectOptions";
 
 interface AttendanceRecord {
   _id: string;
@@ -15,8 +16,6 @@ interface AttendancePanelProps {
   branch?: string;
 }
 
-interface Dept { slug: string; name: string; }
-
 const EMPTY_FORM = {
   subject: "",
   date: new Date().toISOString().split("T")[0],
@@ -30,7 +29,7 @@ export default function AttendancePanel({ studentId = "", context, branch }: Att
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
+  const subjectOptions = useSubjectOptions(branch);
 
   function loadRecords() {
     if (!studentId) { setLoading(false); return; }
@@ -43,21 +42,6 @@ export default function AttendancePanel({ studentId = "", context, branch }: Att
   }
 
   useEffect(() => { loadRecords(); }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Subjects come from the real Subject collection for this student's department.
-  useEffect(() => {
-    if (!branch) { setSubjectOptions([]); return; }
-    fetch("/api/departments", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then((depts: Dept[]) => depts.find((dept) => dept.name === branch)?.slug)
-      .then((slug) => {
-        if (!slug) { setSubjectOptions([]); return; }
-        return fetch(`/api/admin/subjects?department=${encodeURIComponent(slug)}`, { credentials: "include" })
-          .then((response) => (response.ok ? response.json() : []))
-          .then((data: { name: string }[]) => setSubjectOptions(data.map((subjectItem) => subjectItem.name)));
-      })
-      .catch(() => setSubjectOptions([]));
-  }, [branch]);
 
   // Summary stats
   const total = records.length;

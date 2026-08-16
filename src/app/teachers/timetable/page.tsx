@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { DAYS as DAY_NAMES } from "@/lib/academics";
+import { useFetch } from "@/hooks/useFetch";
 
 interface ClassEntry {
   subject: string;
@@ -16,17 +16,8 @@ interface ClassEntry {
 }
 
 export default function TimetablePage() {
-  const [classes, setClasses] = useState<ClassEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/teachers/me/timetable", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then((data: { classes: ClassEntry[] }) => setClasses(data.classes ?? []))
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, loading, error } = useFetch<{ classes: ClassEntry[] }>("/api/teachers/me/timetable", { classes: [] });
+  const classes = data.classes;
 
   const byDay = classes.reduce<Record<number, ClassEntry[]>>((acc, cls) => {
     (acc[cls.dayOfWeek] ??= []).push(cls);

@@ -3,7 +3,7 @@ import connectDB from "@/lib/db";
 import Test from "@/models/Test";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
-import { isValidTestTime } from "@/lib/utils";
+import { isValidTestTime, toIdString } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     const tests = await Test.find(filter).sort({ date: 1 }).lean();
     return NextResponse.json(
       tests.map((test) => ({
-        _id: (test._id as { toString: () => string }).toString(),
+        _id: toIdString(test._id),
         subject: test.subject,
         title: test.title,
         date: test.date,

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { createPortal } from "react-dom";
-import { ClipboardList, Plus, X, Upload, Paperclip } from "lucide-react";
+import { ClipboardList, Plus, Upload, Paperclip } from "lucide-react";
+import Modal from "@/components/ui/Modal";
+import { useFetch } from "@/hooks/useFetch";
 
 interface Test {
   _id: string;
@@ -27,9 +28,7 @@ function todayString() {
 }
 
 export default function AssignmentsPage() {
-  const [tests, setTests] = useState<Test[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { data: tests, loading, error, refetch: fetchTests } = useFetch<Test[]>("/api/tests", []);
 
   const [subjects, setSubjects] = useState<string[]>([]);
   const [depts, setDepts] = useState<Dept[]>([]);
@@ -41,16 +40,7 @@ export default function AssignmentsPage() {
   const [formError, setFormError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  function fetchTests() {
-    return fetch("/api/tests", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then(setTests)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }
-
   useEffect(() => {
-    fetchTests();
     fetch("/api/departments", { credentials: "include" })
       .then((response) => response.ok ? response.json() : [])
       .then(setDepts)
@@ -118,8 +108,6 @@ export default function AssignmentsPage() {
     if (fileRef.current) fileRef.current.value = "";
     setOpen(false);
     setSaving(false);
-    setLoading(true);
-    setError(false);
     fetchTests();
   }
 
@@ -203,16 +191,15 @@ export default function AssignmentsPage() {
         </div>
       )}
 
-      {open && createPortal(
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white">
-              <h2 className="font-semibold text-gray-900">Create {form.testType === "Test" ? "Test" : "Assignment"}</h2>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <X size={18} />
-              </button>
-            </div>
-
+      {open && (
+        <Modal
+          title={`Create ${form.testType === "Test" ? "Test" : "Assignment"}`}
+          onClose={() => setOpen(false)}
+          maxWidth="max-w-lg"
+          panelClassName="max-h-[90vh] overflow-y-auto"
+          headerClassName="sticky top-0 bg-white"
+          portal
+        >
             <div className="px-6 py-5 space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
@@ -352,9 +339,7 @@ export default function AssignmentsPage() {
                 {saving ? "Creating…" : `Create ${form.testType === "Test" ? "Test" : "Assignment"}`}
               </button>
             </div>
-          </div>
-        </div>,
-        document.body
+        </Modal>
       )}
     </div>
   );

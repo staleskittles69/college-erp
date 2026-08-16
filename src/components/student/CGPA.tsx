@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { GraduationCap } from "lucide-react";
 import { computeCGPA } from "@/lib/grades";
+import { useFetch } from "@/hooks/useFetch";
 
 interface MarkRecord {
   subject: string;
@@ -12,21 +13,9 @@ interface MarkRecord {
 }
 
 export function CGPA() {
-  const [cgpa, setCgpa] = useState<number | null>(null);
-  const [subjectCount, setSubjectCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/student/marks", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then((records: MarkRecord[]) => {
-        const uniqueSubjects = new Set(records.map((record) => record.subject));
-        setSubjectCount(uniqueSubjects.size);
-        setCgpa(computeCGPA(records));
-      })
-      .catch(() => setCgpa(null))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: records, loading } = useFetch<MarkRecord[]>("/api/student/marks", []);
+  const subjectCount = useMemo(() => new Set(records.map((record) => record.subject)).size, [records]);
+  const cgpa = useMemo(() => computeCGPA(records), [records]);
 
   if (loading) {
     return (

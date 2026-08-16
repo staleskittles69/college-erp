@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { isAssignmentType } from "@/lib/academics";
+import { useFetch } from "@/hooks/useFetch";
 
 interface TestItem {
   _id: string;
@@ -33,16 +33,7 @@ function formatYear(dateString: string) {
 }
 
 export function UpcomingTests() {
-  const [tests, setTests] = useState<TestItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/tests?upcoming=true", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setTests)
-      .catch(() => setTests([]))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: tests, loading } = useFetch<TestItem[]>("/api/tests?upcoming=true", []);
 
   if (loading) {
     return (

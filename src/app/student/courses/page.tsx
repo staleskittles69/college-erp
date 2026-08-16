@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { BookOpen } from "lucide-react";
+import { useFetch } from "@/hooks/useFetch";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
+
+interface TimetableRow { slots: { subject: string }[]; }
 
 const COLORS = [
   "bg-orange-50 text-orange-700 border-orange-200",
@@ -13,30 +18,21 @@ const COLORS = [
 ];
 
 export default function CoursesPage() {
-  const [subjects, setSubjects] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: rows, loading } = useFetch<TimetableRow[]>("/api/timetable", []);
 
-  useEffect(() => {
-    fetch("/api/timetable")
-      .then((response) => response.json())
-      .then((data: { slots: { subject: string }[] }[]) => {
-        const seen = new Set<string>();
-        data.forEach((day) =>
-          day.slots?.forEach((slot) => {
-            if (slot.subject) seen.add(slot.subject);
-          })
-        );
-        setSubjects([...seen].sort());
+  const subjects = useMemo(() => {
+    const seen = new Set<string>();
+    rows.forEach((day) =>
+      day.slots?.forEach((slot) => {
+        if (slot.subject) seen.add(slot.subject);
       })
-      .finally(() => setLoading(false));
-  }, []);
+    );
+    return [...seen].sort();
+  }, [rows]);
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold tracking-tight">Courses</h1>
-        <p className="text-white/80 text-sm mt-1">Your enrolled courses this semester.</p>
-      </div>
+      <PageHeader title="Courses" subtitle="Your enrolled courses this semester." />
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -49,15 +45,12 @@ export default function CoursesPage() {
           ))}
         </div>
       ) : subjects.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-16 flex flex-col items-center justify-center min-h-[300px] gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center">
-            <BookOpen size={30} className="text-orange-500" />
-          </div>
-          <div className="text-center">
-            <p className="font-semibold text-gray-700">No courses yet</p>
-            <p className="text-sm text-gray-400 mt-1">Your courses will appear once your timetable is set up.</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={<BookOpen size={30} />}
+          iconClassName="bg-orange-50 text-orange-500"
+          title="No courses yet"
+          subtitle="Your courses will appear once your timetable is set up."
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {subjects.map((subject, colorIdx) => (

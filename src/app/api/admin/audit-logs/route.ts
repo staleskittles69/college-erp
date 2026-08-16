@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import AuditLog from "@/models/AuditLog";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { toIdString } from "@/lib/utils";
 
 const MAX_DAYS = 90; // matches the AuditLog TTL index — logs older than this don't exist
 
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       logs.map((log) => ({
-        _id: (log._id as { toString: () => string }).toString(),
+        _id: toIdString(log._id),
         actorName: log.actorName,
         actorRole: log.actorRole,
         action: log.action,

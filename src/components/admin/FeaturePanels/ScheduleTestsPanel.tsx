@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BRANCHES, TEST_TYPES, YEARS, yearLabel } from "@/lib/academics";
 import { getSubjects } from "@/lib/subjects";
 import { isValidTestTime } from "@/lib/utils";
+import { useFetch } from "@/hooks/useFetch";
 
 interface Test {
   _id: string;
@@ -43,8 +44,7 @@ function todayString() {
 }
 
 export default function ScheduleTestsPanel() {
-  const [tests, setTests] = useState<Test[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: tests, loading, refetch: fetchTests } = useFetch<Test[]>("/api/tests", []);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -52,16 +52,6 @@ export default function ScheduleTestsPanel() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const subjectOptions = getSubjects(form.branch, form.semester);
-
-  function fetchTests() {
-    return fetch("/api/tests", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setTests)
-      .catch(() => setTests([]))
-      .finally(() => setLoading(false));
-  }
-
-  useEffect(() => { fetchTests(); }, []);
 
   useEffect(() => {
     if (form.subject && !subjectOptions.includes(form.subject)) {

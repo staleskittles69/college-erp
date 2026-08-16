@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Inbox, Send, Check, RotateCcw, X } from "lucide-react";
+import { useFetch } from "@/hooks/useFetch";
 
 interface QueryItem {
   _id: string;
@@ -28,10 +29,8 @@ function statusBadgeClass(status: QueryItem["status"]) {
 }
 
 export default function TeacherQueriesPage() {
-  const [sentQueries, setSentQueries] = useState<QueryItem[]>([]);
-  const [receivedQueries, setReceivedQueries] = useState<QueryItem[]>([]);
-  const [loadingSent, setLoadingSent] = useState(true);
-  const [loadingReceived, setLoadingReceived] = useState(true);
+  const { data: sentQueries, loading: loadingSent, setData: setSentQueries } = useFetch<QueryItem[]>("/api/queries", []);
+  const { data: receivedQueries, loading: loadingReceived, setData: setReceivedQueries } = useFetch<QueryItem[]>("/api/queries?box=received", []);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -39,27 +38,6 @@ export default function TeacherQueriesPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [actionError, setActionError] = useState<Record<string, string>>({});
-
-  function fetchSentQueries() {
-    return fetch("/api/queries", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setSentQueries)
-      .catch(() => setSentQueries([]))
-      .finally(() => setLoadingSent(false));
-  }
-
-  function fetchReceivedQueries() {
-    return fetch("/api/queries?box=received", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setReceivedQueries)
-      .catch(() => setReceivedQueries([]))
-      .finally(() => setLoadingReceived(false));
-  }
-
-  useEffect(() => {
-    fetchSentQueries();
-    fetchReceivedQueries();
-  }, []);
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();

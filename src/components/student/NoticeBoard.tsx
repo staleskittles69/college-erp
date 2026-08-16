@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Pin } from "lucide-react";
+import { useFetch } from "@/hooks/useFetch";
 
 interface NoticeItem {
   _id: string;
@@ -25,16 +25,7 @@ function formatDate(dateString: string) {
 }
 
 export function NoticeBoard() {
-  const [notices, setNotices] = useState<NoticeItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/notices", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setNotices)
-      .catch(() => setNotices([]))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: notices, loading } = useFetch<NoticeItem[]>("/api/notices", []);
 
   if (loading) {
     return (

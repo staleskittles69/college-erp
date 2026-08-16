@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Marks from "@/models/Marks";
 import { getAuth } from "@/lib/api-auth";
+import { toIdString } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       records.map((record) => ({
-        id: (record._id as { toString: () => string }).toString(),
+        id: toIdString(record._id),
         subject: record.subject,
         examType: record.examType,
         obtained: record.obtained,

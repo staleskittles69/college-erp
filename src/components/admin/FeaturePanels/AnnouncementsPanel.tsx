@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BRANCHES as FALLBACK_BRANCHES, YEARS, yearLabel } from "@/lib/academics";
+import { useFetch } from "@/hooks/useFetch";
 
 interface Notice {
   _id: string;
@@ -26,8 +27,7 @@ function targetLabel(notice: Notice) {
 }
 
 export default function AnnouncementsPanel() {
-  const [notices, setNotices] = useState<Notice[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: notices, loading, refetch: fetchNotices } = useFetch<Notice[]>("/api/notices", []);
   const [branches, setBranches] = useState<string[]>(FALLBACK_BRANCHES);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -38,16 +38,7 @@ export default function AnnouncementsPanel() {
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  function fetchNotices() {
-    return fetch("/api/notices", { credentials: "include" })
-      .then((response) => response.ok ? response.json() : [])
-      .then(setNotices)
-      .catch(() => setNotices([]))
-      .finally(() => setLoading(false));
-  }
-
   useEffect(() => {
-    fetchNotices();
     fetch("/api/departments", { credentials: "include" })
       .then((response) => response.ok ? response.json() : [])
       .then((departments: { name: string }[]) => {

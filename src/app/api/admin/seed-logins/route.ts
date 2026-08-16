@@ -5,6 +5,7 @@ import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword } from "@/lib/auth";
 import { rollNoToEmail } from "@/lib/utils/rollNumber";
+import { toIdString } from "@/lib/utils";
 
 // POST /api/admin/seed-logins
 // Body: { branch, year, sections: ["Section 1", "Section 2"] }
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
 
   const hashedPassword = await hashPassword("student123");
   const loginUpdates = students.map((student) => {
-    const id = (student._id as { toString: () => string }).toString();
+    const id = toIdString(student._id);
     const rollNo = rollNoByUserId.get(id) ?? `roll${student.rollNumber}`;
     return {
       updateOne: {
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
   await User.bulkWrite(loginUpdates);
 
   const sample = students.slice(0, 5).map((student) => {
-    const id = (student._id as { toString: () => string }).toString();
+    const id = toIdString(student._id);
     const rollNo = rollNoByUserId.get(id) ?? `roll${student.rollNumber}`;
     return {
       name: student.name,

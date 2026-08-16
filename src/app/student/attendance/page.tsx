@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { CalendarCheck } from "lucide-react";
+import { useFetch } from "@/hooks/useFetch";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface AttendanceRecord {
   _id: string;
@@ -55,16 +57,7 @@ function CircularProgress({ present, total, subject }: { present: number; total:
 }
 
 export default function AttendancePage() {
-  const [records, setRecords] = useState<AttendanceRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/attendance", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setRecords)
-      .catch(() => setRecords([]))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: records, loading } = useFetch<AttendanceRecord[]>("/api/attendance", []);
 
   const total = records.length;
   const present = records.filter((record) => record.status === "present").length;
@@ -84,25 +77,19 @@ export default function AttendancePage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold tracking-tight">Attendance</h1>
-        <p className="text-white/80 text-sm mt-1">Monitor your attendance records and statistics.</p>
-      </div>
+      <PageHeader title="Attendance" subtitle="Monitor your attendance records and statistics." />
 
       {loading ? (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-8 animate-pulse space-y-3">
           {[1, 2, 3].map((skeletonIdx) => <div key={skeletonIdx} className="h-10 bg-gray-100 rounded" />)}
         </div>
       ) : total === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-16 flex flex-col items-center justify-center min-h-[300px] gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-green-50 flex items-center justify-center">
-            <CalendarCheck size={30} className="text-green-500" />
-          </div>
-          <div className="text-center">
-            <p className="font-semibold text-gray-700">No attendance records</p>
-            <p className="text-sm text-gray-400 mt-1">Your records will appear here once marked by the teacher.</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={<CalendarCheck size={30} />}
+          iconClassName="bg-green-50 text-green-500"
+          title="No attendance records"
+          subtitle="Your records will appear here once marked by the teacher."
+        />
       ) : (
         <>
           {/* Overall summary strip */}

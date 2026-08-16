@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Lock, CheckCircle, XCircle } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function SettingsPage() {
   const [current, setCurrent] = useState("");
@@ -38,10 +39,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-white/80 text-sm mt-1">Manage your account preferences.</p>
-      </div>
+      <PageHeader title="Settings" subtitle="Manage your account preferences." />
 
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 max-w-lg">
         <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">

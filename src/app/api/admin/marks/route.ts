@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import Marks from "@/models/Marks";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
+import { toIdString } from "@/lib/utils";
 
 // GET /api/admin/marks?studentId=xxx
 export async function GET(request: NextRequest) {
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       markRecords.map((record) => ({
-        id: (record._id as { toString: () => string }).toString(),
+        id: toIdString(record._id),
         studentId: (record.studentId as { toString: () => string }).toString(),
         subject: record.subject,
         examType: record.examType,

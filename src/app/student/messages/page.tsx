@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Inbox, Send } from "lucide-react";
+import { useFetch } from "@/hooks/useFetch";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 interface QueryItem {
   _id: string;
@@ -32,30 +34,13 @@ function formatTimestamp(value: string) {
 }
 
 export default function MessagesPage() {
-  const [queries, setQueries] = useState<QueryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [teachers, setTeachers] = useState<TeacherOption[]>([]);
+  const { data: queries, loading, refetch: refetchQueries } = useFetch<QueryItem[]>("/api/queries", []);
+  const { data: teachers } = useFetch<TeacherOption[]>("/api/students/me/teachers", []);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [recipient, setRecipient] = useState("admin");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-
-  function fetchQueries() {
-    return fetch("/api/queries", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setQueries)
-      .catch(() => setQueries([]))
-      .finally(() => setLoading(false));
-  }
-
-  useEffect(() => {
-    fetchQueries();
-    fetch("/api/students/me/teachers", { credentials: "include" })
-      .then((response) => (response.ok ? response.json() : []))
-      .then(setTeachers)
-      .catch(() => setTeachers([]));
-  }, []);
 
   async function handleSubmit(formEvent: React.FormEvent) {
     formEvent.preventDefault();
@@ -75,7 +60,7 @@ export default function MessagesPage() {
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Failed to send");
-      setQueries((prev) => [body, ...prev]);
+      refetchQueries();
       setSubject("");
       setMessage("");
       setRecipient("admin");
@@ -88,10 +73,7 @@ export default function MessagesPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold tracking-tight">Queries</h1>
-        <p className="text-white/80 text-sm mt-1">Send a query to the admin or a teacher and track its status here.</p>
-      </div>
+      <PageHeader title="Queries" subtitle="Send a query to the admin or a teacher and track its status here." />
 
       <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 space-y-4">
         <h2 className="font-semibold text-gray-800">New Query</h2>

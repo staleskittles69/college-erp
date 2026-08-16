@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { X, Pencil, Check, Loader2 } from "lucide-react";
 import { DAYS, PERIODS, PERIOD_TIMES } from "@/lib/academics";
+import Modal from "@/components/ui/Modal";
 
 interface Assignment { branch: string; year: number; sections: string[]; }
 interface ClassEntry {
@@ -108,36 +109,26 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
   const canEdit = classOptions.length > 0 && subjects.length > 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl flex flex-col max-h-[90vh]">
-
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-          <div>
-            <h2 className="text-base font-semibold text-gray-900">Timetable</h2>
-            <p className="text-xs text-gray-400 mt-0.5">{teacherName}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setEditing((prev) => !prev); setActiveCell(null); }}
-              disabled={!canEdit}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                editing
-                  ? "bg-orange-600 text-white border-orange-600"
-                  : "border-gray-200 text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              {editing ? <><Check size={13} /> Done</> : <><Pencil size={13} /> Edit</>}
-            </button>
-            <button
-              onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X size={18} />
-            </button>
-          </div>
-        </div>
-
+    <Modal
+      title="Timetable"
+      subtitle={teacherName}
+      onClose={onClose}
+      maxWidth="max-w-5xl"
+      panelClassName="flex flex-col max-h-[90vh]"
+      headerExtra={
+        <button
+          onClick={() => { setEditing((prev) => !prev); setActiveCell(null); }}
+          disabled={!canEdit}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+            editing
+              ? "bg-orange-600 text-white border-orange-600"
+              : "border-gray-200 text-gray-700 hover:bg-gray-50"
+          }`}
+        >
+          {editing ? <><Check size={13} /> Done</> : <><Pencil size={13} /> Edit</>}
+        </button>
+      }
+    >
         {/* Body */}
         <div className="overflow-auto p-6 flex-1">
           {loading ? (
@@ -244,7 +235,6 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
             </>
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

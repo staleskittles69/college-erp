@@ -6,6 +6,7 @@ import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { generateRollNumber } from "@/lib/utils/generateRollNumber";
 import { formatRollNo, rollNoToEmail } from "@/lib/utils/rollNumber";
+import { toIdString } from "@/lib/utils";
 import { escapeRegex } from "@/lib/utils";
 import { logAudit } from "@/lib/audit";
 
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
     );
 
     const result = students.map((student) => {
-      const id = (student._id as { toString: () => string }).toString();
+      const id = toIdString(student._id);
       return {
         _id: id,
         name: student.name,

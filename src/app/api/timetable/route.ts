@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import Timetable from "@/models/Timetable";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
+import { toIdString } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
         }).sort({ dayOfWeek: 1 }).lean();
         return NextResponse.json(
           timetableRows.map((row) => ({
-            _id: (row._id as { toString: () => string }).toString(),
+            _id: toIdString(row._id),
             branch: row.branch,
             semester: row.semester,
             section: row.section,
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     const timetableRows = await Timetable.find(filter).sort({ dayOfWeek: 1 }).lean();
     return NextResponse.json(
       timetableRows.map((row) => ({
-        _id: (row._id as { toString: () => string }).toString(),
+        _id: toIdString(row._id),
         branch: row.branch,
         semester: row.semester,
         section: row.section,

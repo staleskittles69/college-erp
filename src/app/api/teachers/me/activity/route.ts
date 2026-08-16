@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import AuditLog from "@/models/AuditLog";
 import { getAuth } from "@/lib/api-auth";
+import { toIdString } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       logs.map((log) => ({
-        _id: (log._id as { toString: () => string }).toString(),
+        _id: toIdString(log._id),
         action: log.action,
         entityType: log.entityType,
         description: log.description,

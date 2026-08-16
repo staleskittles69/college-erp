@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import Attendance from "@/models/Attendance";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
+import { toIdString } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
       if (section) sFilter.section = section;
       const matchingStudents = await StudentModel.find(sFilter).select("_id").lean();
       filter.studentId = {
-        $in: matchingStudents.map((student) => (student._id as { toString(): string }).toString()),
+        $in: matchingStudents.map((student) => toIdString(student._id)),
       };
     }
 
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       .lean();
 
     const result = records.map((record) => ({
-      _id: (record._id as { toString: () => string }).toString(),
+      _id: toIdString(record._id),
       studentId: (record.studentId as { toString: () => string }).toString(),
       subject: record.subject,
       date: record.date,

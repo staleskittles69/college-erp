@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ClipboardList, Clock, CheckCircle, ChevronDown, Paperclip, StickyNote } from "lucide-react";
 import { isAssignmentType } from "@/lib/academics";
+import { useFetch } from "@/hooks/useFetch";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface Test {
   _id: string;
@@ -91,15 +94,7 @@ function TestRow({ test, dimmed }: { test: Test; dimmed: boolean }) {
 }
 
 export default function AssignmentsPage() {
-  const [tests, setTests] = useState<Test[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/tests")
-      .then((response) => response.json())
-      .then((data: Test[]) => setTests(data))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: tests, loading } = useFetch<Test[]>("/api/tests", []);
 
   const now = new Date();
   const upcoming = tests.filter((test) => new Date(test.date) >= now);
@@ -107,10 +102,7 @@ export default function AssignmentsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="rounded-2xl bg-orange-600 px-8 py-6 text-white shadow-lg">
-        <h1 className="text-2xl font-bold tracking-tight">Assignments & Tests</h1>
-        <p className="text-white/80 text-sm mt-1">Your scheduled tests and assessments.</p>
-      </div>
+      <PageHeader title="Assignments & Tests" subtitle="Your scheduled tests and assessments." />
 
       {loading ? (
         <div className="space-y-3">
@@ -122,15 +114,12 @@ export default function AssignmentsPage() {
           ))}
         </div>
       ) : tests.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-16 flex flex-col items-center justify-center min-h-[300px] gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center">
-            <ClipboardList size={30} className="text-orange-500" />
-          </div>
-          <div className="text-center">
-            <p className="font-semibold text-gray-700">No tests scheduled</p>
-            <p className="text-sm text-gray-400 mt-1">Tests added by your teachers will appear here.</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={<ClipboardList size={30} />}
+          iconClassName="bg-orange-50 text-orange-500"
+          title="No tests scheduled"
+          subtitle="Tests added by your teachers will appear here."
+        />
       ) : (
         <div className="space-y-6">
           {upcoming.length > 0 && (
