@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Bell, Lock, Users, Globe, CheckCircle, XCircle } from "lucide-react";
 
 function PasswordSection() {

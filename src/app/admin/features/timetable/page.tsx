@@ -1,4 +1,4 @@
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import TimetablePanel from "@/components/admin/FeaturePanels/TimetablePanel";
 
 export default function TimetablePage() {

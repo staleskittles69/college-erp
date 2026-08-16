@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import MarksPanel from "@/components/admin/FeaturePanels/MarksPanel";
 import AttendancePanel from "@/components/admin/FeaturePanels/AttendancePanel";
 import StudentDetailsPanel from "@/components/admin/FeaturePanels/StudentDetailsPanel";

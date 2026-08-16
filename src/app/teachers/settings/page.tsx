@@ -37,65 +37,65 @@ export default function TeacherSettingsPage() {
   }
 
   return (
-    <div className="p-6 max-w-lg">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-white">Settings</h1>
-        <p className="text-slate-400 text-sm mt-1">Manage your account preferences.</p>
+    <div className="space-y-6 max-w-lg">
+      <div>
+        <h1 className="text-xl font-bold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500 mt-1">Manage your account preferences.</p>
       </div>
 
-      <div className="rounded-xl border border-slate-700 bg-slate-800 p-6">
-        <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-700">
-          <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
-            <Lock size={16} className="text-orange-400" />
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">
+          <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
+            <Lock size={16} className="text-orange-600" />
           </div>
           <div>
-            <h2 className="font-semibold text-white text-sm">Change Password</h2>
-            <p className="text-xs text-slate-400">Update your account password.</p>
+            <h2 className="font-semibold text-gray-900 text-sm">Change Password</h2>
+            <p className="text-xs text-gray-500">Update your account password.</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Current Password</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Current Password</label>
             <input
               type="password"
               value={current}
               onChange={(e) => setCurrent(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">New Password</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">New Password</label>
             <input
               type="password"
               value={newPass}
               onChange={(e) => setNewPass(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">Confirm New Password</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Confirm New Password</label>
             <input
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-3 py-2 text-sm bg-slate-900 border border-slate-600 text-white rounded-lg placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-500"
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
             />
           </div>
 
           {status === "success" && (
-            <div className="flex items-center gap-2 text-green-400 text-sm bg-green-900/30 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-green-700 text-sm bg-green-50 rounded-lg px-3 py-2">
               <CheckCircle size={15} /> {message}
             </div>
           )}
           {status === "error" && (
-            <div className="flex items-center gap-2 text-red-400 text-sm bg-red-900/30 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 text-red-700 text-sm bg-red-50 rounded-lg px-3 py-2">
               <XCircle size={15} /> {message}
             </div>
           )}

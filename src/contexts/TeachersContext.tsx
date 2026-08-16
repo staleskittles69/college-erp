@@ -9,7 +9,7 @@ export interface Department {
 }
 
 export interface Assignment {
-  branch: "CSE" | "ECE" | "MECH" | "CIVIL";
+  branch: "CSE" | "ECE" | "ME" | "CE" | "EEE";
   year: 1 | 2 | 3 | 4;
   sections: string[];
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import { ArrowRight } from "lucide-react";
 
 const YEARS = [
@@ -20,6 +20,7 @@ export default function YearSelectionPage({ params }: Props) {
   return (
     <div className="max-w-3xl mx-auto">
       <Breadcrumb
+        homeHref="/teachers"
         items={[
           { label: "Students", href: "/teachers/students" },
           { label: branchLabel },

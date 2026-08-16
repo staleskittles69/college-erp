@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { X, Calendar, Eye, EyeOff, Copy, Check } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
 import { validatePasswordStrength } from "@/lib/passwordRules";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import AssignClassModal from "@/components/admin/teachers/AssignClassModal";
 import TeacherTimetableModal from "@/components/admin/teachers/TeacherTimetableModal";
 

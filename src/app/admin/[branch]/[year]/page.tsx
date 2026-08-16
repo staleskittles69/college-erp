@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import { ArrowRight, Users } from "lucide-react";
 
 const SECTIONS = Array.from({ length: 30 }, (_, sectionIdx) => ({

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import { ArrowRight, Users, Plus, X, RefreshCw, Trash2 } from "lucide-react";
 
 const COLORS = [

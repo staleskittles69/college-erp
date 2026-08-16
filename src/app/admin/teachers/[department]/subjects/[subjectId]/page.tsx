@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Plus, UserPlus, X, ChevronRight } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import AddTeacherModal from "@/components/admin/teachers/AddTeacherModal";
 
 interface SubjectDetail {

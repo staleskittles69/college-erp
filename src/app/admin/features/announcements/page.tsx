@@ -1,4 +1,4 @@
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import AnnouncementsPanel from "@/components/admin/FeaturePanels/AnnouncementsPanel";
 
 export default function AnnouncementsPage() {

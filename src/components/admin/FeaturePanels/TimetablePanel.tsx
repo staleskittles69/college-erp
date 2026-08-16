@@ -31,9 +31,8 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
   const [year, setYear] = useState(String(YEARS[0]));
   const [section, setSection] = useState("1");
 
-  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"" | "saved" | "error">("");
+  const [syncStatus, setSyncStatus] = useState<"" | "syncing" | "synced" | "error">("");
 
   const subjectOptions = getSubjects(branch, year);
 
@@ -44,27 +43,38 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branch, year]);
 
+  useEffect(() => {
+    loadFromDB();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branch, year, section]);
+
   function openAdd() { setEditingId(null); setForm(EMPTY_FORM); setShowModal(true); }
   function openAddAt(day: string, period: number) { setEditingId(null); setForm({ day, period, subject: "" }); setShowModal(true); }
   function openEdit(slot: Slot) { setEditingId(slot.id); setForm({ day: slot.day, period: slot.period, subject: slot.subject }); setShowModal(true); }
-  function handleDelete(id: string) { setSlots((prev) => prev.filter((slot) => slot.id !== id)); setShowModal(false); }
+
+  function handleDelete(id: string) {
+    const updated = slots.filter((slot) => slot.id !== id);
+    setSlots(updated);
+    setShowModal(false);
+    persistToDB(updated);
+  }
 
   function handleSave() {
     if (!form.subject.trim()) return;
-    if (editingId) {
-      setSlots((prev) => prev.map((slot) => (slot.id === editingId ? { ...slot, ...form } : slot)));
-    } else {
-      setSlots((prev) => [
-        ...prev.filter((slot) => !(slot.day === form.day && slot.period === form.period)),
-        { id: Date.now().toString(), ...form },
-      ]);
-    }
+    const updated = editingId
+      ? slots.map((slot) => (slot.id === editingId ? { ...slot, ...form } : slot))
+      : [
+          ...slots.filter((slot) => !(slot.day === form.day && slot.period === form.period)),
+          { id: Date.now().toString(), ...form },
+        ];
+    setSlots(updated);
     setShowModal(false);
+    persistToDB(updated);
   }
 
-  async function handleLoadFromDB() {
+  async function loadFromDB() {
     setLoading(true);
-    setSaveStatus("");
+    setSyncStatus("");
     try {
       const response = await fetch(
         `/api/timetable?branch=${branch}&semester=${year}&section=${encodeURIComponent(`Section ${section}`)}`,
@@ -90,14 +100,14 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
     finally { setLoading(false); }
   }
 
-  async function handleSaveToDB() {
-    if (slots.length === 0) return;
-    setSaving(true);
-    setSaveStatus("");
+  // Persists every day of the week (not just days with slots) so a deleted slot
+  // actually clears its day's row in the DB instead of leaving it stale.
+  async function persistToDB(updatedSlots: Slot[]) {
+    setSyncStatus("syncing");
     const byDay: Record<number, Array<{ subject: string; period: number; time: string; room: string }>> = {};
-    slots.forEach((slot) => {
+    DAYS.forEach((_, dayIdx) => { byDay[dayIdx] = []; });
+    updatedSlots.forEach((slot) => {
       const dayIdx = DAY_INDEX[slot.day] ?? 0;
-      if (!byDay[dayIdx]) byDay[dayIdx] = [];
       byDay[dayIdx].push({ subject: slot.subject, period: slot.period, time: PERIOD_TIMES[slot.period] ?? "", room: "" });
     });
     try {
@@ -117,11 +127,9 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
           })
         )
       );
-      setSaveStatus(results.every((result) => result.ok) ? "saved" : "error");
+      setSyncStatus(results.every((result) => result.ok) ? "synced" : "error");
     } catch {
-      setSaveStatus("error");
-    } finally {
-      setSaving(false);
+      setSyncStatus("error");
     }
   }
 
@@ -156,16 +164,10 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
               <input type="number" min={1} value={section} onChange={(e) => setSection(e.target.value)}
                 className="w-16 text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20" />
             </div>
-            <button onClick={handleLoadFromDB} disabled={loading}
-              className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50">
-              {loading ? "Loading…" : "Load from DB"}
-            </button>
-            <button onClick={handleSaveToDB} disabled={saving || slots.length === 0}
-              className="px-4 py-1.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-40">
-              {saving ? "Saving…" : "Save to DB"}
-            </button>
-            {saveStatus === "saved" && <span className="text-xs text-green-600 font-medium">✓ Saved</span>}
-            {saveStatus === "error" && <span className="text-xs text-red-600 font-medium">Error saving</span>}
+            {loading && <span className="text-xs text-gray-400">Loading…</span>}
+            {!loading && syncStatus === "syncing" && <span className="text-xs text-gray-400">Saving…</span>}
+            {!loading && syncStatus === "synced" && <span className="text-xs text-green-600 font-medium">✓ Saved</span>}
+            {!loading && syncStatus === "error" && <span className="text-xs text-red-600 font-medium">Error saving — try again</span>}
           </div>
         </div>
 
@@ -215,7 +217,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
 
         {slots.length === 0 && !loading && (
           <div className="px-6 py-8 text-center text-sm text-gray-400 border-t border-gray-100">
-            Select a class above and click &quot;Load from DB&quot;, or click any empty period to add a slot.
+            No slots yet for this class — click any empty period to add one.
           </div>
         )}
       </div>

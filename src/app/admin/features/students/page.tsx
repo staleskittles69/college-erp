@@ -1,4 +1,4 @@
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import StudentDataPanel from "@/components/admin/FeaturePanels/StudentDataPanel";
 
 export default function StudentsPage() {

@@ -1,6 +1,6 @@
 "use client";
 
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -53,6 +53,7 @@ export default function StudentListPage() {
   return (
     <div className="max-w-5xl mx-auto">
       <Breadcrumb
+        homeHref="/teachers"
         items={[
           { label: "Students", href: "/teachers/students" },
           { label: branchLabel, href: `/teachers/students/${branch}` },

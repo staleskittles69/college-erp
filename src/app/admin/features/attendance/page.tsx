@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 
 interface Dept { slug: string; name: string; }
 interface Student { _id: string; name: string; rollNo: string; }

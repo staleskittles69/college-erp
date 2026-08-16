@@ -1,4 +1,4 @@
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import AuditLogPanel from "@/components/admin/FeaturePanels/AuditLogPanel";
 
 export default function AuditLogsPage() {

@@ -1,4 +1,4 @@
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import ScheduleTestsPanel from "@/components/admin/FeaturePanels/ScheduleTestsPanel";
 
 export default function ScheduleTestsPage() {

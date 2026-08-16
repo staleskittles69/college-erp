@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Inbox, Check, RotateCcw, X } from "lucide-react";
-import Breadcrumb from "@/components/admin/Breadcrumb";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 
 interface QueryItem {
   _id: string;
