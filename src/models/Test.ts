@@ -13,6 +13,7 @@ export interface ITest {
   dueTime?: string;
   notes?: string;
   attachmentUrl?: string;
+  attachmentName?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +31,7 @@ const TestSchema = new Schema<ITest>(
     dueTime: { type: String, default: null },
     notes: { type: String, default: null },
     attachmentUrl: { type: String, default: null },
+    attachmentName: { type: String, default: null },
   },
   { timestamps: true }
 );

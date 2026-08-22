@@ -17,6 +17,7 @@ interface Test {
   dueTime?: string | null;
   notes?: string | null;
   attachmentUrl?: string | null;
+  attachmentName?: string | null;
 }
 
 function formatDate(dateStr: string) {
@@ -84,7 +85,7 @@ function TestRow({ test, dimmed }: { test: Test; dimmed: boolean }) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 hover:underline"
             >
-              <Paperclip size={13} /> View attachment
+              <Paperclip size={13} /> {test.attachmentName ?? "View attachment"}
             </a>
           )}
         </div>

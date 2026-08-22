@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
         dueTime: test.dueTime,
         notes: test.notes,
         attachmentUrl: test.attachmentUrl,
+        attachmentName: test.attachmentName,
       }))
     );
   } catch (error) {
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { subject, title, date, branch, semester, section, testType, maxMarks, dueTime, notes, attachmentUrl } = body;
+    const { subject, title, date, branch, semester, section, testType, maxMarks, dueTime, notes, attachmentUrl, attachmentName } = body;
 
     if (!subject || !title || !date) {
       return NextResponse.json(
@@ -102,6 +103,7 @@ export async function POST(request: NextRequest) {
       dueTime: dueTime ?? null,
       notes: notes ?? null,
       attachmentUrl: attachmentUrl ?? null,
+      attachmentName: attachmentName ?? null,
     });
 
     await logAudit(
@@ -125,6 +127,7 @@ export async function POST(request: NextRequest) {
       dueTime: test.dueTime,
       notes: test.notes,
       attachmentUrl: test.attachmentUrl,
+      attachmentName: test.attachmentName,
     });
   } catch (error) {
     console.error("Tests POST error:", error);

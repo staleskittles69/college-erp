@@ -15,6 +15,7 @@ interface Test {
   maxMarks: number | null;
   dueTime?: string | null;
   attachmentUrl?: string | null;
+  attachmentName?: string | null;
   testType?: string | null;
 }
 
@@ -65,6 +66,7 @@ export default function AssignmentsPage() {
     setFormError("");
 
     let attachmentUrl: string | null = null;
+    let attachmentName: string | null = null;
 
     if (file) {
       const formData = new FormData();
@@ -73,6 +75,7 @@ export default function AssignmentsPage() {
       if (uploadResponse.ok) {
         const uploadResult = await uploadResponse.json();
         attachmentUrl = uploadResult.url;
+        attachmentName = uploadResult.fileName;
       } else {
         setFormError("File upload failed. Try again.");
         setSaving(false);
@@ -93,6 +96,7 @@ export default function AssignmentsPage() {
         maxMarks: form.maxMarks ? Number(form.maxMarks) : null,
         testType: form.testType,
         attachmentUrl,
+        attachmentName,
       }),
     });
 
@@ -176,7 +180,7 @@ export default function AssignmentsPage() {
                   {test.attachmentUrl && (
                     <a href={test.attachmentUrl} target="_blank" rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs text-orange-600 hover:underline mt-1">
-                      <Paperclip size={11} /> Attachment
+                      <Paperclip size={11} /> {test.attachmentName ?? "Attachment"}
                     </a>
                   )}
                 </div>
