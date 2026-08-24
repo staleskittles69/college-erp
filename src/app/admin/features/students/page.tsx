@@ -8,7 +8,7 @@ export default function StudentsPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Student Management</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Search for a student to view their full profile, marks, and attendance.
+          Search for a student, or review students at risk from backlogs and low attendance.
         </p>
       </div>
       <StudentDataPanel />
