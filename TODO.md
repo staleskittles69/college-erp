@@ -4,7 +4,7 @@
 _(jot down anything you think is missing or half-done, per portal)_
 
 ### Admin
-- ~~At-risk students page~~ — **built**: `/admin/at-risk` (Backlogs / Low Attendance tabs), aggregation over Marks + Attendance, fixed thresholds (40% pass, 75% attendance). No branch/year/section filters yet and thresholds aren't admin-configurable — v1 scope, revisit if needed.
+- ~~At-risk students page~~ — **built**: tabs (Backlogs / Low Attendance) inside `/admin/features/students`, aggregation over Marks + Attendance, fixed thresholds (40% pass, 75% attendance). No branch/year/section filters yet and thresholds aren't admin-configurable — v1 scope, revisit if needed.
 - Notices: add `audience` field (students/teachers/both) so admin announcements can also reach teachers, not just students.
 - Messages panel: view + mark-as-read for messages sent in by teachers (see Teacher section below).
 
