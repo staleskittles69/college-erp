@@ -31,6 +31,7 @@ export function TeacherNavbar({ name, onMenuClick }: { name: string; onMenuClick
     <PortalNavbar
       pageTitle={pageTitle}
       onMenuClick={onMenuClick}
+      portalBasePath="/teachers"
       avatar={
         <div className="h-9 w-9 rounded-full bg-orange-600 text-white flex items-center justify-center text-sm font-bold ml-1 shrink-0">
           {name ? name.charAt(0).toUpperCase() : "T"}

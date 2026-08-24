@@ -13,6 +13,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/student/announcements": "Announcements",
   "/student/timetable": "Timetable",
   "/student/messages": "Messages",
+  "/student/forums": "Chat with other students. Teachers may drop in to help.",
   "/student/resources": "Resources",
   "/student/profile": "Profile",
   "/student/settings": "Settings",
@@ -31,6 +32,7 @@ export function Navbar({ onMenuClick, name }: NavbarProps) {
     <PortalNavbar
       pageTitle={pageTitle}
       onMenuClick={onMenuClick}
+      portalBasePath="/student"
       avatar={
         <Link
           href="/student/profile"
