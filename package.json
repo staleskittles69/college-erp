@@ -11,6 +11,7 @@
     "seed:students": "tsx scripts/seed-students.ts",
     "seed:subjects": "tsx scripts/seed-subjects-teachers.ts",
     "seed:timetable": "tsx scripts/seed-timetable.ts",
+    "seed:forums": "tsx scripts/seed-forums.ts",
     "test": "vitest run"
   },
   "dependencies": {
