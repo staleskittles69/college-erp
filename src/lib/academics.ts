@@ -1,5 +1,7 @@
 export const BRANCHES = ["CSE", "ECE", "ME", "CE", "EEE"];
 export const YEARS = [1, 2, 3, 4];
+export const BACKLOG_FAIL_THRESHOLD_PCT = 40;
+export const LOW_ATTENDANCE_THRESHOLD_PCT = 75;
 export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 export const PERIODS = [1, 2, 3, 4, 5, 6];
 export const TEST_TYPES = ["Unit Test", "Mid Term", "Semester", "Quiz", "Assignment Test"];
