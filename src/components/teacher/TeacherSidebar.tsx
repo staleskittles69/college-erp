@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Bell,
   Inbox,
+  Hash,
   Library,
   Settings,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const MENU_ITEMS = [
   { icon: <ClipboardList size={18} />, label: "Assignments", href: "/teachers/assignments" },
   { icon: <Bell size={18} />, label: "Notices", href: "/teachers/notices" },
   { icon: <Inbox size={18} />, label: "Queries", href: "/teachers/queries" },
+  { icon: <Hash size={18} />, label: "Forums", href: "/teachers/forums" },
   { icon: <Library size={18} />, label: "Resources", href: "/teachers/resources" },
   { icon: <Settings size={18} />, label: "Settings", href: "/teachers/settings" },
 ];

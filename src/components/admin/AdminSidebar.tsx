@@ -15,6 +15,7 @@ import {
   ClipboardList,
   ListChecks,
   Inbox,
+  Hash,
   ChevronLeft,
   ChevronRight,
   X,
@@ -30,6 +31,7 @@ const navItems = [
   { href: "/admin/features/timetable", label: "Timetable", icon: Calendar },
   { href: "/admin/attendance", label: "Attendance", icon: CalendarCheck },
   { href: "/admin/queries", label: "Queries", icon: Inbox },
+  { href: "/admin/forums", label: "Forums", icon: Hash },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ClipboardList },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
