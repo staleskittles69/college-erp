@@ -10,6 +10,7 @@ import {
   Bell,
   Inbox,
   Hash,
+  MessageSquare,
   Library,
   Settings,
 } from "lucide-react";
@@ -32,6 +33,7 @@ const MENU_ITEMS = [
   { icon: <Bell size={18} />, label: "Notices", href: "/teachers/notices" },
   { icon: <Inbox size={18} />, label: "Queries", href: "/teachers/queries" },
   { icon: <Hash size={18} />, label: "Forums", href: "/teachers/forums" },
+  { icon: <MessageSquare size={18} />, label: "Messages", href: "/teachers/messages" },
   { icon: <Library size={18} />, label: "Resources", href: "/teachers/resources" },
   { icon: <Settings size={18} />, label: "Settings", href: "/teachers/settings" },
 ];

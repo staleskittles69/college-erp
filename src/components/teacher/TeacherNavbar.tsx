@@ -12,6 +12,7 @@ const PAGE_TITLES: [string, string][] = [
   ["/teachers/notices", "Notices"],
   ["/teachers/queries", "Queries"],
   ["/teachers/resources", "Resources"],
+  ["/teachers/messages", "Messages"],
   ["/teachers/settings", "Settings"],
   ["/teachers", "Dashboard"],
 ];

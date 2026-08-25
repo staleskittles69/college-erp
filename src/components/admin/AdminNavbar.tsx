@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Bell, User, LogOut, Search, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { studentDetailUrl } from "@/lib/academics";
+import { NotificationBell } from "@/components/ui/NotificationBell";
 import Link from "next/link";
 
 interface AdminNavbarProps {
@@ -137,7 +138,10 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-2 shrink-0">
-        {/* Notifications */}
+        {/* Message / forum notifications */}
+        <NotificationBell portalBasePath="/admin" />
+
+        {/* Open queries */}
         <Link
           href="/admin/queries"
           className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"

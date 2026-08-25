@@ -16,6 +16,7 @@ import {
   ListChecks,
   Inbox,
   Hash,
+  MessageSquare,
   ChevronLeft,
   ChevronRight,
   X,
@@ -32,6 +33,7 @@ const navItems = [
   { href: "/admin/attendance", label: "Attendance", icon: CalendarCheck },
   { href: "/admin/queries", label: "Queries", icon: Inbox },
   { href: "/admin/forums", label: "Forums", icon: Hash },
+  { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ClipboardList },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

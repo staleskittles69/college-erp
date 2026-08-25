@@ -6,6 +6,7 @@ import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { toIdString } from "@/lib/utils";
+import { addUserToGroupConversation } from "@/lib/messaging";
 
 export async function GET(request: NextRequest) {
   try {
@@ -87,6 +88,14 @@ export async function POST(request: NextRequest) {
       `Created teacher ${teacher.name} (${teacher.department})`,
       teacher._id.toString()
     );
+
+    try {
+      await addUserToGroupConversation(user._id.toString(), name, "teacher");
+    } catch (error) {
+      // The All Staff group self-heals on next read (getOrCreateStaffGroupConversation) —
+      // never let this block teacher creation.
+      console.error("Failed to add new teacher to staff group conversation:", error);
+    }
 
     return NextResponse.json({
       id: teacher._id.toString(),

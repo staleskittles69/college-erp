@@ -6,6 +6,7 @@ import Subject from "@/models/Subject";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
+import { removeUserFromGroupConversation } from "@/lib/messaging";
 import mongoose from "mongoose";
 
 export async function PATCH(
@@ -93,6 +94,12 @@ export async function DELETE(
     await Subject.updateMany({ teacherIds: id }, { $pull: { teacherIds: id } });
     await User.findByIdAndDelete(teacher.userId);
     await Teacher.findByIdAndDelete(id);
+
+    try {
+      await removeUserFromGroupConversation(teacher.userId.toString());
+    } catch (error) {
+      console.error("Failed to remove deleted teacher from staff group conversation:", error);
+    }
 
     await logAudit(
       payload,
