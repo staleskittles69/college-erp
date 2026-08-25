@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Teacher, { ITeacher } from "@/models/Teacher";
+import Subject from "@/models/Subject";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
@@ -89,6 +90,7 @@ export async function DELETE(
     const teacher = await Teacher.findById(id);
     if (!teacher) return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
 
+    await Subject.updateMany({ teacherIds: id }, { $pull: { teacherIds: id } });
     await User.findByIdAndDelete(teacher.userId);
     await Teacher.findByIdAndDelete(id);
 

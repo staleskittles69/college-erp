@@ -31,6 +31,7 @@ interface TeachersContextType {
   removeAssignment: (teacherId: string, index: number) => Promise<void>;
   removeSection: (teacherId: string, assignmentIndex: number, section: string) => Promise<void>;
   setTeacherPassword: (teacherId: string, newPassword: string) => Promise<void>;
+  removeTeacher: (teacherId: string) => Promise<void>;
 }
 
 const TeachersContext = createContext<TeachersContextType | null>(null);
@@ -147,9 +148,16 @@ export function TeachersProvider({ children }: { children: ReactNode }) {
     setTeachers((prev) => prev.map((teacherItem) => (teacherItem.id === teacherId ? body : teacherItem)));
   }
 
+  async function removeTeacher(teacherId: string) {
+    const response = await fetch(`/api/teachers/${teacherId}`, { method: "DELETE" });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Failed to delete teacher");
+    setTeachers((prev) => prev.filter((teacherItem) => teacherItem.id !== teacherId));
+  }
+
   return (
     <TeachersContext.Provider
-      value={{ teachers, departments, loading, addTeacher, addAssignment, removeAssignment, removeSection, setTeacherPassword }}
+      value={{ teachers, departments, loading, addTeacher, addAssignment, removeAssignment, removeSection, setTeacherPassword, removeTeacher }}
     >
       {children}
     </TeachersContext.Provider>

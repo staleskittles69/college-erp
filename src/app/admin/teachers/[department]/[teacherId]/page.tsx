@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
-import { X, Calendar, Eye, EyeOff, Copy, Check } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { X, Calendar, Eye, EyeOff, Copy, Check, Trash2 } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
 import { validatePasswordStrength } from "@/lib/passwordRules";
 import Breadcrumb from "@/components/shared/Breadcrumb";
@@ -11,7 +11,8 @@ import TeacherTimetableModal from "@/components/admin/teachers/TeacherTimetableM
 
 export default function TeacherDetailsPage() {
   const { department: slug, teacherId } = useParams() as { department: string; teacherId: string };
-  const { teachers, departments, removeSection, setTeacherPassword } = useTeachers();
+  const router = useRouter();
+  const { teachers, departments, removeSection, setTeacherPassword, removeTeacher } = useTeachers();
   const dept = departments.find((department) => department.slug === slug);
   const teacher = teachers.find((teacherItem) => teacherItem.id === teacherId);
   const [showTimetable, setShowTimetable] = useState(false);
@@ -24,6 +25,8 @@ export default function TeacherDetailsPage() {
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text);
@@ -56,6 +59,20 @@ export default function TeacherDetailsPage() {
       setResetError(error instanceof Error ? error.message : "Failed to set password");
     } finally {
       setResetting(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!teacher) return;
+    if (!confirm(`Delete ${teacher.name}? This removes their account and all class assignments. This cannot be undone.`)) return;
+    setDeleteError("");
+    setDeleting(true);
+    try {
+      await removeTeacher(teacher.id);
+      router.push(`/admin/teachers/${slug}`);
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : "Failed to delete teacher");
+      setDeleting(false);
     }
   }
 
@@ -101,8 +118,16 @@ export default function TeacherDetailsPage() {
             >
               <Calendar size={13} /> Edit Timetable
             </button>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-400 transition-colors disabled:opacity-60"
+            >
+              <Trash2 size={13} /> {deleting ? "Deleting..." : "Delete Teacher"}
+            </button>
           </div>
         </div>
+        {deleteError && <p className="text-xs text-red-500">{deleteError}</p>}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-2xl flex-shrink-0">
             {teacher.name.charAt(0)}
