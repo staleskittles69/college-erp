@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
           participantKey,
           participants: [
             { userId: payload.userId, name: me?.name ?? "Unknown", role: payload.role, lastReadAt: new Date() },
-            { userId: recipientUserId, name: recipient.name, role: recipientRole, lastReadAt: new Date(0) },
+            { userId: recipientUserId, name: recipient.name ?? "Unknown", role: recipientRole, lastReadAt: new Date(0) },
           ],
           lastMessageAt: new Date(),
         });

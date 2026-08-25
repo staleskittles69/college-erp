@@ -29,7 +29,7 @@ export async function getOrCreateStaffGroupConversation() {
       name: STAFF_GROUP_NAME,
       participants: staff.map((user) => ({
         userId: user._id,
-        name: user.name,
+        name: user.name ?? "Unknown",
         role: user.role,
         lastReadAt: new Date(0),
       })),
@@ -43,7 +43,7 @@ export async function getOrCreateStaffGroupConversation() {
   const missing = staff.filter((user) => !existingIds.has(user._id.toString()));
   if (missing.length > 0) {
     for (const user of missing) {
-      group.participants.push({ userId: user._id, name: user.name, role: user.role, lastReadAt: new Date(0) });
+      group.participants.push({ userId: user._id, name: user.name ?? "Unknown", role: user.role, lastReadAt: new Date(0) });
     }
     await group.save();
   }
