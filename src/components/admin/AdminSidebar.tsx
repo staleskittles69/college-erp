@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -41,10 +40,11 @@ const navItems = [
 interface AdminSidebarProps {
   mobileOpen: boolean;
   onCloseMobile: () => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }
 
-export default function AdminSidebar({ mobileOpen, onCloseMobile }: AdminSidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+export default function AdminSidebar({ mobileOpen, onCloseMobile, collapsed, onToggleCollapsed }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -58,7 +58,7 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile }: AdminSidebar
       )}
 
       <aside
-        className={`fixed md:relative left-0 top-0 z-40 flex flex-col bg-white text-slate-900 border-r border-gray-200 transition-all duration-300 ease-in-out flex-shrink-0 h-screen md:min-h-screen w-64 ${
+        className={`fixed left-0 top-0 z-40 flex flex-col bg-white text-slate-900 border-r border-gray-200 transition-all duration-300 ease-in-out h-screen w-64 ${
           collapsed ? "md:w-16" : "md:w-64"
         } ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
@@ -122,7 +122,7 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile }: AdminSidebar
 
         {/* Collapse toggle - desktop only */}
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={onToggleCollapsed}
           className="hidden md:flex absolute -right-3.5 top-[72px] z-10 items-center justify-center w-7 h-7 bg-white border border-gray-200 rounded-full text-slate-400 hover:text-slate-900 transition-colors shadow-sm"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
