@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bell, User, LogOut, Search, Menu } from "lucide-react";
+import { User, LogOut, Search, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { studentDetailUrl } from "@/lib/academics";
 import { NotificationBell } from "@/components/ui/NotificationBell";
-import Link from "next/link";
 
 interface AdminNavbarProps {
   onMenuClick: () => void;
@@ -26,7 +25,6 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
   const [results, setResults] = useState<StudentResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [profile, setProfile] = useState<{ name: string; email: string } | null>(null);
-  const [openQueryCount, setOpenQueryCount] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -34,13 +32,6 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
     fetch("/api/auth/me", { credentials: "include" })
       .then((response) => response.ok ? response.json() : null)
       .then((profileData) => { if (profileData?.email) setProfile({ name: profileData.name ?? "Admin", email: profileData.email }); })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    fetch("/api/queries?status=open", { credentials: "include" })
-      .then((response) => response.ok ? response.json() : [])
-      .then((data) => setOpenQueryCount(Array.isArray(data) ? data.length : 0))
       .catch(() => {});
   }, []);
 
@@ -140,20 +131,6 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
       <div className="flex items-center gap-2 shrink-0">
         {/* Message / forum notifications */}
         <NotificationBell portalBasePath="/admin" />
-
-        {/* Open queries */}
-        <Link
-          href="/admin/queries"
-          className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-          title={openQueryCount > 0 ? `${openQueryCount} open ${openQueryCount === 1 ? "query" : "queries"}` : "Queries"}
-        >
-          <Bell size={18} />
-          {openQueryCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-semibold rounded-full">
-              {openQueryCount > 9 ? "9+" : openQueryCount}
-            </span>
-          )}
-        </Link>
 
         <div className="w-px h-6 bg-gray-200 mx-1" />
 
