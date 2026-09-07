@@ -21,15 +21,14 @@ export async function GET(request: NextRequest) {
     if (payload.role === "student") {
       const User = (await import("@/models/User")).default;
       const user = await User.findById(payload.userId).lean() as { branch?: string; year?: number } | null;
+      filter = { audience: { $ne: "teachers" } };
       if (user?.branch && user?.year) {
-        filter = {
-          $or: [
-            { targetBranch: null, targetYear: null },
-            { targetBranch: user.branch, targetYear: null },
-            { targetBranch: null, targetYear: user.year },
-            { targetBranch: user.branch, targetYear: user.year },
-          ],
-        };
+        filter.$or = [
+          { targetBranch: null, targetYear: null },
+          { targetBranch: user.branch, targetYear: null },
+          { targetBranch: null, targetYear: user.year },
+          { targetBranch: user.branch, targetYear: user.year },
+        ];
       }
     }
 
@@ -45,6 +44,7 @@ export async function GET(request: NextRequest) {
         title: notice.title,
         body: notice.body,
         pinned: notice.pinned,
+        audience: notice.audience ?? "students",
         targetBranch: notice.targetBranch ?? null,
         targetYear: notice.targetYear ?? null,
         createdAt: notice.createdAt,
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, body: bodyText, pinned, targetBranch, targetYear } = body;
+    const { title, body: bodyText, pinned, audience, targetBranch, targetYear } = body;
 
     if (!title || !bodyText) {
       return NextResponse.json(
@@ -79,6 +79,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const validAudiences = ["students", "teachers", "both"];
+    const noticeAudience = validAudiences.includes(audience) ? audience : "students";
+    const isTeachersOnly = noticeAudience === "teachers";
+
     await connectDB();
 
     const notice = await Notice.create({
@@ -86,8 +90,9 @@ export async function POST(request: NextRequest) {
       body: bodyText,
       createdBy: payload.userId,
       pinned: payload.role === "admin" ? Boolean(pinned) : false,
-      targetBranch: targetBranch ?? null,
-      targetYear: targetYear ? Number(targetYear) : null,
+      audience: noticeAudience,
+      targetBranch: isTeachersOnly ? null : (targetBranch ?? null),
+      targetYear: isTeachersOnly ? null : (targetYear ? Number(targetYear) : null),
     });
 
     await logAudit(
@@ -103,6 +108,7 @@ export async function POST(request: NextRequest) {
       title: notice.title,
       body: notice.body,
       pinned: notice.pinned,
+      audience: notice.audience,
       targetBranch: notice.targetBranch ?? null,
       targetYear: notice.targetYear ?? null,
       createdAt: notice.createdAt,

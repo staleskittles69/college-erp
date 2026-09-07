@@ -6,6 +6,7 @@ export interface INotice {
   body: string;
   createdBy: mongoose.Types.ObjectId;
   pinned: boolean;
+  audience: "students" | "teachers" | "both";
   targetBranch?: string;
   targetYear?: number;
   createdAt: Date;
@@ -18,6 +19,7 @@ const NoticeSchema = new Schema<INotice>(
     body: { type: String, required: true },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     pinned: { type: Boolean, default: false },
+    audience: { type: String, enum: ["students", "teachers", "both"], default: "students" },
     targetBranch: { type: String, default: null },
     targetYear: { type: Number, default: null },
   },

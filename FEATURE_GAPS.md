@@ -3,10 +3,9 @@
 _Audit from 2026-07-19. Combines a scan of the current codebase with a comparison against popular commercial college ERPs (Fedena, Ellucian, Creatrix Campus, TCS iON)._
 
 ## Already logged in TODO.md
-- At-risk students page (low attendance / low CGPA tables) — not built
-- Notices missing an `audience` field so admin announcements can also target teachers
-- Admin Messages panel (view teacher-sent messages) — not built
-- Teacher "Message Admin" form + sent-message history — not built
+- ~~At-risk students page~~ — built, see TODO.md
+- ~~Notices missing an `audience` field~~ — built, see TODO.md
+- ~~Admin Messages panel~~ / ~~Teacher "Message Admin" form~~ — both covered by the staff messaging system (`/admin/messages`, `/teachers/messages`), see TODO.md
 - Branches hardcoded in `src/lib/academics.ts` instead of DB-driven
 
 ## Found in codebase audit

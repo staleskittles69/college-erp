@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { BRANCHES as FALLBACK_BRANCHES, YEARS, yearLabel } from "@/lib/academics";
 import { useFetch } from "@/hooks/useFetch";
 
+type Audience = "students" | "teachers" | "both";
+
 interface Notice {
   _id: string;
   title: string;
   body: string;
   pinned: boolean;
+  audience: Audience;
   targetBranch: string | null;
   targetYear: number | null;
   createdAt: string;
@@ -19,11 +22,17 @@ function formatDate(dateString: string) {
   catch { return dateString; }
 }
 
-function targetLabel(notice: Notice) {
+function studentScopeLabel(notice: Notice) {
   if (notice.targetBranch && notice.targetYear) return `${notice.targetBranch} · ${yearLabel(notice.targetYear)}`;
   if (notice.targetBranch) return notice.targetBranch;
   if (notice.targetYear) return yearLabel(notice.targetYear);
   return "All Students";
+}
+
+function targetLabel(notice: Notice) {
+  if (notice.audience === "teachers") return "Teachers Only";
+  if (notice.audience === "both") return `${studentScopeLabel(notice)} + Teachers`;
+  return studentScopeLabel(notice);
 }
 
 export default function AnnouncementsPanel() {
@@ -33,6 +42,7 @@ export default function AnnouncementsPanel() {
   const [body, setBody] = useState("");
   const [targetBranch, setTargetBranch] = useState("");
   const [targetYear, setTargetYear] = useState("");
+  const [audience, setAudience] = useState<Audience>("students");
   const [pinned, setPinned] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -59,6 +69,7 @@ export default function AnnouncementsPanel() {
         title: title.trim(),
         body: body.trim(),
         pinned,
+        audience,
         targetBranch: targetBranch || null,
         targetYear: targetYear ? Number(targetYear) : null,
       }),
@@ -67,7 +78,7 @@ export default function AnnouncementsPanel() {
       const errorData = await response.json();
       setError(errorData.error ?? "Failed to publish.");
     } else {
-      setTitle(""); setBody(""); setTargetBranch(""); setTargetYear(""); setPinned(false);
+      setTitle(""); setBody(""); setTargetBranch(""); setTargetYear(""); setAudience("students"); setPinned(false);
       fetchNotices();
     }
     setSaving(false);
@@ -102,32 +113,57 @@ export default function AnnouncementsPanel() {
             className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">Target audience</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] text-gray-400 mb-1">Branch</label>
-                <select
-                  value={targetBranch}
-                  onChange={(e) => setTargetBranch(e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Audience</label>
+            <div className="flex gap-2">
+              {([
+                { value: "students", label: "Students" },
+                { value: "teachers", label: "Teachers Only" },
+                { value: "both", label: "Students + Teachers" },
+              ] as { value: Audience; label: string }[]).map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setAudience(option.value)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
+                    audience === option.value
+                      ? "bg-orange-600 border-orange-600 text-white"
+                      : "border-gray-200 text-gray-500 hover:bg-gray-50"
+                  }`}
                 >
-                  <option value="">All Branches</option>
-                  {branches.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[11px] text-gray-400 mb-1">Year</label>
-                <select
-                  value={targetYear}
-                  onChange={(e) => setTargetYear(e.target.value)}
-                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                >
-                  <option value="">All Years</option>
-                  {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>{yearLabel(yearOption)}</option>)}
-                </select>
-              </div>
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
+          {audience !== "teachers" && (
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1.5">Target students</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] text-gray-400 mb-1">Branch</label>
+                  <select
+                    value={targetBranch}
+                    onChange={(e) => setTargetBranch(e.target.value)}
+                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  >
+                    <option value="">All Branches</option>
+                    {branches.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] text-gray-400 mb-1">Year</label>
+                  <select
+                    value={targetYear}
+                    onChange={(e) => setTargetYear(e.target.value)}
+                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                  >
+                    <option value="">All Years</option>
+                    {YEARS.map((yearOption) => <option key={yearOption} value={yearOption}>{yearLabel(yearOption)}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
               <input

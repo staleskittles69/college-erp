@@ -5,11 +5,11 @@ _(jot down anything you think is missing or half-done, per portal)_
 
 ### Admin
 - ~~At-risk students page~~ — **built**: tabs (Backlogs / Low Attendance) inside `/admin/features/students`, aggregation over Marks + Attendance, fixed thresholds (40% pass, 75% attendance). No branch/year/section filters yet and thresholds aren't admin-configurable — v1 scope, revisit if needed.
-- Notices: add `audience` field (students/teachers/both) so admin announcements can also reach teachers, not just students.
-- Messages panel: view + mark-as-read for messages sent in by teachers (see Teacher section below).
+- ~~Notices: add `audience` field~~ — **built**: `Notice.audience` (`students`/`teachers`/`both`). Teachers-only notices are excluded from the student feed; teachers still see every notice regardless of audience (unchanged, by design). Postable from both `/admin/features/announcements` and `/teachers/notices`.
+- ~~Messages panel: view + mark-as-read for messages sent in by teachers~~ — **already covered** by the general staff messaging system (`/admin/messages`, shared `MessageBoard` component) built in the Aug 2026 messaging feature. Admin can already DM/reply to any teacher directly.
 
 ### Teacher
-- "Message Admin" form + sent-message history (new `TeacherMessage` model: sender, body, read/unread) — pairs with the admin Messages panel above.
+- ~~"Message Admin" form + sent-message history~~ — **already covered**, same staff messaging system as above (`/teachers/messages`). No separate `TeacherMessage` model was needed.
 
 ### Student
 -
