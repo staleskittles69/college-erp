@@ -50,3 +50,15 @@ lint_output.txt
 tsc.log
 tsc_output.txt
 files.txt
+
+# Editor / notes tooling
+.obsidian/
+.agents/
+skills-lock.json
+
+# Local working notes
+CLAUDE.md
+TODO.md
+PROJECT_CONTEXT.md
+FEATURE_GAPS.md
+PRODUCTION-PLAN.md
