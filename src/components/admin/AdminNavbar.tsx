@@ -5,6 +5,7 @@ import { User, LogOut, Search, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { studentDetailUrl } from "@/lib/academics";
 import { NotificationBell } from "@/components/ui/NotificationBell";
+import { TourButton } from "@/components/ui/TourButton";
 
 interface AdminNavbarProps {
   onMenuClick: () => void;
@@ -129,6 +130,8 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
 
       {/* Actions */}
       <div className="flex items-center gap-2 shrink-0">
+        <TourButton />
+
         {/* Message / forum notifications */}
         <NotificationBell portalBasePath="/admin" />
 
@@ -150,6 +153,7 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
         {/* Logout */}
         <button
           onClick={handleLogout}
+          aria-label="Logout"
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
         >
           <LogOut size={14} />

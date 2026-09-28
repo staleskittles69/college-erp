@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { TeacherSidebar } from "@/components/teacher/TeacherSidebar";
 import { TeacherNavbar } from "@/components/teacher/TeacherNavbar";
+import { ProductTour } from "@/components/ui/ProductTour";
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -36,6 +37,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
           {children}
         </main>
       </div>
+      <ProductTour role="teacher" />
     </div>
   );
 }

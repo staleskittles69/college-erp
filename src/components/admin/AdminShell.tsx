@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminNavbar from "./AdminNavbar";
+import { ProductTour } from "@/components/ui/ProductTour";
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -22,6 +23,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           {children}
         </main>
       </div>
+      <ProductTour role="admin" />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sidebar } from "@/components/sidebar/Sidebar";
 import { Navbar } from "@/components/navbar/Navbar";
 import { useFetch } from "@/hooks/useFetch";
+import { ProductTour } from "@/components/ui/ProductTour";
 
 interface Profile { name?: string; email?: string; }
 
@@ -29,6 +30,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           {children}
         </main>
       </div>
+      <ProductTour role="student" />
     </div>
   );
 }

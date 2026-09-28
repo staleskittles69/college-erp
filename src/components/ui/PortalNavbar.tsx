@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { LogOut, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { NotificationBell } from "@/components/ui/NotificationBell";
+import { TourButton } from "@/components/ui/TourButton";
 
 interface PortalNavbarProps {
   pageTitle: string;
@@ -37,6 +38,7 @@ export function PortalNavbar({ pageTitle, onMenuClick, avatar, portalBasePath }:
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <TourButton />
         <NotificationBell portalBasePath={portalBasePath} />
 
         {avatar}
