@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarDays } from "lucide-react";
-import { DAYS } from "@/lib/academics";
+import { DAYS, formatPeriodTime } from "@/lib/academics";
 import { useFetch } from "@/hooks/useFetch";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -50,14 +50,14 @@ export default function TimetablePage() {
       ) : (
         <div className="space-y-4">
           {activeDays.map((day) => (
-            <div key={day} className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <div key={day} className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden" data-tour="timetable-day">
               <div className="px-5 py-3 bg-orange-50 border-b border-orange-100">
                 <p className="font-semibold text-orange-800 text-sm">{DAYS[day]}</p>
               </div>
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {byDay[day].map((slot, slotIdx) => (
                   <div key={slotIdx} className="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3">
-                    <p className="text-xs text-orange-600 font-medium mb-1">{slot.time}</p>
+                    <p className="text-xs text-orange-600 font-medium mb-1">{formatPeriodTime(slot.time)}</p>
                     <p className="font-semibold text-gray-800 text-sm">{slot.subject}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{slot.room}</p>
                   </div>

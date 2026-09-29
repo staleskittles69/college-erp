@@ -102,6 +102,7 @@ export default function BranchesPage() {
           )}
           <button
             onClick={() => { setOpen(true); setError(""); }}
+            data-tour="add-branch"
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
           >
             <Plus size={16} /> Add Branch
@@ -125,7 +126,7 @@ export default function BranchesPage() {
           <p className="text-sm text-gray-400 mt-1">Click &quot;Add Branch&quot; to create your first branch.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5" data-tour="branch-list">
           {branches.map((branch, colorIdx) => {
             const { color, badge } = COLORS[colorIdx % COLORS.length];
             return (

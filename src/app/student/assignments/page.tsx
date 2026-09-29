@@ -124,7 +124,7 @@ export default function AssignmentsPage() {
       ) : (
         <div className="space-y-6">
           {upcoming.length > 0 && (
-            <div>
+            <div data-tour="upcoming-tests">
               <div className="flex items-center gap-2 mb-3">
                 <Clock size={15} className="text-orange-600" />
                 <h2 className="font-semibold text-gray-700 text-sm">Upcoming</h2>
@@ -138,7 +138,7 @@ export default function AssignmentsPage() {
           )}
 
           {past.length > 0 && (
-            <div>
+            <div data-tour="past-tests">
               <div className="flex items-center gap-2 mb-3">
                 <CheckCircle size={15} className="text-gray-400" />
                 <h2 className="font-semibold text-gray-400 text-sm">Past</h2>

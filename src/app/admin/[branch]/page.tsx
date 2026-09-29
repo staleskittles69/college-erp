@@ -37,7 +37,7 @@ export default function YearSelectionPage({ params }: Props) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" data-tour="year-list">
         {YEARS.map((year, yearIdx) => (
           <Link
             key={year.slug}

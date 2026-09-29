@@ -74,10 +74,10 @@ export default function StudentListPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" data-tour="student-table">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
           <h2 className="font-semibold text-gray-800">Students</h2>
-          <div className="relative w-64">
+          <div className="relative w-64" data-tour="roll-search">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"

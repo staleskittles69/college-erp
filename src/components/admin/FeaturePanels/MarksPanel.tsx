@@ -92,6 +92,7 @@ export default function MarksPanel({ studentId = "", context, branch }: MarksPan
         </div>
         <button
           onClick={() => { setShowForm(true); setError(""); }}
+          data-tour="marks-add"
           className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium"
         >
           + Add Marks
@@ -100,7 +101,7 @@ export default function MarksPanel({ studentId = "", context, branch }: MarksPan
 
       {/* Summary */}
       {marks.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 px-6 py-4 border-b border-gray-100">
+        <div className="grid grid-cols-3 gap-4 px-6 py-4 border-b border-gray-100" data-tour="marks-summary">
           {[
             { label: "Records", value: marks.length, color: "text-orange-600 bg-orange-50" },
             { label: "Subjects", value: subjectCount, color: "text-orange-600 bg-orange-50" },
@@ -189,7 +190,7 @@ export default function MarksPanel({ studentId = "", context, branch }: MarksPan
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" data-tour="marks-table">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">

@@ -123,6 +123,7 @@ export default function TeacherResourcesPage() {
         </div>
         <button
           onClick={() => setOpen(true)}
+          data-tour="upload-resource"
           className="flex items-center gap-1.5 bg-white text-orange-600 text-sm font-medium px-4 py-2 rounded-lg hover:bg-orange-50 transition-colors"
         >
           <Plus size={16} /> Upload
@@ -149,7 +150,7 @@ export default function TeacherResourcesPage() {
           </div>
         </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className="space-y-3" data-tour="resource-list">
           {resources.map((resource) => (
             <li key={resource._id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm flex items-center justify-between gap-4">
               <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 min-w-0 hover:opacity-80 transition-opacity">

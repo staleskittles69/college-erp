@@ -63,7 +63,7 @@ export default function StudentDetailPage() {
       />
 
       {/* Student Info Card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6" data-tour="student-info">
         <div className="flex items-start gap-5">
           <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
             <User size={28} className="text-orange-600" />
@@ -91,7 +91,7 @@ export default function StudentDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-5 bg-white rounded-xl border border-gray-200 p-1.5">
+      <div className="flex items-center gap-1 mb-5 bg-white rounded-xl border border-gray-200 p-1.5" data-tour="student-tabs">
         {TABS.map((tab) => (
           <button
             key={tab.id}

@@ -46,7 +46,7 @@ export default function AnnouncementsPage() {
           subtitle="College announcements and notices will appear here."
         />
       ) : (
-        <ul className="space-y-3">
+        <ul className="space-y-3" data-tour="notice-list">
           {notices.map((notice) => (
             <li
               key={notice._id}

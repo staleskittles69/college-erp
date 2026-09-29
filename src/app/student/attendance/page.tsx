@@ -93,7 +93,7 @@ export default function AttendancePage() {
       ) : (
         <>
           {/* Overall summary strip */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4" data-tour="attendance-summary">
             {[
               { label: "Present", value: present, color: "bg-green-50 text-green-700" },
               { label: "Absent", value: total - present, color: "bg-red-50 text-red-700" },
@@ -108,7 +108,7 @@ export default function AttendancePage() {
 
           {/* Warning */}
           {lowSubjects.length > 0 && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-5 py-4" data-tour="attendance-warning">
               <p className="text-sm font-semibold text-amber-800 mb-2">Attendance Warning</p>
               <ul className="space-y-1">
                 {lowSubjects.map(([subject, { present: presentCount, total: totalCount }]) => {
@@ -128,7 +128,7 @@ export default function AttendancePage() {
           )}
 
           {/* Circular graphs per subject */}
-          <div>
+          <div data-tour="attendance-subjects">
             <h2 className="font-semibold text-gray-800 mb-3">Subject-wise Attendance</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {Object.entries(bySubject).map(([subject, { present: presentCount, total: totalCount }]) => (
@@ -138,7 +138,7 @@ export default function AttendancePage() {
           </div>
 
           {/* Recent records */}
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden" data-tour="attendance-records">
             <div className="px-6 py-4 border-b border-gray-100">
               <h2 className="font-semibold text-gray-800">Recent Records</h2>
             </div>

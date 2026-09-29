@@ -36,7 +36,7 @@ export default function SectionSelectionPage({ params }: Props) {
         <p className="text-sm text-gray-500 mt-1">Choose a section to view the student list.</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" data-tour="section-list">
         {SECTIONS.map((section) => (
           <Link
             key={section.slug}

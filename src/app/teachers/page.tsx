@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Users, BookOpen, ClipboardList, Bell, CalendarDays, Clock } from "lucide-react";
+import { PERIOD_TIMES, formatPeriodTime, isAttendanceWindowOpen, teacherAttendanceUrl } from "@/lib/academics";
 
 interface TeacherStats {
   studentCount: number;
@@ -15,7 +17,9 @@ interface ScheduledClass {
   time: string;
   room: string;
   branch: string;
+  year: number;
   section: string;
+  attendanceTaken: boolean;
 }
 
 interface ActivityEntry {
@@ -57,6 +61,13 @@ export default function TeacherDashboardPage() {
   const [noticeCount, setNoticeCount] = useState<number | null>(null);
   const [classes, setClasses] = useState<ScheduledClass[] | null>(null);
   const [activity, setActivity] = useState<ActivityEntry[] | null>(null);
+  // Ticks so the "Take attendance" buttons appear and disappear on time without a page refresh.
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     fetch("/api/teachers/me/stats", { credentials: "include" })
@@ -81,10 +92,10 @@ export default function TeacherDashboardPage() {
   }, []);
 
   const statCards = [
-    { label: "Total Students",     value: stats ? String(stats.studentCount) : "—",   icon: Users,         color: "bg-orange-50 text-orange-600" },
-    { label: "Sections Assigned",  value: stats ? String(stats.sectionCount)  : "—",  icon: BookOpen,      color: "bg-green-50 text-green-600" },
-    { label: "Pending Assignments", value: "—",                                        icon: ClipboardList, color: "bg-amber-50 text-amber-600" },
-    { label: "Active Notices",     value: noticeCount !== null ? String(noticeCount) : "—", icon: Bell,    color: "bg-purple-50 text-purple-600" },
+    { label: "Total Students",     value: stats ? String(stats.studentCount) : "—",   icon: Users,         color: "bg-orange-50 text-orange-600", tour: "stat-students" },
+    { label: "Sections Assigned",  value: stats ? String(stats.sectionCount)  : "—",  icon: BookOpen,      color: "bg-green-50 text-green-600",   tour: "stat-sections" },
+    { label: "Pending Assignments", value: "—",                                        icon: ClipboardList, color: "bg-amber-50 text-amber-600",   tour: "stat-pending" },
+    { label: "Active Notices",     value: noticeCount !== null ? String(noticeCount) : "—", icon: Bell,    color: "bg-purple-50 text-purple-600", tour: "stat-notices" },
   ];
 
   return (
@@ -92,8 +103,8 @@ export default function TeacherDashboardPage() {
       <div>
         <SectionHeader title="Overview" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          {statCards.map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="rounded-xl border border-gray-200 bg-white p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
+          {statCards.map(({ label, value, icon: Icon, color, tour }) => (
+            <div key={label} data-tour={tour} className="rounded-xl border border-gray-200 bg-white p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
               <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
                 <Icon size={20} />
               </div>
@@ -107,7 +118,7 @@ export default function TeacherDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
+        <div data-tour="today-classes">
           <SectionHeader title="Today's Classes" />
           {classes === null ? (
             <div className="mt-4 rounded-xl border border-gray-200 bg-white p-10 min-h-[200px] animate-pulse" />
@@ -123,20 +134,42 @@ export default function TeacherDashboardPage() {
             </div>
           ) : (
             <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 min-h-[200px] space-y-2">
-              {classes.map((cls, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded-lg px-3 py-2 bg-orange-50">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">{cls.subject}</p>
-                    <p className="text-xs text-gray-500">{cls.branch} · {cls.section} · Period {cls.period}</p>
+              {classes.map((cls, idx) => {
+                const periodTime = cls.time || PERIOD_TIMES[cls.period] || "";
+                const attendanceOpen = isAttendanceWindowOpen(periodTime, now);
+                return (
+                  <div key={idx} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg px-3 py-2 bg-orange-50">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-800">{cls.subject}</p>
+                      <p className="text-xs text-gray-500">{cls.branch} · {cls.section} · Period {cls.period}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="text-xs text-gray-500 text-right">
+                        <span className="whitespace-nowrap">{formatPeriodTime(periodTime)}</span>
+                        {cls.room ? ` · ${cls.room}` : ""}
+                      </span>
+                      {attendanceOpen && (cls.attendanceTaken ? (
+                        <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
+                          ✓ Attendance taken
+                        </span>
+                      ) : (
+                        <Link
+                          href={teacherAttendanceUrl(cls)}
+                          data-tour="take-attendance"
+                          className="rounded-lg bg-orange-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-orange-700"
+                        >
+                          Take attendance
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-500 text-right">{cls.time}{cls.room ? ` · ${cls.room}` : ""}</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
 
-        <div>
+        <div data-tour="recent-activity">
           <SectionHeader title="Recent Activity" />
           {activity === null ? (
             <div className="mt-4 rounded-xl border border-gray-200 bg-white p-10 min-h-[200px] animate-pulse" />

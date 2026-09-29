@@ -59,10 +59,10 @@ export default function AdminDashboard() {
   }, []);
 
   const statCards = [
-    { label: "Total Students", value: stats ? stats.totalStudents.toLocaleString() : "—", icon: Users, color: "bg-orange-50 text-orange-600" },
-    { label: "Branches", value: stats ? String(stats.totalBranches) : "—", icon: Building2, color: "bg-orange-50 text-orange-600" },
-    { label: "Active Notices", value: stats ? String(stats.noticeCount) : "—", icon: Bell, color: "bg-amber-50 text-amber-600" },
-    { label: "Tests Scheduled", value: testCount !== null ? String(testCount) : "—", icon: ClipboardList, color: "bg-green-50 text-green-600" },
+    { label: "Total Students", value: stats ? stats.totalStudents.toLocaleString() : "—", icon: Users, color: "bg-orange-50 text-orange-600", tour: "stat-students" },
+    { label: "Branches", value: stats ? String(stats.totalBranches) : "—", icon: Building2, color: "bg-orange-50 text-orange-600", tour: "stat-branches" },
+    { label: "Active Notices", value: stats ? String(stats.noticeCount) : "—", icon: Bell, color: "bg-amber-50 text-amber-600", tour: "stat-notices" },
+    { label: "Tests Scheduled", value: testCount !== null ? String(testCount) : "—", icon: ClipboardList, color: "bg-green-50 text-green-600", tour: "stat-tests" },
   ];
 
   return (
@@ -79,6 +79,7 @@ export default function AdminDashboard() {
         {statCards.map((stat) => (
           <div
             key={stat.label}
+            data-tour={stat.tour}
             className="bg-white rounded-xl border border-gray-200 px-5 py-4 flex items-center gap-4"
           >
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${stat.color}`}>
@@ -93,7 +94,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Branch Selection */}
-      <div>
+      <div data-tour="branch-cards">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold text-gray-800">Manage Students</h2>
           <Link
@@ -131,7 +132,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div>
+      <div data-tour="quick-actions">
         <h2 className="text-base font-semibold text-gray-800 mb-4">Quick Actions</h2>
         <div className="flex flex-wrap gap-3">
           {QUICK_LINKS.map((link) => (

@@ -43,6 +43,24 @@ export default function AttendancePage() {
           setYear(teachingList[0].year);
           if (teachingList[0].sections?.length === 1) setSection(teachingList[0].sections[0]);
         }
+
+        // Opened from a "Take attendance" button: preselect that class, but only if it's really one of theirs.
+        const params = new URLSearchParams(window.location.search);
+        const linkedSection = params.get("section");
+        const linkedSubject = params.get("subject");
+        const linkedClass = teachingList.find(
+          (teachingItem) =>
+            teachingItem.branch === params.get("branch") &&
+            teachingItem.year === Number(params.get("year")) &&
+            linkedSection !== null &&
+            teachingItem.sections?.includes(linkedSection)
+        );
+        if (linkedClass && linkedSection) {
+          setBranch(linkedClass.branch);
+          setYear(linkedClass.year);
+          setSection(linkedSection);
+          if (linkedSubject && subjectList.includes(linkedSubject)) setSubject(linkedSubject);
+        }
       })
       .catch(() => {});
   }, []);
@@ -109,7 +127,7 @@ export default function AttendancePage() {
       </div>
 
       {/* Class + subject selector */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5">
+      <div className="rounded-xl border border-gray-200 bg-white p-5" data-tour="class-picker">
         <p className="text-sm font-semibold text-gray-700 mb-4">Select Class</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
@@ -177,12 +195,12 @@ export default function AttendancePage() {
 
       {/* Student list */}
       {students.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden" data-tour="attendance-list">
           <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
             <span className="text-sm font-semibold text-gray-700">
               {students.length} students &nbsp;·&nbsp; {presentCount} present &nbsp;·&nbsp; {students.length - presentCount} absent
             </span>
-            <div className="flex gap-2">
+            <div className="flex gap-2" data-tour="attendance-bulk">
               <button
                 onClick={() => markAll("present")}
                 className="text-xs px-3 py-1 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 font-medium"
@@ -221,7 +239,7 @@ export default function AttendancePage() {
               );
             })}
           </div>
-          <div className="px-5 py-4 border-t border-gray-100 flex items-center gap-3">
+          <div className="px-5 py-4 border-t border-gray-100 flex items-center gap-3" data-tour="attendance-submit">
             {subjects.length > 1 && (
               <select
                 value={subject}

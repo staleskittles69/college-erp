@@ -99,6 +99,7 @@ export default function SubjectPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
+          data-tour="new-teacher"
           className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
         >
           <Plus size={15} /> New Teacher
@@ -106,7 +107,7 @@ export default function SubjectPage() {
       </div>
 
       {assignableTeachers.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3" data-tour="assign-existing">
           <UserPlus size={16} className="text-gray-400 flex-shrink-0" />
           <select
             value={assignId}
@@ -130,7 +131,7 @@ export default function SubjectPage() {
 
       {error && <p className="text-xs text-red-500">{error}</p>}
 
-      <div className="space-y-3">
+      <div className="space-y-3" data-tour="subject-teachers">
         {subject.teachers.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-400">
             No teachers assigned yet.

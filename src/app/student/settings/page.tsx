@@ -41,7 +41,7 @@ export default function SettingsPage() {
     <div className="space-y-6 animate-fade-in">
       <PageHeader title="Settings" subtitle="Manage your account preferences." />
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 max-w-lg">
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 max-w-lg" data-tour="password-form">
         <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">
           <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
             <Lock size={16} className="text-orange-600" />

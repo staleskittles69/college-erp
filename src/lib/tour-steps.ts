@@ -1,6 +1,11 @@
-// Content for the first-login walkthrough (see components/ui/ProductTour.tsx).
-// All the wording lives here — edit or delete entries freely; steps whose target isn't on the
-// page are skipped automatically, so nothing breaks if a menu item is renamed or removed.
+// Content for the walkthrough (see components/ui/ProductTour.tsx): the first-login tour of the menu and
+// top bar lives here; the per-page tours live in lib/tour-pages/. All the wording is in these files —
+// edit or delete entries freely; steps whose target isn't on the page are skipped automatically, so
+// nothing breaks if a menu item or page element is renamed or removed.
+
+import { STUDENT_PAGES } from "./tour-pages/student";
+import { TEACHER_PAGES } from "./tour-pages/teacher";
+import { ADMIN_PAGES } from "./tour-pages/admin";
 
 export type TourRole = "admin" | "teacher" | "student";
 
@@ -11,12 +16,26 @@ export interface TourStep {
   description: string;
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
+  /** Only shows up sometimes (e.g. a warning, or a button that needs data) — don't wait for it to appear. */
+  optional?: boolean;
+}
+
+/** Walkthrough of one page's contents. Shown the first time someone opens the page, and by the ? button. */
+export interface PageTour {
+  /** Route, with [brackets] for the changing parts, e.g. "/admin/[branch]/[year]". */
+  path: string;
+  /** Opening popup (no highlight) that says what the page is for. */
+  intro: TourStep;
+  steps: TourStep[];
 }
 
 export interface TourPlan {
+  /** The dashboard: the first-login tour runs here, and its ? button replays the whole tour. */
+  home: string;
   welcome: TourStep;
   sidebar: TourStep[];
   navbar: TourStep[];
+  pages: PageTour[];
 }
 
 /** The mobile-only step that points at the ☰ button (the sidebar is a slide-out drawer there). */
@@ -48,15 +67,16 @@ const LOGOUT_STEP: TourStep = {
 
 const HELP_STEP: TourStep = {
   element: 'button[aria-label="Take a tour"]',
-  title: "Need this again?",
-  description: "Click this ? button any time to replay the tour.",
+  title: "Need help on a page?",
+  description: "Click this ? button on any page to have everything on it explained. On the Dashboard it replays this whole tour.",
   side: "bottom",
   align: "end",
 };
 
-const REPLAY_HINT = "You can replay this tour any time with the ? button at the top.";
+const REPLAY_HINT = "Each page also explains itself the first time you open it, and the ? button at the top explains whichever page you're on.";
 
 const STUDENT_PLAN: TourPlan = {
+  home: "/student",
   welcome: {
     title: "Welcome to NRI University!",
     description: `Here's a quick tour of your student portal. ${REPLAY_HINT}`,
@@ -76,9 +96,11 @@ const STUDENT_PLAN: TourPlan = {
     { element: navLink("/student/settings"), title: "Settings", description: "Change your password here." },
   ],
   navbar: [BELL_STEP, LOGOUT_STEP, HELP_STEP],
+  pages: STUDENT_PAGES,
 };
 
 const TEACHER_PLAN: TourPlan = {
+  home: "/teachers",
   welcome: {
     title: "Welcome to NRI University!",
     description: `Here's a quick tour of your teacher portal. ${REPLAY_HINT}`,
@@ -97,9 +119,11 @@ const TEACHER_PLAN: TourPlan = {
     { element: navLink("/teachers/settings"), title: "Settings", description: "Change your password here." },
   ],
   navbar: [BELL_STEP, LOGOUT_STEP, HELP_STEP],
+  pages: TEACHER_PAGES,
 };
 
 const ADMIN_PLAN: TourPlan = {
+  home: "/admin",
   welcome: {
     title: "Welcome to the Admin Panel",
     description: `Here's a quick tour of what you can manage. ${REPLAY_HINT}`,
@@ -131,6 +155,7 @@ const ADMIN_PLAN: TourPlan = {
     LOGOUT_STEP,
     HELP_STEP,
   ],
+  pages: ADMIN_PAGES,
 };
 
 const PLANS: Record<TourRole, TourPlan> = {
@@ -141,4 +166,31 @@ const PLANS: Record<TourRole, TourPlan> = {
 
 export function getTourPlan(role: TourRole): TourPlan {
   return PLANS[role];
+}
+
+/** How many path segments match exactly (so "/admin/teachers/[department]" beats "/admin/[branch]/[year]"), or -1. */
+function matchScore(pattern: string, pathname: string): number {
+  const patternParts = pattern.split("/");
+  const pathParts = pathname.replace(/\/+$/, "").split("/");
+  if (patternParts.length !== pathParts.length) return -1;
+  let score = 0;
+  for (let index = 0; index < patternParts.length; index++) {
+    if (patternParts[index].startsWith("[")) continue;
+    if (patternParts[index] !== pathParts[index]) return -1;
+    score++;
+  }
+  return score;
+}
+
+export function findPageTour(plan: TourPlan, pathname: string): PageTour | null {
+  let best: PageTour | null = null;
+  let bestScore = -1;
+  for (const page of plan.pages) {
+    const score = matchScore(page.path, pathname);
+    if (score > bestScore) {
+      best = page;
+      bestScore = score;
+    }
+  }
+  return best;
 }

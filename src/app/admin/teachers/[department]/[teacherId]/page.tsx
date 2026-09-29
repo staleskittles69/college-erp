@@ -102,10 +102,10 @@ export default function TeacherDetailsPage() {
       </div>
 
       {/* Teacher Info */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4" data-tour="teacher-info">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-800">Teacher Info</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" data-tour="teacher-actions">
             <button
               onClick={() => setShowAssign(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors"
@@ -143,7 +143,7 @@ export default function TeacherDetailsPage() {
       </div>
 
       {/* Login Credentials */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4" data-tour="teacher-login">
         <h2 className="text-sm font-semibold text-gray-800">Login Credentials</h2>
         <div className="space-y-3">
           {/* Email row */}
@@ -227,7 +227,7 @@ export default function TeacherDetailsPage() {
       </div>
 
       {/* Assigned Classes */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4" data-tour="teacher-classes">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-800">Assigned Classes</h2>
           <span className="text-xs text-gray-400">

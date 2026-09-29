@@ -134,9 +134,9 @@ function Field({ label, value }: { label: string; value?: string }) {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, tour, children }: { title: string; tour: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden" data-tour={tour}>
       <div className="px-6 py-4 border-b border-gray-100">
         <h2 className="font-semibold text-gray-800">{title}</h2>
       </div>
@@ -179,7 +179,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Profile hero */}
-      <div className="rounded-2xl bg-orange-600 shadow-lg overflow-hidden">
+      <div className="rounded-2xl bg-orange-600 shadow-lg overflow-hidden" data-tour="profile-hero">
         <div className="px-8 pt-8 pb-6 flex items-end gap-6">
           <div className="w-20 h-20 rounded-2xl bg-white/20 border-2 border-white/30 flex items-center justify-center shrink-0">
             <User size={36} className="text-white" />
@@ -196,7 +196,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Info cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" data-tour="profile-cards">
         {[
           { icon: <Hash size={18} className="text-orange-500" />, label: "Roll No", value: profile?.rollNo ?? "—", bg: "bg-orange-50" },
           { icon: <Mail size={18} className="text-orange-500" />, label: "Email", value: profile?.email ?? "—", bg: "bg-orange-50" },
@@ -217,7 +217,7 @@ export default function ProfilePage() {
 
       {!loading && profile && (
         <>
-          <Section title="Personal Details">
+          <Section title="Personal Details" tour="profile-personal">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {PERSONAL_FIELDS.map((field) => (
                 <Field key={field.key} label={field.label} value={profile.personalDetails[field.key]} />
@@ -226,7 +226,7 @@ export default function ProfilePage() {
           </Section>
 
           {profile.educationDetails.length > 0 && (
-            <Section title="Education Details">
+            <Section title="Education Details" tour="profile-education">
               <div className="overflow-x-auto -m-6 p-6 pt-0 -mt-2">
                 <table className="w-full text-sm">
                   <thead>
@@ -256,7 +256,7 @@ export default function ProfilePage() {
             </Section>
           )}
 
-          <Section title="Parent's Details">
+          <Section title="Parent's Details" tour="profile-parents">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {PARENT_FIELDS.map((field) => (
                 <Field key={field.key} label={field.label} value={profile.parentDetails[field.key]} />
@@ -264,7 +264,7 @@ export default function ProfilePage() {
             </div>
           </Section>
 
-          <Section title="Guardian Details">
+          <Section title="Guardian Details" tour="profile-guardian">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {GUARDIAN_FIELDS.map((field) => (
                 <Field key={field.key} label={field.label} value={profile.guardianDetails[field.key]} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarDays } from "lucide-react";
-import { DAYS as DAY_NAMES } from "@/lib/academics";
+import { DAYS as DAY_NAMES, formatPeriodTime } from "@/lib/academics";
 import { useFetch } from "@/hooks/useFetch";
 
 interface ClassEntry {
@@ -53,7 +53,7 @@ export default function TimetablePage() {
       ) : (
         <div className="space-y-4">
           {activeDays.map((day) => (
-            <div key={day} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+            <div key={day} className="rounded-xl border border-gray-200 bg-white overflow-hidden" data-tour="timetable-day">
               <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
                 <span className="text-sm font-semibold text-gray-700">{DAY_NAMES[day]}</span>
               </div>
@@ -68,7 +68,7 @@ export default function TimetablePage() {
                         <p className="text-xs text-gray-400 mt-0.5">{cls.branch} · Year {cls.semester} · {cls.section}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-xs font-medium text-gray-600">{cls.time}</p>
+                        <p className="text-xs font-medium text-gray-600">{formatPeriodTime(cls.time)}</p>
                         <p className="text-xs text-gray-400">{cls.room}</p>
                       </div>
                     </div>

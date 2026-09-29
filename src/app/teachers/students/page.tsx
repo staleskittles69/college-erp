@@ -19,7 +19,7 @@ export default function TeacherStudentsPage() {
         <p className="text-sm text-gray-500 mt-1">Select a branch to view students</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-tour="branch-list">
         {branches.map((branch) => (
           <Link
             key={branch.code}

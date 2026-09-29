@@ -121,7 +121,7 @@ export default function TeacherQueriesPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden max-w-2xl">
+      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden max-w-2xl" data-tour="received-queries">
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="font-semibold text-gray-800">Received from Students</h2>
         </div>
@@ -210,7 +210,7 @@ export default function TeacherQueriesPage() {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 space-y-4 max-w-2xl">
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white p-6 space-y-4 max-w-2xl" data-tour="admin-query-form">
         <h2 className="font-semibold text-gray-800">New Query to Admin</h2>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
@@ -244,7 +244,7 @@ export default function TeacherQueriesPage() {
         </button>
       </form>
 
-      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden max-w-2xl">
+      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden max-w-2xl" data-tour="sent-queries">
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="font-semibold text-gray-800">Your Queries to Admin</h2>
         </div>

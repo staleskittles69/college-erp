@@ -278,12 +278,13 @@ function ForumBoardInner({ className }: { className: string }) {
   return (
     <div className={`rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex ${className}`}>
       {/* Forum list */}
-      <div className={`w-full md:w-80 flex-shrink-0 border-r border-gray-200 flex-col ${activeForumId ? "hidden md:flex" : "flex"}`}>
+      <div className={`w-full md:w-80 flex-shrink-0 border-r border-gray-200 flex-col ${activeForumId ? "hidden md:flex" : "flex"}`} data-tour="forum-list">
         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="font-semibold text-gray-800">Forums</h2>
           {me?.role === "student" && (
             <button
               onClick={() => setShowCreate(true)}
+              data-tour="forum-new"
               className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-colors"
             >
               <Plus size={14} /> New
@@ -322,7 +323,7 @@ function ForumBoardInner({ className }: { className: string }) {
       </div>
 
       {/* Chat panel */}
-      <div className={`flex-1 flex-col ${activeForumId ? "flex" : "hidden md:flex"}`}>
+      <div className={`flex-1 flex-col ${activeForumId ? "flex" : "hidden md:flex"}`} data-tour="forum-chat">
         {!activeForum ? (
           <div className="flex-1 flex items-center justify-center">
             <EmptyState icon={<MessageCircle size={30} />} iconClassName="bg-orange-50 text-orange-500" title="Select a forum" subtitle="Pick a forum on the left to join the conversation." />

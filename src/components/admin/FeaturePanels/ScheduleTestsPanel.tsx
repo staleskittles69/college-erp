@@ -305,13 +305,13 @@ export default function ScheduleTestsPanel() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-6" data-tour="test-form">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-800">
             {editingId ? "Edit Test" : mode === "single" ? "Schedule New Test" : "Schedule Multiple Tests"}
           </h3>
           {!editingId && (
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1" data-tour="test-mode">
               <button
                 type="button"
                 onClick={() => setMode("single")}
@@ -530,14 +530,14 @@ export default function ScheduleTestsPanel() {
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" data-tour="test-list">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-semibold text-gray-800">Scheduled Tests</h3>
           {!loading && <span className="text-xs text-gray-400">{tests.length} total</span>}
         </div>
 
         {seriesGroups.length > 0 && (
-          <div className="px-6 py-3 border-b border-gray-100 flex flex-wrap gap-2 bg-gray-50/60">
+          <div className="px-6 py-3 border-b border-gray-100 flex flex-wrap gap-2 bg-gray-50/60" data-tour="test-series">
             {seriesGroups.map(([seriesId, info]) => (
               <div key={seriesId} className="flex items-center gap-2 bg-orange-50 text-orange-700 text-xs font-medium pl-3 pr-2 py-1.5 rounded-full">
                 <span>{info.label} ({info.count})</span>

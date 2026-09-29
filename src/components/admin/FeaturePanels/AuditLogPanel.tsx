@@ -69,7 +69,7 @@ export default function AuditLogPanel() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-1" data-tour="audit-range">
           {RANGE_OPTIONS.map((option, index) => (
             <button
               key={option.label}
@@ -86,13 +86,14 @@ export default function AuditLogPanel() {
         </div>
         <button
           onClick={fetchLogs}
+          data-tour="audit-refresh"
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
         >
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" data-tour="audit-list">
         {loading ? (
           <div className="p-16 text-center text-sm text-gray-400">Loading…</div>
         ) : error ? (

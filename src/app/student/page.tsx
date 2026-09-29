@@ -23,13 +23,13 @@ export default function StudentDashboardPage() {
       <div>
         <SectionHeader title="Your Progress" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-          <div className="animate-slide-up">
+          <div className="animate-slide-up" data-tour="attendance-card">
             <AttendanceSummary />
           </div>
-          <div className="animate-slide-up-1">
+          <div className="animate-slide-up-1" data-tour="cgpa-card">
             <CGPA />
           </div>
-          <div className="md:col-span-2 lg:col-span-1 animate-slide-up-2">
+          <div className="md:col-span-2 lg:col-span-1 animate-slide-up-2" data-tour="upcoming-card">
             <UpcomingTests />
           </div>
         </div>
@@ -38,7 +38,7 @@ export default function StudentDashboardPage() {
       {/* Timetable */}
       <div>
         <SectionHeader title="Today's Classes" />
-        <div className="mt-4 animate-slide-up">
+        <div className="mt-4 animate-slide-up" data-tour="today-classes">
           <TodayClasses />
         </div>
       </div>
@@ -46,7 +46,7 @@ export default function StudentDashboardPage() {
       {/* Notices */}
       <div>
         <SectionHeader title="Notice Board" />
-        <div className="mt-4 animate-slide-up">
+        <div className="mt-4 animate-slide-up" data-tour="notice-board">
           <NoticeBoard />
         </div>
       </div>

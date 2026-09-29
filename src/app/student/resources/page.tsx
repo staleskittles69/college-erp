@@ -48,7 +48,7 @@ export default function ResourcesPage() {
           subtitle="Notes, PDFs, and study materials shared by your teachers will appear here."
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6" data-tour="resource-list">
           {Object.entries(bySubject).map(([subject, items]) => (
             <div key={subject}>
               <h2 className="text-sm font-semibold text-gray-700 mb-3">{subject}</h2>

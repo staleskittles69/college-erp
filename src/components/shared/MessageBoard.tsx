@@ -217,11 +217,12 @@ function MessageBoardInner({ className }: { className: string }) {
   return (
     <div className={`rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex ${className}`}>
       {/* Conversation list */}
-      <div className={`w-full md:w-80 flex-shrink-0 border-r border-gray-200 flex-col ${activeConversationId ? "hidden md:flex" : "flex"}`}>
+      <div className={`w-full md:w-80 flex-shrink-0 border-r border-gray-200 flex-col ${activeConversationId ? "hidden md:flex" : "flex"}`} data-tour="message-list">
         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
           <h2 className="font-semibold text-gray-800">Messages</h2>
           <button
             onClick={() => setShowPicker(true)}
+            data-tour="message-new"
             className="flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition-colors"
           >
             <Plus size={14} /> New
@@ -264,7 +265,7 @@ function MessageBoardInner({ className }: { className: string }) {
       </div>
 
       {/* Chat panel */}
-      <div className={`flex-1 flex-col ${activeConversationId ? "flex" : "hidden md:flex"}`}>
+      <div className={`flex-1 flex-col ${activeConversationId ? "flex" : "hidden md:flex"}`} data-tour="message-chat">
         {!activeConversation ? (
           <div className="flex-1 flex items-center justify-center">
             <EmptyState

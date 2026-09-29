@@ -56,7 +56,7 @@ export default function MarksPage() {
       </div>
 
       {/* Student Search */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-5">
+      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-5" data-tour="marks-search">
         <label className="block text-xs font-medium text-gray-700 mb-2">Search Student</label>
         <div className="relative max-w-sm">
           <input

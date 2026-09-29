@@ -37,7 +37,7 @@ export default function TeachersPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-tour="department-list">
           {departments.map((dept) => {
             const count = teachers.filter((teacher) => teacher.department === dept.slug).length;
             return (

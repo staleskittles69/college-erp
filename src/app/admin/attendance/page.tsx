@@ -114,7 +114,7 @@ export default function AdminAttendancePage() {
       </div>
 
       {/* Filters */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
+      <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-4" data-tour="attendance-filters">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Branch</label>
@@ -199,7 +199,7 @@ export default function AdminAttendancePage() {
 
       {/* Student list */}
       {students.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden" data-tour="attendance-list">
           <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
             <span className="text-sm font-semibold text-gray-700">
               {students.length} students &nbsp;·&nbsp; {presentCount} present &nbsp;·&nbsp; {absentCount} absent
@@ -244,7 +244,7 @@ export default function AdminAttendancePage() {
             })}
           </div>
 
-          <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-4">
+          <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-4" data-tour="attendance-submit">
             {submitError && <p className="text-xs text-red-500">{submitError}</p>}
             {submitted ? (
               <p className="text-xs text-green-600 font-semibold ml-auto">✓ Attendance saved</p>

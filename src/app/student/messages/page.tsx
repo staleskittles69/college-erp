@@ -75,9 +75,9 @@ export default function MessagesPage() {
     <div className="space-y-6 animate-fade-in">
       <PageHeader title="Queries" subtitle="Send a query to the admin or a teacher and track its status here." />
 
-      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 space-y-4" data-tour="query-form">
         <h2 className="font-semibold text-gray-800">New Query</h2>
-        <div>
+        <div data-tour="query-recipient">
           <label className="block text-xs font-medium text-gray-600 mb-1">Send To</label>
           <select
             value={recipient}
@@ -124,7 +124,7 @@ export default function MessagesPage() {
         </button>
       </form>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden" data-tour="query-list">
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="font-semibold text-gray-800">Your Queries</h2>
         </div>

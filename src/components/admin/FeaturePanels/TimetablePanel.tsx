@@ -144,13 +144,14 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
             </div>
             <button
               onClick={openAdd}
+              data-tour="timetable-add"
               className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium"
             >
               + Add/Edit Slot
             </button>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap" data-tour="timetable-class">
             <select value={branch} onChange={(e) => setBranch(e.target.value)}
               className="text-sm border border-gray-200 rounded-lg px-2 py-1.5 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20">
               {BRANCHES.map((branchOption) => <option key={branchOption}>{branchOption}</option>)}
@@ -171,7 +172,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto" data-tour="timetable-grid">
           <table className="w-full min-w-[820px] border-collapse">
             <thead>
               <tr>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { DAYS } from "@/lib/academics";
+import { DAYS, formatPeriodTime } from "@/lib/academics";
 import { useFetch } from "@/hooks/useFetch";
 
 const SUBJECT_COLORS = [
@@ -57,7 +57,7 @@ export function TodayClasses() {
                 className={`flex items-center justify-between rounded-lg px-3 py-2 ${SUBJECT_COLORS[slotIdx % SUBJECT_COLORS.length]}`}
               >
                 <span className="font-semibold text-sm">{slot.subject}</span>
-                <span className="text-xs opacity-70">{slot.time} · {slot.room}</span>
+                <span className="text-xs opacity-70">{formatPeriodTime(slot.time)} · {slot.room}</span>
               </div>
             ))}
           </div>

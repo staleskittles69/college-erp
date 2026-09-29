@@ -124,6 +124,7 @@ export default function AssignmentsPage() {
         </div>
         <button
           onClick={() => { setOpen(true); setFormError(""); }}
+          data-tour="create-assignment"
           className="flex items-center gap-2 rounded-xl bg-white/15 border border-white/30 hover:bg-white/25 px-4 py-2.5 text-sm font-medium text-white transition-colors"
         >
           <Plus size={16} /> Create
@@ -154,7 +155,7 @@ export default function AssignmentsPage() {
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3" data-tour="assignment-list">
           {tests.map((test) => {
             const dateStr = new Date(test.date).toLocaleDateString("en-IN", {
               day: "numeric", month: "short", year: "numeric",

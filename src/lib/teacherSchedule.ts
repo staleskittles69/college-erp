@@ -1,6 +1,8 @@
 import Subject from "@/models/Subject";
 import Timetable, { ITimetableSlot } from "@/models/Timetable";
 import { ITeacher } from "@/models/Teacher";
+import User from "@/models/User";
+import Attendance from "@/models/Attendance";
 
 export interface TeacherClassEntry {
   subject: string;
@@ -66,4 +68,34 @@ export async function getTeacherClasses(
     seenCells.add(cellKey);
     return true;
   });
+}
+
+type ClassRef = Pick<TeacherClassEntry, "branch" | "semester" | "section" | "subject">;
+
+export const classKey = ({ branch, semester, section, subject }: ClassRef) =>
+  `${branch}|${semester}|${section}|${subject}`;
+
+// Which of these classes already have attendance saved for `dateISO` (the same YYYY-MM-DD the
+// Attendance page saves under)? Attendance is one record per student/subject/day, so a subject
+// with several periods in a day shares one answer — hence one lookup per distinct class, not per
+// period. Assumes connectDB() has already been called by the caller.
+export async function getAttendanceTakenClassKeys(entries: ClassRef[], dateISO: string): Promise<Set<string>> {
+  const distinct = new Map(entries.map((entry) => [classKey(entry), entry]));
+  const date = new Date(dateISO);
+
+  const results = await Promise.all(
+    [...distinct.entries()].map(async ([key, { branch, semester, section, subject }]) => {
+      // Timetable.semester holds the class year (see getTeacherClasses), matching User.year.
+      const students = await User.find({ role: "student", branch, year: semester, section }).select("_id").lean();
+      if (students.length === 0) return null;
+      const taken = await Attendance.exists({
+        studentId: { $in: students.map((student) => student._id) },
+        subject,
+        date,
+      });
+      return taken ? key : null;
+    })
+  );
+
+  return new Set(results.filter((key): key is string => key !== null));
 }

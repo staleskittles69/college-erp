@@ -93,6 +93,7 @@ export default function TeacherNoticesPage() {
         </div>
         <button
           onClick={() => { setOpen(true); setFormError(""); }}
+          data-tour="post-notice"
           className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           <Plus size={16} /> Post Notice
@@ -112,7 +113,7 @@ export default function TeacherNoticesPage() {
           </div>
         </div>
       ) : (
-        <div className="space-y-3 max-w-2xl">
+        <div className="space-y-3 max-w-2xl" data-tour="notice-list">
           {notices.map((notice) => (
             <div key={notice._id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
               <div className="flex items-start justify-between mb-1.5 gap-3">

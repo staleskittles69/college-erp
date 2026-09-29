@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Teacher, { ITeacher } from "@/models/Teacher";
 import { getAuth } from "@/lib/api-auth";
-import { getTeacherClasses } from "@/lib/teacherSchedule";
+import { classKey, getAttendanceTakenClassKeys, getTeacherClasses } from "@/lib/teacherSchedule";
 
 // dayOfWeek is stored Monday-first (0=Mon..5=Sat), matching src/lib/academics.ts DAYS.
 function todayIndex(): number {
@@ -22,13 +22,18 @@ export async function GET(request: NextRequest) {
     if (!teacher) return NextResponse.json({ classes: [] });
 
     const entries = await getTeacherClasses(teacher, todayIndex());
-    const classes = entries.map(({ subject, period, time, room, branch, section }) => ({
-      subject,
-      period,
-      time,
-      room,
-      branch,
-      section,
+    // Same YYYY-MM-DD the Attendance page defaults to and saves under.
+    const takenKeys = await getAttendanceTakenClassKeys(entries, new Date().toISOString().slice(0, 10));
+    const classes = entries.map((entry) => ({
+      subject: entry.subject,
+      period: entry.period,
+      time: entry.time,
+      room: entry.room,
+      branch: entry.branch,
+      // The timetable stores the class year in its `semester` field.
+      year: entry.semester,
+      section: entry.section,
+      attendanceTaken: takenKeys.has(classKey(entry)),
     }));
 
     return NextResponse.json({ classes });

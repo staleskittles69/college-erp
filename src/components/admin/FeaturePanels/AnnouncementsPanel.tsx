@@ -95,7 +95,7 @@ export default function AnnouncementsPanel() {
   return (
     <div className="space-y-5">
       {/* Post New Announcement */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-6" data-tour="announcement-form">
         <h3 className="font-semibold text-gray-800 mb-4">Post New Announcement</h3>
         <div className="space-y-3">
           <input
@@ -189,7 +189,7 @@ export default function AnnouncementsPanel() {
       </div>
 
       {/* Existing Announcements */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" data-tour="announcement-list">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-semibold text-gray-800">All Announcements</h3>
           {!loading && <span className="text-xs text-gray-400">{notices.length} total</span>}

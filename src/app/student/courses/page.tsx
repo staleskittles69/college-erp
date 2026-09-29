@@ -52,7 +52,7 @@ export default function CoursesPage() {
           subtitle="Your courses will appear once your timetable is set up."
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-tour="course-list">
           {subjects.map((subject, colorIdx) => (
             <div
               key={subject}

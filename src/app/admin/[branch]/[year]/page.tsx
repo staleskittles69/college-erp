@@ -46,7 +46,7 @@ export default function SectionSelectionPage({ params }: Props) {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" data-tour="section-list">
         {SECTIONS.map((section) => (
           <Link
             key={section.slug}

@@ -55,13 +55,14 @@ export default function DepartmentPage() {
         </div>
         <button
           onClick={() => setShowModal(true)}
+          data-tour="add-subject"
           className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors"
         >
           <Plus size={15} /> Add Subject
         </button>
       </div>
 
-      <div className="relative">
+      <div className="relative" data-tour="subject-search">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
@@ -72,7 +73,7 @@ export default function DepartmentPage() {
         />
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3" data-tour="subject-list">
         {loading ? (
           <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-400">
             Loading…

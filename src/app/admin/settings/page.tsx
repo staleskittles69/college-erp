@@ -38,7 +38,7 @@ function PasswordSection() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6">
+    <div className="bg-white rounded-xl border border-gray-200 p-6" data-tour="password-form">
       <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
         <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
           <Lock size={16} className="text-orange-600" />

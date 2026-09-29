@@ -43,7 +43,7 @@ export default function TeacherSettingsPage() {
         <p className="text-sm text-gray-500 mt-1">Manage your account preferences.</p>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm" data-tour="password-form">
         <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">
           <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
             <Lock size={16} className="text-orange-600" />

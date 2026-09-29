@@ -58,7 +58,7 @@ export default function StudentDataPanel() {
   return (
     <div className="space-y-5">
       {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-gray-200">
+      <div className="flex items-center gap-1 border-b border-gray-200" data-tour="student-panel-tabs">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -77,7 +77,7 @@ export default function StudentDataPanel() {
       {tab === "search" ? (
         <>
           {/* Search */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6" data-tour="student-search">
             <h3 className="font-semibold text-gray-800 mb-1">Find a Student</h3>
             <p className="text-sm text-gray-500 mb-4">Search by name or roll number to view their details.</p>
             <div className="relative max-w-md">

@@ -117,7 +117,7 @@ export default function AdminQueriesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Queries</h1>
           <p className="text-sm text-gray-500 mt-1">Messages from teachers and students.</p>
         </div>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-1" data-tour="query-filters">
           {FILTERS.map((filter, index) => (
             <button
               key={filter.label}
@@ -132,7 +132,7 @@ export default function AdminQueriesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden" data-tour="query-list">
         {loading ? (
           <div className="p-16 text-center text-sm text-gray-400">Loading…</div>
         ) : queries.length === 0 ? (

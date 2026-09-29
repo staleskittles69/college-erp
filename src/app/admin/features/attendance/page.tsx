@@ -63,7 +63,7 @@ export default function AttendancePage() {
         <p className="text-sm text-gray-500 mt-1">View attendance records for a section on a specific date.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-5 flex flex-wrap items-end gap-3">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-5 flex flex-wrap items-end gap-3" data-tour="attendance-filters">
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Branch</label>
           <select value={branch} onChange={(e) => { setBranch(e.target.value); setApplied(false); }}
@@ -106,7 +106,7 @@ export default function AttendancePage() {
       {applied && !loading && (
         <>
           {/* Summary */}
-          <div className="grid grid-cols-3 gap-4 mb-5">
+          <div className="grid grid-cols-3 gap-4 mb-5" data-tour="attendance-summary">
             {[
               { label: "Total Students", value: students.length, color: "bg-gray-50 text-gray-700" },
               { label: "Present (any class)", value: presentCount, color: "bg-green-50 text-green-700" },

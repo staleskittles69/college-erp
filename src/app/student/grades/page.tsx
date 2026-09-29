@@ -35,7 +35,7 @@ export default function GradesPage() {
           subtitle="Your marks will appear here once the admin adds them."
         />
       ) : (
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden" data-tour="grades-table">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
