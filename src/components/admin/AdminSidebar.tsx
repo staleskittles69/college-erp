@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFetch } from "@/hooks/useFetch";
 import {
   LayoutDashboard,
   Building2,
@@ -12,6 +13,7 @@ import {
   CalendarCheck,
   Settings,
   ClipboardList,
+  Lightbulb,
   ListChecks,
   Inbox,
   Hash,
@@ -21,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 
-const navItems = [
+const navItems: { href: string; label: string; icon: typeof Settings; exact?: boolean; ownerOnly?: boolean }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/branches", label: "Branches", icon: Building2 },
   { href: "/admin/features/students", label: "Students", icon: Users },
@@ -34,6 +36,7 @@ const navItems = [
   { href: "/admin/forums", label: "Forums", icon: Hash },
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ClipboardList },
+  { href: "/admin/suggestions", label: "Suggestions", icon: Lightbulb, ownerOnly: true },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
@@ -46,6 +49,8 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ mobileOpen, onCloseMobile, collapsed, onToggleCollapsed }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { data: me } = useFetch<{ canViewSuggestions?: boolean }>("/api/auth/me", {});
+  const visibleItems = navItems.filter((item) => !item.ownerOnly || me.canViewSuggestions);
 
   return (
     <>
@@ -88,7 +93,7 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile, collapsed, onT
 
         {/* Navigation */}
         <nav className="flex-1 py-5 space-y-0.5 px-2 overflow-y-auto">
-          {navItems.map(({ href, label, icon: Icon, exact }) => {
+          {visibleItems.map(({ href, label, icon: Icon, exact }) => {
             const isActive = exact
               ? pathname === href
               : pathname === href || pathname.startsWith(href + "/");

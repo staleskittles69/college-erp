@@ -3,7 +3,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Student from "@/models/Student";
 import { verifyToken } from "@/lib/auth";
-import { getToken } from "@/lib/api-auth";
+import { getToken, isSuggestionsOwner } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
       role: string;
       studentId?: string;
       name?: string;
+      canViewSuggestions?: boolean;
       rollNo?: string;
       branch?: string;
       semester?: number;
@@ -54,6 +55,8 @@ export async function GET(request: NextRequest) {
         profile.section = studentRecord.section;
       }
     }
+
+    if (currentUser.role === "admin") profile.canViewSuggestions = await isSuggestionsOwner(payload);
 
     return NextResponse.json(profile);
   } catch (error) {
