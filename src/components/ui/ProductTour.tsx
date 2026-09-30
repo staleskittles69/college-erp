@@ -6,6 +6,7 @@ import type { Driver, DriveStep } from "driver.js";
 import "driver.js/dist/driver.css";
 import { useFetch } from "@/hooks/useFetch";
 import { findPageTour, getTourPlan, MOBILE_MENU_STEP, PageTour, TourRole, TourStep } from "@/lib/tour-steps";
+import { clearTourFlag, isTourFlagged } from "@/lib/tour-login";
 
 export const START_TOUR_EVENT = "start-tour";
 
@@ -17,6 +18,9 @@ const DRAWER_ANIMATION_MS = 350;
 const AUTO_START_DELAY_MS = 800;
 const ELEMENT_POLL_MS = 200;
 const AUTO_WAIT_LIMIT_MS = 3000;
+// Right after login the tour should feel instant, so start sooner and wait less for the page to fill in.
+const LOGIN_START_DELAY_MS = 150;
+const LOGIN_WAIT_LIMIT_MS = 1500;
 // When the ? button is clicked the page has usually loaded already, so don't keep the user waiting.
 const BUTTON_WAIT_LIMIT_MS = 600;
 // Loading skeletons (Tailwind's pulse animation) mean the page's data hasn't arrived yet.
@@ -208,13 +212,19 @@ export function ProductTour({ role }: { role: TourRole }) {
   // the first time this page is opened.
   useEffect(() => {
     if (!userId) return;
-    const page = findPageTour(getTourPlan(role), pathname);
+    const plan = getTourPlan(role);
+    const page = findPageTour(plan, pathname);
+    // Every login shows the full tour straight away (the login page leaves a flag for us).
+    const justLoggedIn = isTourFlagged() && pathname === plan.home;
     let mode: TourMode;
-    if (!hasSeen(seenKey(userId))) mode = "full";
+    if (justLoggedIn || !hasSeen(seenKey(userId))) mode = "full";
     else if (page && !hasSeen(seenKey(userId, page.path))) mode = "page";
     else return;
     // Small delay so the layout has finished rendering before we measure elements.
-    const timer = window.setTimeout(() => { void startTour(mode, AUTO_WAIT_LIMIT_MS); }, AUTO_START_DELAY_MS);
+    const timer = window.setTimeout(() => {
+      if (justLoggedIn) clearTourFlag();
+      void startTour(mode, justLoggedIn ? LOGIN_WAIT_LIMIT_MS : AUTO_WAIT_LIMIT_MS);
+    }, justLoggedIn ? LOGIN_START_DELAY_MS : AUTO_START_DELAY_MS);
     return () => window.clearTimeout(timer);
   }, [userId, role, pathname, startTour]);
 
