@@ -10,6 +10,17 @@ export function flagTourOnLogin() {
   } catch {
     // Storage blocked: the tour just falls back to its first-visit behaviour.
   }
+  // Forget which pages' tours were already seen, so every page explains itself again after each login.
+  try {
+    const seen: string[] = [];
+    for (let index = 0; index < localStorage.length; index++) {
+      const key = localStorage.key(index);
+      if (key?.startsWith("tour-seen:")) seen.push(key);
+    }
+    seen.forEach((key) => localStorage.removeItem(key));
+  } catch {
+    // ignore
+  }
 }
 
 export function isTourFlagged(): boolean {
