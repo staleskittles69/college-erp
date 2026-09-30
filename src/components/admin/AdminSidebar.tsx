@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFetch } from "@/hooks/useFetch";
+import { SuggestionBoxButton } from "@/components/ui/SuggestionBoxButton";
 import {
   LayoutDashboard,
   Building2,
@@ -13,9 +14,9 @@ import {
   CalendarCheck,
   Settings,
   ClipboardList,
-  Lightbulb,
   ListChecks,
   Inbox,
+  Star,
   Hash,
   MessageSquare,
   ChevronLeft,
@@ -36,7 +37,7 @@ const navItems: { href: string; label: string; icon: typeof Settings; exact?: bo
   { href: "/admin/forums", label: "Forums", icon: Hash },
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ClipboardList },
-  { href: "/admin/suggestions", label: "Suggestions", icon: Lightbulb, ownerOnly: true },
+  { href: "/admin/suggestions", label: "Feedback Inbox", icon: Star, ownerOnly: true },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
@@ -116,6 +117,7 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile, collapsed, onT
               </Link>
             );
           })}
+          <SuggestionBoxButton collapsed={collapsed} onOpen={onCloseMobile} />
         </nav>
 
         {/* Footer label */}

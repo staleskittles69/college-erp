@@ -1,17 +1,23 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useFetch } from "@/hooks/useFetch";
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 // Shown when someone finishes the walkthrough. Submissions are readable only by the portal owner.
-export function SuggestionModal({ defaultName, onClose }: { defaultName: string; onClose: () => void }) {
-  const [name, setName] = useState(defaultName);
+export function SuggestionModal({ onClose }: { onClose: () => void }) {
+  const { data: me } = useFetch<{ name?: string }>("/api/auth/me", {});
+  const [name, setName] = useState("");
+  const [nameEdited, setNameEdited] = useState(false);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+
+  // Prefill with the logged-in name once it loads, unless they've already typed their own.
+  useEffect(() => { if (me.name && !nameEdited) setName(me.name); }, [me.name, nameEdited]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -52,7 +58,7 @@ export function SuggestionModal({ defaultName, onClose }: { defaultName: string;
             Found something wrong, or have an idea? Leave any corrections, suggestions, or features you&apos;d like
             added &mdash; every input is appreciated.
           </p>
-          <Input label="Your name" value={name} maxLength={80} onChange={(e) => { setName(e.target.value); setError(""); }} placeholder="Enter your name" />
+          <Input label="Your name" value={name} maxLength={80} onChange={(e) => { setName(e.target.value); setNameEdited(true); setError(""); }} placeholder="Enter your name" />
           <div>
             <label htmlFor="suggestion-message" className="block text-sm font-medium text-gray-700 mb-1">Your feedback</label>
             <textarea

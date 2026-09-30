@@ -34,9 +34,9 @@ export default function SuggestionsPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <Breadcrumb items={[{ label: "Suggestions" }]} />
+      <Breadcrumb items={[{ label: "Feedback Inbox" }]} />
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Suggestions</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Feedback Inbox</h1>
         <p className="text-sm text-gray-500 mt-1">Feedback, corrections and feature ideas people leave at the end of the walkthrough.</p>
       </div>
 
