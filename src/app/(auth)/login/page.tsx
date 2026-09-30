@@ -3,6 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import { flagTourOnLogin } from "@/lib/tour-login";
+
+const QUICK_LOGINS = [
+  { label: "Admin", email: "admin@college.edu", password: "admin123" },
+  { label: "Teacher", email: "drrameshiyer.cse@college.edu", password: "asdfghjkl4" },
+  { label: "Student", email: "25CSE00001", password: "student123" },
+];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,7 +28,7 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: quickEmail, password: quickPassword }),
       });
-      if (response.ok) { router.push("/"); router.refresh(); }
+      if (response.ok) { flagTourOnLogin(); router.push("/"); router.refresh(); }
       else { const result = await response.json(); setError(result.error ?? "Login failed."); setLoading(false); }
     } catch { setError("Network error."); setLoading(false); }
   }
@@ -49,6 +56,7 @@ export default function LoginPage() {
       }
 
       // Let middleware handle role-based redirect
+      flagTourOnLogin();
       router.push("/");
       router.refresh();
     } catch {
@@ -81,11 +89,7 @@ export default function LoginPage() {
           <div className="space-y-2">
             <p className="text-xs text-white/50 mb-2">Quick login (dev)</p>
             <div className="flex gap-2">
-              {[
-                { label: "Admin", email: "admin@college.edu", password: "admin123" },
-                { label: "Teacher", email: "drrameshiyer.cse@college.edu", password: "asdfghjkl4" },
-                { label: "Student", email: "25CSE00001", password: "student123" },
-              ].map(({ label, email: quickEmail, password: quickPassword }) => (
+              {QUICK_LOGINS.map(({ label, email: quickEmail, password: quickPassword }) => (
                 <button
                   key={label}
                   type="button"
@@ -185,6 +189,24 @@ export default function LoginPage() {
             </button>
 
           </form>
+
+          {/* Quick login (dev) — the branding panel with these buttons is hidden on phones */}
+          <div className="mt-6 md:hidden">
+            <p className="mb-2 text-center text-xs text-gray-400">Quick login (dev)</p>
+            <div className="flex justify-center gap-2">
+              {QUICK_LOGINS.map(({ label, email: quickEmail, password: quickPassword }) => (
+                <button
+                  key={label}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => quickLogin(quickEmail, quickPassword)}
+                  className="rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-xs font-medium text-orange-700 transition-colors hover:bg-orange-100 disabled:opacity-60"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <p className="mt-8 text-center text-xs text-gray-400">
             NRI University &copy; {new Date().getFullYear()}
