@@ -2,9 +2,11 @@
 
 import { CircleHelp } from "lucide-react";
 import { START_TOUR_EVENT } from "@/components/ui/ProductTour";
+import { TOUR_ENABLED } from "@/lib/tour-login";
 
 // "?" button that replays the portal walkthrough. ProductTour (rendered in each portal layout) listens for the event.
 export function TourButton() {
+  if (!TOUR_ENABLED) return null;
   return (
     <button
       onClick={() => window.dispatchEvent(new Event(START_TOUR_EVENT))}

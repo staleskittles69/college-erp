@@ -4,6 +4,10 @@
 
 const KEY = "tour-on-login";
 
+// Master switch for the walkthrough: false hides the tour and the "?" button everywhere. The full feature is also
+// saved on the `walkthrough-tour` git branch.
+export const TOUR_ENABLED = false;
+
 export function flagTourOnLogin() {
   try {
     sessionStorage.setItem(KEY, "1");

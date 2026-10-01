@@ -7,7 +7,7 @@ import "driver.js/dist/driver.css";
 import { useFetch } from "@/hooks/useFetch";
 import { findPageTour, getTourPlan, MOBILE_MENU_STEP, PageTour, TourRole, TourStep } from "@/lib/tour-steps";
 import { SuggestionModal } from "@/components/ui/SuggestionModal";
-import { clearTourFlag, isTourFlagged } from "@/lib/tour-login";
+import { clearTourFlag, isTourFlagged, TOUR_ENABLED } from "@/lib/tour-login";
 
 export const START_TOUR_EVENT = "start-tour";
 
@@ -92,6 +92,10 @@ type TourMode = "full" | "page";
 // login and from the ? button on the dashboard; a "page" tour explains just the current page, and runs the
 // first time each page is opened and from the ? button everywhere else. Render once per portal layout.
 export function ProductTour({ role }: { role: TourRole }) {
+  return TOUR_ENABLED ? <ProductTourRunner role={role} /> : null;
+}
+
+function ProductTourRunner({ role }: { role: TourRole }) {
   const { data: me } = useFetch<{ id?: string }>("/api/auth/me", {});
   const [showSuggestion, setShowSuggestion] = useState(false);
   const userId = me.id ?? null;
