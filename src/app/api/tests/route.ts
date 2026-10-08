@@ -62,6 +62,7 @@ async function handleBulkCreate(body: Record<string, unknown>, payload: JwtPaylo
     notes: row.notes || null,
     seriesId,
     seriesLabel,
+    createdBy: payload.userId,
   }));
 
   const created = await Test.insertMany(docs);
@@ -145,6 +146,7 @@ export async function GET(request: NextRequest) {
         attachmentName: test.attachmentName,
         seriesId: test.seriesId ? toIdString(test.seriesId) : null,
         seriesLabel: test.seriesLabel,
+        createdBy: test.createdBy ? toIdString(test.createdBy) : null,
       }))
     );
   } catch (error) {
@@ -202,6 +204,7 @@ export async function POST(request: NextRequest) {
       notes: notes ?? null,
       attachmentUrl: attachmentUrl ?? null,
       attachmentName: attachmentName ?? null,
+      createdBy: payload.userId,
     });
 
     await logAudit(

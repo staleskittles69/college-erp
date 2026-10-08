@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Plus } from "lucide-react";
+import { Bell, Plus, Pencil, Trash2 } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import { useFetch } from "@/hooks/useFetch";
 
@@ -16,6 +16,7 @@ interface Notice {
   targetBranch: string | null;
   targetYear: number | null;
   createdAt: string;
+  createdBy?: string | null;
 }
 
 interface Teaching { branch: string; year: number; sections: string[]; }
@@ -29,9 +30,11 @@ const EMPTY_FORM = { title: "", body: "", targetBranch: "", targetYear: "", audi
 
 export default function TeacherNoticesPage() {
   const { data: notices, loading, refetch: fetchNotices } = useFetch<Notice[]>("/api/notices", []);
+  const { data: me } = useFetch<{ userId?: string }>("/api/teachers/me", {});
   const [teaching, setTeaching] = useState<Teaching[]>([]);
 
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Notice | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
@@ -56,24 +59,61 @@ export default function TeacherNoticesPage() {
 
   function handleBranchChange(value: string) { setForm((prev) => ({ ...prev, targetBranch: value, targetYear: "" })); }
 
+  function openCreate() {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setFormError("");
+    setOpen(true);
+  }
+
+  function openEdit(notice: Notice) {
+    setEditing(notice);
+    setForm({
+      title: notice.title,
+      body: notice.body,
+      targetBranch: notice.targetBranch ?? "",
+      targetYear: notice.targetYear != null ? String(notice.targetYear) : "",
+      audience: notice.audience,
+    });
+    setFormError("");
+    setOpen(true);
+  }
+
+  async function handleDelete(notice: Notice) {
+    if (!confirm(`Delete "${notice.title}"? This cannot be undone.`)) return;
+    const response = await fetch(`/api/notices/${notice._id}`, { method: "DELETE", credentials: "include" });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      alert(result.error ?? "Failed to delete.");
+      return;
+    }
+    fetchNotices();
+  }
+
   async function handlePost() {
     if (!form.title.trim() || !form.body.trim()) { setFormError("Title and message are required."); return; }
     setSaving(true);
     setFormError("");
-    const response = await fetch("/api/notices", {
-      method: "POST",
+    // Who a notice goes to is fixed once posted; editing only changes its wording.
+    const response = await fetch(editing ? `/api/notices/${editing._id}` : "/api/notices", {
+      method: editing ? "PATCH" : "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: form.title.trim(),
-        body: form.body.trim(),
-        audience: form.audience,
-        targetBranch: form.targetBranch || null,
-        targetYear: form.targetYear ? Number(form.targetYear) : null,
-      }),
+      body: JSON.stringify(
+        editing
+          ? { title: form.title.trim(), body: form.body.trim() }
+          : {
+              title: form.title.trim(),
+              body: form.body.trim(),
+              audience: form.audience,
+              targetBranch: form.targetBranch || null,
+              targetYear: form.targetYear ? Number(form.targetYear) : null,
+            }
+      ),
     });
-    if (!response.ok) { const result = await response.json(); setFormError(result.error ?? "Failed to post."); setSaving(false); return; }
+    if (!response.ok) { const result = await response.json(); setFormError(result.error ?? (editing ? "Failed to save." : "Failed to post.")); setSaving(false); return; }
     setForm(EMPTY_FORM);
+    setEditing(null);
     setOpen(false);
     setSaving(false);
     fetchNotices();
@@ -92,7 +132,7 @@ export default function TeacherNoticesPage() {
           </div>
         </div>
         <button
-          onClick={() => { setOpen(true); setFormError(""); }}
+          onClick={openCreate}
           data-tour="post-notice"
           className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
@@ -133,7 +173,27 @@ export default function TeacherNoticesPage() {
                   )}
                   <p className="text-sm font-semibold text-gray-800">{notice.title}</p>
                 </div>
-                <span className="text-xs text-gray-400 shrink-0">{formatDate(notice.createdAt)}</span>
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="text-xs text-gray-400">{formatDate(notice.createdAt)}</span>
+                  {me.userId && notice.createdBy === me.userId && (
+                    <>
+                      <button
+                        onClick={() => openEdit(notice)}
+                        aria-label={`Edit ${notice.title}`}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(notice)}
+                        aria-label={`Delete ${notice.title}`}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed">{notice.body}</p>
             </div>
@@ -142,7 +202,7 @@ export default function TeacherNoticesPage() {
       )}
 
       {open && (
-        <Modal title="Post Notice" onClose={() => setOpen(false)} maxWidth="max-w-lg">
+        <Modal title={editing ? "Edit Notice" : "Post Notice"} onClose={() => setOpen(false)} maxWidth="max-w-lg">
             <div className="px-6 py-5 space-y-4">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Title <span className="text-red-400">*</span></label>
@@ -163,7 +223,7 @@ export default function TeacherNoticesPage() {
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
                 />
               </div>
-              <div>
+              {!editing && <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Audience</label>
                 <div className="flex gap-2">
                   {([
@@ -185,8 +245,8 @@ export default function TeacherNoticesPage() {
                     </button>
                   ))}
                 </div>
-              </div>
-              {form.audience !== "teachers" && (
+              </div>}
+              {!editing && form.audience !== "teachers" && (
                 <>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -227,7 +287,7 @@ export default function TeacherNoticesPage() {
                 disabled={saving}
                 className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
-                {saving ? "Posting…" : "Post Notice"}
+                {saving ? (editing ? "Saving…" : "Posting…") : editing ? "Save Changes" : "Post Notice"}
               </button>
             </div>
         </Modal>

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const user = await User.findById(payload.userId).lean() as IUser | null;
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    return NextResponse.json({ name: user.name, email: user.email });
+    return NextResponse.json({ userId: payload.userId, name: user.name, email: user.email });
   } catch (error) {
     console.error("teachers/me GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

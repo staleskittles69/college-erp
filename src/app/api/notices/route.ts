@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
         targetBranch: notice.targetBranch ?? null,
         targetYear: notice.targetYear ?? null,
         createdAt: notice.createdAt,
+        createdBy: notice.createdBy ? String(notice.createdBy) : null,
       }))
     );
   } catch (error) {

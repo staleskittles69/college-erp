@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Test from "@/models/Test";
-import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { getAuth } from "@/lib/api-auth";
+import { canModifyOwned } from "@/lib/ownership";
 import { logAudit } from "@/lib/audit";
 import { isValidTestTime } from "@/lib/utils";
 import mongoose from "mongoose";
@@ -68,7 +69,7 @@ export async function PUT(
     if (!payload)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!requireAdmin(payload))
+    if (payload.role !== "admin" && payload.role !== "teacher")
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     if (!mongoose.Types.ObjectId.isValid(id))
@@ -91,6 +92,12 @@ export async function PUT(
     }
 
     await connectDB();
+
+    const existing = await Test.findById(id).select("createdBy").lean<{ createdBy?: mongoose.Types.ObjectId }>();
+    if (!existing)
+      return NextResponse.json({ error: "Test not found" }, { status: 404 });
+    if (!canModifyOwned(payload, existing.createdBy))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const updated = await Test.findByIdAndUpdate(
       id,
@@ -155,13 +162,19 @@ export async function DELETE(
     if (!payload)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!requireAdmin(payload))
+    if (payload.role !== "admin" && payload.role !== "teacher")
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     if (!mongoose.Types.ObjectId.isValid(id))
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
 
     await connectDB();
+
+    const existing = await Test.findById(id).select("createdBy").lean<{ createdBy?: mongoose.Types.ObjectId }>();
+    if (!existing)
+      return NextResponse.json({ error: "Test not found" }, { status: 404 });
+    if (!canModifyOwned(payload, existing.createdBy))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const deleted = await Test.findByIdAndDelete(id);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { ClipboardList, Plus, Upload, Paperclip } from "lucide-react";
+import { ClipboardList, Plus, Upload, Paperclip, Pencil, Trash2 } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import { useFetch } from "@/hooks/useFetch";
 
@@ -17,6 +17,9 @@ interface Test {
   attachmentUrl?: string | null;
   attachmentName?: string | null;
   testType?: string | null;
+  section?: string | null;
+  notes?: string | null;
+  createdBy?: string | null;
 }
 
 interface Dept { slug: string; name: string; }
@@ -30,11 +33,13 @@ function todayString() {
 
 export default function AssignmentsPage() {
   const { data: tests, loading, error, refetch: fetchTests } = useFetch<Test[]>("/api/tests", []);
+  const { data: me } = useFetch<{ userId?: string }>("/api/teachers/me", {});
 
   const [subjects, setSubjects] = useState<string[]>([]);
   const [depts, setDepts] = useState<Dept[]>([]);
 
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Test | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -54,12 +59,45 @@ export default function AssignmentsPage() {
 
   function handleBranchChange(value: string) { setForm((prev) => ({ ...prev, branch: value, semester: "" })); }
 
+  function openCreate() {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setFormError("");
+    setOpen(true);
+  }
+
+  function openEdit(test: Test) {
+    setEditing(test);
+    setForm({
+      title: test.title,
+      subject: test.subject,
+      branch: test.branch ?? "",
+      semester: test.semester != null ? String(test.semester) : "",
+      date: test.date.slice(0, 10),
+      maxMarks: test.maxMarks != null ? String(test.maxMarks) : "",
+      testType: test.testType ?? "Assignment",
+    });
+    setFormError("");
+    setOpen(true);
+  }
+
+  async function handleDelete(test: Test) {
+    if (!confirm(`Delete "${test.title}"? This cannot be undone.`)) return;
+    const response = await fetch(`/api/tests/${test._id}`, { method: "DELETE", credentials: "include" });
+    if (!response.ok) {
+      const result = await response.json().catch(() => ({}));
+      alert(result.error ?? "Failed to delete.");
+      return;
+    }
+    fetchTests();
+  }
+
   async function handleCreate() {
     if (!form.title.trim() || !form.subject.trim() || !form.date) {
       setFormError("Title, subject, and due date are required.");
       return;
     }
-    if (form.date < todayString() && !confirm("This date is in the past — it will be logged as already having happened. Create it anyway?")) {
+    if (!editing && form.date < todayString() && !confirm("This date is in the past — it will be logged as already having happened. Create it anyway?")) {
       return;
     }
     setSaving(true);
@@ -68,7 +106,7 @@ export default function AssignmentsPage() {
     let attachmentUrl: string | null = null;
     let attachmentName: string | null = null;
 
-    if (file) {
+    if (file && !editing) {
       const formData = new FormData();
       formData.append("file", file);
       const uploadResponse = await fetch("/api/upload", { method: "POST", credentials: "include", body: formData });
@@ -83,8 +121,8 @@ export default function AssignmentsPage() {
       }
     }
 
-    const response = await fetch("/api/tests", {
-      method: "POST",
+    const response = await fetch(editing ? `/api/tests/${editing._id}` : "/api/tests", {
+      method: editing ? "PUT" : "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -95,20 +133,23 @@ export default function AssignmentsPage() {
         semester: form.semester ? Number(form.semester) : null,
         maxMarks: form.maxMarks ? Number(form.maxMarks) : null,
         testType: form.testType,
-        attachmentUrl,
-        attachmentName,
+        // Editing replaces every field on the server, so carry over the ones this form doesn't show.
+        ...(editing
+          ? { section: editing.section ?? null, dueTime: editing.dueTime ?? null, notes: editing.notes ?? null }
+          : { attachmentUrl, attachmentName }),
       }),
     });
 
     if (!response.ok) {
       const result = await response.json();
-      setFormError(result.error ?? "Failed to create assignment.");
+      setFormError(result.error ?? (editing ? "Failed to save changes." : "Failed to create assignment."));
       setSaving(false);
       return;
     }
 
     setForm(EMPTY_FORM);
     setFile(null);
+    setEditing(null);
     if (fileRef.current) fileRef.current.value = "";
     setOpen(false);
     setSaving(false);
@@ -123,7 +164,7 @@ export default function AssignmentsPage() {
           <p className="text-white/80 text-sm mt-1">Tests and assignments for your classes</p>
         </div>
         <button
-          onClick={() => { setOpen(true); setFormError(""); }}
+          onClick={openCreate}
           data-tour="create-assignment"
           className="flex items-center gap-2 rounded-xl bg-white/15 border border-white/30 hover:bg-white/25 px-4 py-2.5 text-sm font-medium text-white transition-colors"
         >
@@ -185,10 +226,30 @@ export default function AssignmentsPage() {
                     </a>
                   )}
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-xs font-medium text-gray-600">{dateStr}</p>
-                  {test.dueTime && <p className="text-xs text-gray-400">by {test.dueTime}</p>}
-                  {test.maxMarks != null && <p className="text-xs text-gray-400">{test.maxMarks} marks</p>}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="text-right">
+                    <p className="text-xs font-medium text-gray-600">{dateStr}</p>
+                    {test.dueTime && <p className="text-xs text-gray-400">by {test.dueTime}</p>}
+                    {test.maxMarks != null && <p className="text-xs text-gray-400">{test.maxMarks} marks</p>}
+                  </div>
+                  {me.userId && test.createdBy === me.userId && (
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => openEdit(test)}
+                        aria-label={`Edit ${test.title}`}
+                        className="p-2 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(test)}
+                        aria-label={`Delete ${test.title}`}
+                        className="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -198,7 +259,7 @@ export default function AssignmentsPage() {
 
       {open && (
         <Modal
-          title={`Create ${form.testType === "Test" ? "Test" : "Assignment"}`}
+          title={`${editing ? "Edit" : "Create"} ${form.testType === "Test" ? "Test" : "Assignment"}`}
           onClose={() => setOpen(false)}
           maxWidth="max-w-lg"
           panelClassName="max-h-[90vh] overflow-y-auto"
@@ -307,7 +368,7 @@ export default function AssignmentsPage() {
                 />
               </div>
 
-              <div>
+              {!editing && <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Attachment <span className="text-gray-400">(optional)</span></label>
                 <label className="flex items-center gap-3 border border-dashed border-gray-300 rounded-lg px-4 py-3 cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
                   <Upload size={16} className="text-gray-400 flex-shrink-0" />
@@ -327,7 +388,7 @@ export default function AssignmentsPage() {
                     Remove file
                   </button>
                 )}
-              </div>
+              </div>}
 
               {formError && <p className="text-xs text-red-500">{formError}</p>}
             </div>
@@ -341,7 +402,7 @@ export default function AssignmentsPage() {
                 disabled={saving}
                 className="bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
-                {saving ? "Creating…" : `Create ${form.testType === "Test" ? "Test" : "Assignment"}`}
+                {saving ? (editing ? "Saving…" : "Creating…") : editing ? "Save Changes" : `Create ${form.testType === "Test" ? "Test" : "Assignment"}`}
               </button>
             </div>
         </Modal>

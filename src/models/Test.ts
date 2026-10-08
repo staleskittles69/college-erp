@@ -18,6 +18,8 @@ export interface ITest {
   // whole batch can be identified and deleted together later.
   seriesId?: mongoose.Types.ObjectId;
   seriesLabel?: string;
+  // Who scheduled it. Older tests have no owner and can only be changed by an admin.
+  createdBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +40,7 @@ const TestSchema = new Schema<ITest>(
     attachmentName: { type: String, default: null },
     seriesId: { type: Schema.Types.ObjectId, default: null },
     seriesLabel: { type: String, default: null },
+    createdBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
   },
   { timestamps: true }
 );

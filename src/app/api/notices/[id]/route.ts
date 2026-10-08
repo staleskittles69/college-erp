@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Notice from "@/models/Notice";
-import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { getAuth } from "@/lib/api-auth";
+import { canModifyOwned } from "@/lib/ownership";
 import { logAudit } from "@/lib/audit";
 import mongoose from "mongoose";
 
@@ -20,7 +21,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!requireAdmin(payload)) {
+    if (payload.role !== "admin" && payload.role !== "teacher") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -37,6 +38,15 @@ export async function PATCH(
 
     if (!notice) {
       return NextResponse.json({ error: "Notice not found" }, { status: 404 });
+    }
+
+    if (!canModifyOwned(payload, notice.createdBy)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Pinning stays an admin-only power, same as when a notice is created.
+    if (pinned !== undefined && payload.role !== "admin") {
+      return NextResponse.json({ error: "Only admins can pin notices" }, { status: 403 });
     }
 
     if (title !== undefined) notice.title = title;
@@ -86,7 +96,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!requireAdmin(payload)) {
+    if (payload.role !== "admin" && payload.role !== "teacher") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -95,6 +105,16 @@ export async function DELETE(
     }
 
     await connectDB();
+
+    const existing = await Notice.findById(id).select("createdBy").lean<{ createdBy?: mongoose.Types.ObjectId }>();
+
+    if (!existing) {
+      return NextResponse.json({ error: "Notice not found" }, { status: 404 });
+    }
+
+    if (!canModifyOwned(payload, existing.createdBy)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const deleted = await Notice.findByIdAndDelete(id);
 
