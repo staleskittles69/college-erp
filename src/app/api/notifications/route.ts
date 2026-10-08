@@ -12,8 +12,10 @@ function serializeNotification(notification: INotification) {
     forumName: notification.forumName,
     conversationId: notification.conversationId?.toString(),
     conversationName: notification.conversationName,
-    messageId: notification.messageId.toString(),
+    messageId: notification.messageId?.toString(),
     messagePreview: notification.messagePreview,
+    title: notification.title,
+    link: notification.link,
     read: notification.read,
     createdAt: notification.createdAt,
   };

@@ -7,8 +7,10 @@ import { useFetch } from "@/hooks/useFetch";
 
 interface NotificationItem {
   _id: string;
-  type: "forum_mention" | "new_message";
+  type: "forum_mention" | "new_message" | "query_received" | "notice_posted" | "leave_decision" | "substitute_assigned";
   actorName: string;
+  title?: string;
+  link?: string;
   forumId?: string;
   forumName?: string;
   conversationId?: string;
@@ -71,7 +73,9 @@ export function NotificationBell({ portalBasePath }: { portalBasePath: string })
       }));
     }
     setShowNotifications(false);
-    if (notification.type === "new_message" && notification.conversationId) {
+    if (notification.link) {
+      router.push(notification.link);
+    } else if (notification.type === "new_message" && notification.conversationId) {
       router.push(`${portalBasePath}/messages?conversation=${notification.conversationId}`);
     } else if (notification.forumId) {
       router.push(`${portalBasePath}/forums?forum=${notification.forumId}`);
@@ -114,18 +118,24 @@ export function NotificationBell({ portalBasePath }: { portalBasePath: string })
                     }`}
                   >
                     <p className="text-sm text-gray-800">
-                      <span className="font-semibold">{notification.actorName}</span>{" "}
-                      {notification.type === "new_message" ? (
-                        notification.conversationName ? (
-                          <>
-                            posted in <span className="font-semibold">{notification.conversationName}</span>
-                          </>
-                        ) : (
-                          "sent you a message"
-                        )
+                      {notification.title ? (
+                        <span className="font-semibold">{notification.title}</span>
                       ) : (
                         <>
-                          mentioned you in <span className="font-semibold">{notification.forumName}</span>
+                          <span className="font-semibold">{notification.actorName}</span>{" "}
+                          {notification.type === "new_message" ? (
+                            notification.conversationName ? (
+                              <>
+                                posted in <span className="font-semibold">{notification.conversationName}</span>
+                              </>
+                            ) : (
+                              "sent you a message"
+                            )
+                          ) : (
+                            <>
+                              mentioned you in <span className="font-semibold">{notification.forumName}</span>
+                            </>
+                          )}
                         </>
                       )}
                     </p>

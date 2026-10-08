@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Teacher, { ITeacher } from "@/models/Teacher";
 import User from "@/models/User";
+import Test from "@/models/Test";
+import Query from "@/models/Query";
 import { getAuth } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -30,8 +32,15 @@ export async function GET(request: NextRequest) {
       studentCount = await User.countDocuments({ role: "student", $or: orConditions });
     }
 
+    const [pendingAssignments, openQueries] = await Promise.all([
+      Test.countDocuments({ createdBy: payload.userId, date: { $gte: new Date() } }),
+      Query.countDocuments({ toRole: "teacher", toUserId: payload.userId, status: "open" }),
+    ]);
+
     return NextResponse.json({
       studentCount,
+      pendingAssignments,
+      openQueries,
       sectionCount,
       classCount: teaching.length,
       teaching,

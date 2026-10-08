@@ -3,6 +3,8 @@ import connectDB from "@/lib/db";
 import Notice from "@/models/Notice";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
+import { notifyUsers } from "@/lib/notifications";
+import User from "@/models/User";
 
 export async function GET(request: NextRequest) {
   try {
@@ -103,6 +105,22 @@ export async function POST(request: NextRequest) {
       `Created notice "${notice.title}"`,
       notice._id.toString()
     );
+
+    if (noticeAudience === "teachers" || noticeAudience === "both") {
+      const [actor, teachers] = await Promise.all([
+        User.findById(payload.userId).select("name").lean<{ name?: string }>(),
+        User.find({ role: "teacher" }).select("_id").lean<Array<{ _id: { toString: () => string } }>>(),
+      ]);
+      await notifyUsers({
+        recipientUserIds: teachers.map((teacher) => teacher._id.toString()),
+        type: "notice_posted",
+        actorUserId: payload.userId,
+        actorName: actor?.name ?? "Admin",
+        title: "New notice",
+        preview: notice.title,
+        link: "/teachers/notices",
+      });
+    }
 
     return NextResponse.json({
       _id: notice._id.toString(),

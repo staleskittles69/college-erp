@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, BookOpen, ClipboardList, Bell, CalendarDays, Clock } from "lucide-react";
+import { Users, BookOpen, ClipboardList, Bell, CalendarDays, Clock, Inbox } from "lucide-react";
 import { PERIOD_TIMES, formatPeriodTime, isAttendanceWindowOpen, teacherAttendanceUrl } from "@/lib/academics";
 
 interface TeacherStats {
   studentCount: number;
   sectionCount: number;
   classCount: number;
+  pendingAssignments: number;
+  openQueries: number;
 }
 
 interface ScheduledClass {
@@ -94,7 +96,8 @@ export default function TeacherDashboardPage() {
   const statCards = [
     { label: "Total Students",     value: stats ? String(stats.studentCount) : "—",   icon: Users,         color: "bg-orange-50 text-orange-600", tour: "stat-students" },
     { label: "Sections Assigned",  value: stats ? String(stats.sectionCount)  : "—",  icon: BookOpen,      color: "bg-green-50 text-green-600",   tour: "stat-sections" },
-    { label: "Pending Assignments", value: "—",                                        icon: ClipboardList, color: "bg-amber-50 text-amber-600",   tour: "stat-pending" },
+    { label: "Pending Assignments", value: stats ? String(stats.pendingAssignments) : "—", icon: ClipboardList, color: "bg-amber-50 text-amber-600", tour: "stat-pending" },
+    { label: "Open Queries",       value: stats ? String(stats.openQueries) : "—",    icon: Inbox,         color: "bg-blue-50 text-blue-600",     tour: "stat-queries" },
     { label: "Active Notices",     value: noticeCount !== null ? String(noticeCount) : "—", icon: Bell,    color: "bg-purple-50 text-purple-600", tour: "stat-notices" },
   ];
 
@@ -102,7 +105,7 @@ export default function TeacherDashboardPage() {
     <div className="space-y-8">
       <div>
         <SectionHeader title="Overview" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
           {statCards.map(({ label, value, icon: Icon, color, tour }) => (
             <div key={label} data-tour={tour} className="rounded-xl border border-gray-200 bg-white p-5 flex items-center gap-4 hover:shadow-md transition-shadow">
               <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${color}`}>

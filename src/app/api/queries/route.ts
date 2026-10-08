@@ -5,6 +5,7 @@ import User from "@/models/User";
 import Student from "@/models/Student";
 import Teacher from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { notifyUsers } from "@/lib/notifications";
 
 function serializeQuery(query: {
   _id: { toString: () => string };
@@ -125,6 +126,18 @@ export async function POST(request: NextRequest) {
       message: message.trim(),
       status: "open",
     });
+
+    if (toRole === "teacher" && toUserId) {
+      await notifyUsers({
+        recipientUserIds: [toUserId],
+        type: "query_received",
+        actorUserId: payload.userId,
+        actorName: user?.name ?? "Unknown",
+        title: `New query from ${user?.name ?? "a student"}`,
+        preview: subject.trim(),
+        link: "/teachers/queries",
+      });
+    }
 
     return NextResponse.json(serializeQuery(query));
   } catch (error) {
