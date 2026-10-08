@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Teacher, { ITeacher } from "@/models/Teacher";
 import Subject from "@/models/Subject";
+import Substitution, { ISubstitution } from "@/models/Substitution";
 import { getAuth } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
@@ -19,10 +20,29 @@ export async function GET(request: NextRequest) {
       .sort({ name: 1 })
       .lean();
 
-    return NextResponse.json({
-      teaching: teacher.teaching,
-      subjects: subjects.map((subject) => subject.name),
-    });
+    const teaching = teacher.teaching.map((assignment) => ({ ...assignment, sections: [...assignment.sections] }));
+    const subjectNames = subjects.map((subject) => subject.name);
+
+    // The Attendance page also needs today's covered classes, which sit outside the teacher's
+    // own assignment. Other pages (notices, assignments, resources) shouldn't offer those.
+    if (new URL(request.url).searchParams.get("includeCovering") === "true") {
+      const covers = await Substitution.find({
+        substituteTeacherId: teacher._id,
+        date: new Date(new Date().toISOString().slice(0, 10)),
+      }).lean<ISubstitution[]>();
+
+      for (const cover of covers) {
+        const existing = teaching.find((item) => item.branch === cover.branch && item.year === cover.semester);
+        if (!existing) {
+          teaching.push({ branch: cover.branch, year: cover.semester, sections: [cover.section] });
+        } else if (!existing.sections.includes(cover.section)) {
+          existing.sections.push(cover.section);
+        }
+        if (!subjectNames.includes(cover.subject)) subjectNames.push(cover.subject);
+      }
+    }
+
+    return NextResponse.json({ teaching, subjects: subjectNames });
   } catch (error) {
     console.error("teachers/me/classes GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -30,7 +30,7 @@ export default function AttendancePage() {
   const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
-    fetch("/api/teachers/me/classes", { credentials: "include" })
+    fetch("/api/teachers/me/classes?includeCovering=true", { credentials: "include" })
       .then((response) => response.ok ? response.json() : { teaching: [], subjects: [] })
       .then((classesData) => {
         const teachingList: Teaching[] = classesData.teaching ?? [];

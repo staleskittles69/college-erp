@@ -12,6 +12,7 @@ import {
   Hash,
   MessageSquare,
   Library,
+  CalendarOff,
   Settings,
 } from "lucide-react";
 
@@ -35,6 +36,7 @@ const MENU_ITEMS = [
   { icon: <Hash size={18} />, label: "Forums", href: "/teachers/forums" },
   { icon: <MessageSquare size={18} />, label: "Messages", href: "/teachers/messages" },
   { icon: <Library size={18} />, label: "Resources", href: "/teachers/resources" },
+  { icon: <CalendarOff size={18} />, label: "Leave", href: "/teachers/leave" },
   { icon: <Settings size={18} />, label: "Settings", href: "/teachers/settings" },
 ];
 

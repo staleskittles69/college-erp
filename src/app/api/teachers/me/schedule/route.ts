@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Teacher, { ITeacher } from "@/models/Teacher";
+import LeaveRequest from "@/models/LeaveRequest";
+import Substitution, { ISubstitution } from "@/models/Substitution";
 import { getAuth } from "@/lib/api-auth";
 import { classKey, getAttendanceTakenClassKeys, getTeacherClasses } from "@/lib/teacherSchedule";
 
@@ -21,10 +23,47 @@ export async function GET(request: NextRequest) {
     const teacher = await Teacher.findOne({ userId: payload.userId }).lean() as ITeacher | null;
     if (!teacher) return NextResponse.json({ classes: [] });
 
-    const entries = await getTeacherClasses(teacher, todayIndex());
     // Same YYYY-MM-DD the Attendance page defaults to and saves under.
-    const takenKeys = await getAttendanceTakenClassKeys(entries, new Date().toISOString().slice(0, 10));
-    const classes = entries.map((entry) => ({
+    const dateISO = new Date().toISOString().slice(0, 10);
+    const today = new Date(dateISO);
+
+    const [ownEntries, onLeave, coverDocs] = await Promise.all([
+      getTeacherClasses(teacher, todayIndex()),
+      LeaveRequest.exists({ teacherId: teacher._id, status: "approved", fromDate: { $lte: today }, toDate: { $gte: today } }),
+      Substitution.find({ $or: [{ substituteTeacherId: teacher._id }, { originalTeacherId: teacher._id }], date: today })
+        .lean<ISubstitution[]>(),
+    ]);
+
+    const teacherNames = new Map(
+      (
+        await Teacher.find({
+          _id: { $in: coverDocs.flatMap((cover) => [cover.originalTeacherId, cover.substituteTeacherId]) },
+        })
+          .select("name")
+          .lean<Array<{ _id: { toString: () => string }; name: string }>>()
+      ).map((found) => [found._id.toString(), found.name])
+    );
+
+    const coversMine = coverDocs.filter((cover) => cover.substituteTeacherId.equals(teacher._id));
+    const coveredByPeriod = new Map(
+      coverDocs.filter((cover) => cover.originalTeacherId.equals(teacher._id)).map((cover) => [cover.period, cover])
+    );
+
+    const coverEntries = coversMine.map((cover) => ({
+      subject: cover.subject,
+      period: cover.period,
+      time: cover.time,
+      room: cover.room,
+      branch: cover.branch,
+      semester: cover.semester,
+      section: cover.section,
+    }));
+    const takenKeys = await getAttendanceTakenClassKeys([...ownEntries, ...coverEntries], dateISO);
+
+    const toRow = (
+      entry: (typeof coverEntries)[number],
+      extra: { status: "own" | "covering" | "on_leave"; coveringFor?: string; coveredBy?: string | null }
+    ) => ({
       subject: entry.subject,
       period: entry.period,
       time: entry.time,
@@ -34,9 +73,27 @@ export async function GET(request: NextRequest) {
       year: entry.semester,
       section: entry.section,
       attendanceTaken: takenKeys.has(classKey(entry)),
-    }));
+      ...extra,
+    });
 
-    return NextResponse.json({ classes });
+    const classes = [
+      ...ownEntries.map((entry) => {
+        if (!onLeave) return toRow(entry, { status: "own" });
+        const cover = coveredByPeriod.get(entry.period);
+        return toRow(entry, {
+          status: "on_leave",
+          coveredBy: cover ? teacherNames.get(cover.substituteTeacherId.toString()) ?? null : null,
+        });
+      }),
+      ...coverEntries.map((entry, index) =>
+        toRow(entry, {
+          status: "covering",
+          coveringFor: teacherNames.get(coversMine[index].originalTeacherId.toString()) ?? "a colleague",
+        })
+      ),
+    ].sort((a, b) => a.period - b.period);
+
+    return NextResponse.json({ classes, onLeave: Boolean(onLeave) });
   } catch (error) {
     console.error("Teacher schedule GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

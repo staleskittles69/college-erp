@@ -22,6 +22,10 @@ interface ScheduledClass {
   year: number;
   section: string;
   attendanceTaken: boolean;
+  // "covering" = filling in for a colleague on leave; "on_leave" = my own class while I'm away.
+  status: "own" | "covering" | "on_leave";
+  coveringFor?: string;
+  coveredBy?: string | null;
 }
 
 interface ActivityEntry {
@@ -62,6 +66,7 @@ export default function TeacherDashboardPage() {
   const [stats, setStats] = useState<TeacherStats | null>(null);
   const [noticeCount, setNoticeCount] = useState<number | null>(null);
   const [classes, setClasses] = useState<ScheduledClass[] | null>(null);
+  const [onLeave, setOnLeave] = useState(false);
   const [activity, setActivity] = useState<ActivityEntry[] | null>(null);
   // Ticks so the "Take attendance" buttons appear and disappear on time without a page refresh.
   const [now, setNow] = useState(() => new Date());
@@ -84,7 +89,10 @@ export default function TeacherDashboardPage() {
 
     fetch("/api/teachers/me/schedule", { credentials: "include" })
       .then((response) => response.ok ? response.json() : { classes: [] })
-      .then((data: { classes: ScheduledClass[] }) => setClasses(data.classes ?? []))
+      .then((data: { classes: ScheduledClass[]; onLeave?: boolean }) => {
+        setClasses(data.classes ?? []);
+        setOnLeave(Boolean(data.onLeave));
+      })
       .catch(() => setClasses([]));
 
     fetch("/api/teachers/me/activity", { credentials: "include" })
@@ -123,6 +131,11 @@ export default function TeacherDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div data-tour="today-classes">
           <SectionHeader title="Today's Classes" />
+          {onLeave && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              You&apos;re on approved leave today.
+            </div>
+          )}
           {classes === null ? (
             <div className="mt-4 rounded-xl border border-gray-200 bg-white p-10 min-h-[200px] animate-pulse" />
           ) : classes.length === 0 ? (
@@ -139,12 +152,25 @@ export default function TeacherDashboardPage() {
             <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4 min-h-[200px] space-y-2">
               {classes.map((cls, idx) => {
                 const periodTime = cls.time || PERIOD_TIMES[cls.period] || "";
-                const attendanceOpen = isAttendanceWindowOpen(periodTime, now);
+                const attendanceOpen = cls.status !== "on_leave" && isAttendanceWindowOpen(periodTime, now);
                 return (
-                  <div key={idx} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg px-3 py-2 bg-orange-50">
+                  <div
+                    key={idx}
+                    className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg px-3 py-2 ${
+                      cls.status === "on_leave" ? "bg-gray-100" : "bg-orange-50"
+                    }`}
+                  >
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-gray-800">{cls.subject}</p>
                       <p className="text-xs text-gray-500">{cls.branch} · {cls.section} · Period {cls.period}</p>
+                      {cls.status === "covering" && (
+                        <p className="mt-1 text-[11px] font-medium text-blue-700">Covering for {cls.coveringFor}</p>
+                      )}
+                      {cls.status === "on_leave" && (
+                        <p className="mt-1 text-[11px] font-medium text-amber-700">
+                          On leave · {cls.coveredBy ? `covered by ${cls.coveredBy}` : "no cover arranged"}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
                       <span className="text-xs text-gray-500 text-right">
