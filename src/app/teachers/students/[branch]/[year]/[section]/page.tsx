@@ -1,6 +1,7 @@
 "use client";
 
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -98,7 +99,11 @@ export default function StudentListPage() {
                     <tr key={student._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-3.5 text-gray-400 text-xs">{index + 1}</td>
                       <td className="px-6 py-3.5 font-mono text-xs text-gray-500">{student.rollNo}</td>
-                      <td className="px-6 py-3.5 font-medium text-gray-800">{student.name}</td>
+                      <td className="px-6 py-3.5 font-medium">
+                        <Link href={`/teachers/students/${branch}/${year}/${section}/${student._id}`} className="text-gray-800 hover:text-orange-600 hover:underline">
+                          {student.name}
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
