@@ -73,7 +73,7 @@ export default function LoginPage() {
         {/* Left panel — branding */}
         <div className="hidden md:flex flex-col justify-between w-1/2 bg-gradient-to-br from-orange-600 to-orange-700 p-10 text-white">
           <div className="flex items-center gap-3">
-            <img src="/logo2.png" alt="NRI University" className="w-10 h-10 rounded-xl object-cover" />
+            <img src="/logo2.svg" alt="NRI University" className="w-10 h-10 rounded-xl object-cover" />
             <span className="text-xl font-bold tracking-tight">NRI University</span>
           </div>
 
@@ -108,7 +108,7 @@ export default function LoginPage() {
 
           {/* Mobile logo */}
           <div className="flex md:hidden items-center gap-2 mb-8">
-            <img src="/logo-nri.png" alt="NRI University" className="h-9 w-auto" />
+            <img src="/logo-nri.svg" alt="NRI University" className="h-9 w-auto" />
             <span className="text-lg font-bold text-gray-900">NRI University</span>
           </div>
 
