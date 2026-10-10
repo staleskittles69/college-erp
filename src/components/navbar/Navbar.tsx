@@ -15,6 +15,9 @@ const PAGE_TITLES: Record<string, string> = {
   "/student/messages": "Messages",
   "/student/forums": "Chat with other students. Teachers may drop in to help.",
   "/student/resources": "Resources",
+  "/student/transport": "Transport",
+  "/student/hostel": "Hostel",
+  "/student/fees": "Payment Due",
   "/student/profile": "Profile",
   "/student/settings": "Settings",
 };

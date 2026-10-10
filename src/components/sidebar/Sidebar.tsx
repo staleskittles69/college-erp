@@ -12,6 +12,9 @@ import {
   MessageSquare,
   Hash,
   Library,
+  Bus,
+  BedDouble,
+  Wallet,
   User,
   Settings,
 } from "lucide-react";
@@ -36,6 +39,9 @@ const MENU_ITEMS = [
   { icon: <MessageSquare size={18} />, label: "Queries", href: "/student/messages" },
   { icon: <Hash size={18} />, label: "Forums", href: "/student/forums" },
   { icon: <Library size={18} />, label: "Resources", href: "/student/resources" },
+  { icon: <Bus size={18} />, label: "Transport", href: "/student/transport" },
+  { icon: <BedDouble size={18} />, label: "Hostel", href: "/student/hostel" },
+  { icon: <Wallet size={18} />, label: "Payment Due", href: "/student/fees" },
   { icon: <User size={18} />, label: "Profile", href: "/student/profile" },
   { icon: <Settings size={18} />, label: "Settings", href: "/student/settings" },
 ];
