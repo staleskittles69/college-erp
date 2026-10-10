@@ -101,12 +101,31 @@ export async function PUT(request: NextRequest) {
       { new: true }
     );
     if (!claimed) return NextResponse.json({ error: "This bus is full" }, { status: 409 });
+    const releaseClaimed = () => BusRoute.updateOne({ _id: routeId, bookedSeats: { $gt: 0 } }, { $inc: { bookedSeats: -1 } });
 
-    await TransportBooking.findOneAndUpdate(
-      { userId: payload.userId },
-      { userId: payload.userId, routeId, stopName, fee: route.annualFee },
-      { upsert: true }
-    );
+    // Only save if the booking is still the one read above. If another request (e.g. a second tab)
+    // changed it in between, give the seat back instead of leaving the seat count out of step.
+    let saved = false;
+    try {
+      if (existing) {
+        const result = await TransportBooking.updateOne(
+          { _id: existing._id, routeId: existing.routeId },
+          { routeId, stopName, fee: route.annualFee }
+        );
+        saved = result.matchedCount === 1;
+      } else {
+        await TransportBooking.create({ userId: payload.userId, routeId, stopName, fee: route.annualFee });
+        saved = true;
+      }
+    } catch (saveError) {
+      await releaseClaimed();
+      if ((saveError as { code?: number }).code !== 11000) throw saveError; // 11000: booked in another tab
+    }
+    if (!saved) {
+      await releaseClaimed();
+      return NextResponse.json({ error: "Your booking just changed. Please refresh and try again." }, { status: 409 });
+    }
+
     if (existing) {
       await BusRoute.updateOne({ _id: existing.routeId, bookedSeats: { $gt: 0 } }, { $inc: { bookedSeats: -1 } });
     }

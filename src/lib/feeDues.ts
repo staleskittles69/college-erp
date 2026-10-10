@@ -8,8 +8,10 @@ import HostelRoom, { IHostelRoom } from "@/models/HostelRoom";
 
 // Callers must have already run connectDB() before using anything in this file.
 
+// Always the oldest settings document, so readers and the admin save agree on the same one even if
+// two first-ever requests raced and each created one.
 export async function getFeeSettings(): Promise<IFeeSettings> {
-  const existing = await FeeSettings.findOne().lean<IFeeSettings>();
+  const existing = await FeeSettings.findOne().sort({ createdAt: 1, _id: 1 }).lean<IFeeSettings>();
   if (existing) return existing;
   const created = await FeeSettings.create({});
   return created.toObject() as IFeeSettings;

@@ -129,12 +129,31 @@ export async function PUT(request: NextRequest) {
       { sort: { block: 1, roomNumber: 1 }, new: true }
     ).lean<IHostelRoom>();
     if (!room) return NextResponse.json({ error: "No beds left in this room type" }, { status: 409 });
+    const releaseClaimed = () => HostelRoom.updateOne({ _id: room._id, occupiedBeds: { $gt: 0 } }, { $inc: { occupiedBeds: -1 } });
 
-    await HostelBooking.findOneAndUpdate(
-      { userId: payload.userId },
-      { userId: payload.userId, roomId: room._id, gender, sharing, ac, fee },
-      { upsert: true }
-    );
+    // Only save if the booking is still the one read above. If another request (e.g. a second tab)
+    // changed it in between, give the bed back instead of leaving the bed count out of step.
+    let saved = false;
+    try {
+      if (existing) {
+        const result = await HostelBooking.updateOne(
+          { _id: existing._id, roomId: existing.roomId },
+          { roomId: room._id, gender, sharing, ac, fee }
+        );
+        saved = result.matchedCount === 1;
+      } else {
+        await HostelBooking.create({ userId: payload.userId, roomId: room._id, gender, sharing, ac, fee });
+        saved = true;
+      }
+    } catch (saveError) {
+      await releaseClaimed();
+      if ((saveError as { code?: number }).code !== 11000) throw saveError; // 11000: booked in another tab
+    }
+    if (!saved) {
+      await releaseClaimed();
+      return NextResponse.json({ error: "Your booking just changed. Please refresh and try again." }, { status: 409 });
+    }
+
     if (existing) {
       await HostelRoom.updateOne({ _id: existing.roomId, occupiedBeds: { $gt: 0 } }, { $inc: { occupiedBeds: -1 } });
     }

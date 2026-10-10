@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const [dues, settings, transport, hostel] = await Promise.all([
-      FeeDue.find({ userId: payload.userId }).sort({ status: 1, createdAt: -1 }).lean<IFeeDue[]>(),
+      FeeDue.find({ userId: payload.userId }).sort({ status: -1, createdAt: -1 }).lean<IFeeDue[]>(), // unpaid ("pending") before "paid"
       getFeeSettings(),
       TransportBooking.findOne({ userId: payload.userId }).select("fee").lean<{ fee: number }>(),
       HostelBooking.findOne({ userId: payload.userId }).select("fee").lean<{ fee: number }>(),

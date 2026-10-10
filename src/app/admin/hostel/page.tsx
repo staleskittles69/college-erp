@@ -80,9 +80,14 @@ export default function AdminHostelPage() {
   }, [rooms]);
 
   async function saveFees() {
-    setSavingFees(true);
     setFeesError("");
     setFeesMessage("");
+    // Number("") is 0, which would quietly make that room type unbookable.
+    if (FEE_FIELDS.some(({ key }) => (fees[key] ?? "").trim() === "")) {
+      setFeesError("Enter a fee for every room type.");
+      return;
+    }
+    setSavingFees(true);
     const response = await fetch("/api/admin/fees/settings", {
       method: "PUT",
       credentials: "include",
