@@ -1,7 +1,7 @@
 "use client";
 
 import { CalendarDays } from "lucide-react";
-import { DAYS as DAY_NAMES, formatPeriodTime } from "@/lib/academics";
+import { DAYS as DAY_NAMES, PERIODS, PERIOD_TIMES } from "@/lib/academics";
 import { useFetch } from "@/hooks/useFetch";
 
 interface ClassEntry {
@@ -23,7 +23,8 @@ export default function TimetablePage() {
     (acc[cls.dayOfWeek] ??= []).push(cls);
     return acc;
   }, {});
-  const activeDays = Object.keys(byDay).map(Number).sort((dayA, dayB) => dayA - dayB);
+  // Mon–Fri always show; Saturday only when it has classes.
+  const visibleDays = [0, 1, 2, 3, 4, 5].filter((day) => day < 5 || byDay[day]?.length > 0);
 
   return (
     <div className="space-y-6">
@@ -40,7 +41,7 @@ export default function TimetablePage() {
         <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
           Could not load timetable.
         </div>
-      ) : activeDays.length === 0 ? (
+      ) : classes.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-white p-16 flex flex-col items-center justify-center gap-4 min-h-[300px] text-center">
           <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center">
             <CalendarDays size={26} className="text-gray-400" />
@@ -51,31 +52,47 @@ export default function TimetablePage() {
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          {activeDays.map((day) => (
-            <div key={day} className="rounded-xl border border-gray-200 bg-white overflow-hidden" data-tour="timetable-day">
-              <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
-                <span className="text-sm font-semibold text-gray-700">{DAY_NAMES[day]}</span>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {byDay[day]
-                  .slice()
-                  .sort((a, b) => a.period - b.period)
-                  .map((cls, clsIdx) => (
-                    <div key={`${day}-${clsIdx}`} className="px-5 py-3 flex items-center justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-gray-800">{cls.subject}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{cls.branch} · Year {cls.semester} · {cls.section}</p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-xs font-medium text-gray-600">{formatPeriodTime(cls.time)}</p>
-                        <p className="text-xs text-gray-400">{cls.room}</p>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          ))}
+        <div className="rounded-xl border border-gray-200 bg-white overflow-x-auto" data-tour="timetable-day">
+          <table className="w-full min-w-[900px] border-collapse text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-gray-700">
+                <th className="w-28 px-4 py-3 text-left font-semibold border-b border-r border-gray-100">Day</th>
+                {PERIODS.map((period) => (
+                  <th key={period} className="px-3 py-3 text-center font-semibold border-b border-r border-gray-100 last:border-r-0">
+                    <span className="block">Period {period}</span>
+                    <span className="block text-[11px] font-normal text-gray-400 mt-0.5">{PERIOD_TIMES[period]}</span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {visibleDays.map((day) => (
+                <tr key={day} className="border-b border-gray-100 last:border-b-0">
+                  <th scope="row" className="px-4 py-3 text-left font-semibold text-gray-700 bg-gray-50 border-r border-gray-100">
+                    {DAY_NAMES[day]}
+                  </th>
+                  {PERIODS.map((period) => {
+                    const entries = (byDay[day] ?? []).filter((cls) => cls.period === period);
+                    return (
+                      <td key={period} className="px-3 py-3 text-center align-middle border-r border-gray-100 last:border-r-0">
+                        {entries.length === 0 ? (
+                          <span className="text-gray-300">—</span>
+                        ) : (
+                          entries.map((cls, clsIdx) => (
+                            <div key={clsIdx} className={clsIdx > 0 ? "mt-2 pt-2 border-t border-gray-100" : ""}>
+                              <p className="font-semibold text-gray-800">{cls.subject}</p>
+                              <p className="text-xs text-gray-500 mt-0.5">{cls.branch} · Yr {cls.semester} · {cls.section}</p>
+                              {cls.room && <p className="text-xs text-gray-400">{cls.room}</p>}
+                            </div>
+                          ))
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

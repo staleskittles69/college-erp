@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import path from "path";
+import { mkdir, writeFile } from "fs/promises";
 import { getAuth } from "@/lib/api-auth";
 import { uploadPathname } from "@/lib/uploads";
 
@@ -30,6 +31,14 @@ export async function POST(request: NextRequest) {
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const filename = `${Date.now()}-${safeName}`;
+
+  // Offline demo: store on local disk instead of Vercel Blob
+  if (process.env.DEMO_OFFLINE === "1") {
+    const dir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, filename), Buffer.from(await file.arrayBuffer()));
+    return NextResponse.json({ url: `/uploads/${filename}`, fileName: file.name });
+  }
 
   const blob = await put(uploadPathname(payload.userId, filename), file, {
     access: "public",

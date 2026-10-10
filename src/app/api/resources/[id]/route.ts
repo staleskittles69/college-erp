@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { del } from "@vercel/blob";
+import path from "path";
+import { unlink } from "fs/promises";
 import connectDB from "@/lib/db";
 import Resource from "@/models/Resource";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
@@ -26,7 +28,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     // Only delete the stored file if it belongs to whoever added the resource; older resources
     // saved before uploads were filed per user just lose the database entry.
-    if (isOwnUploadUrl(resource.fileUrl, resource.uploadedBy.toString())) {
+    const uploaderId = resource.uploadedBy.toString();
+    if (process.env.DEMO_OFFLINE === "1" && resource.fileUrl.startsWith("/uploads/")) {
+      await unlink(path.join(process.cwd(), "public", "uploads", path.basename(resource.fileUrl))).catch(() => {});
+    } else if (isOwnUploadUrl(resource.fileUrl, uploaderId)) {
       await del(resource.fileUrl).catch(() => {});
     }
     await resource.deleteOne();
