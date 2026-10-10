@@ -2,7 +2,6 @@
 
 import { ReactNode } from "react";
 import { Menu, ChevronLeft, X } from "lucide-react";
-import { SuggestionBoxButton } from "@/components/ui/SuggestionBoxButton";
 import { SidebarItem } from "@/components/sidebar/SidebarItem";
 
 export interface PortalMenuItem {
@@ -90,7 +89,6 @@ export function PortalSidebar({
             {menuItems.map((item) => (
               <SidebarItem key={item.href} {...item} isCollapsed={isCollapsed} onNavigate={onCloseMobile} />
             ))}
-            <SuggestionBoxButton collapsed={isCollapsed} onOpen={onCloseMobile} />
           </nav>
         </div>
 

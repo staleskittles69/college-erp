@@ -6,7 +6,6 @@ import type { Driver, DriveStep } from "driver.js";
 import "driver.js/dist/driver.css";
 import { useFetch } from "@/hooks/useFetch";
 import { findPageTour, getTourPlan, MOBILE_MENU_STEP, PageTour, TourRole, TourStep } from "@/lib/tour-steps";
-import { SuggestionModal } from "@/components/ui/SuggestionModal";
 import { clearTourFlag, isTourFlagged, TOUR_ENABLED } from "@/lib/tour-login";
 
 export const START_TOUR_EVENT = "start-tour";
@@ -97,7 +96,6 @@ export function ProductTour({ role }: { role: TourRole }) {
 
 function ProductTourRunner({ role }: { role: TourRole }) {
   const { data: me } = useFetch<{ id?: string }>("/api/auth/me", {});
-  const [showSuggestion, setShowSuggestion] = useState(false);
   const userId = me.id ?? null;
   const pathname = usePathname();
   const driverRef = useRef<Driver | null>(null);
@@ -171,7 +169,6 @@ function ProductTourRunner({ role }: { role: TourRole }) {
         }
       }
 
-      let finished = false;
       const tour = driver({
         steps,
         showProgress: true,
@@ -187,22 +184,12 @@ function ProductTourRunner({ role }: { role: TourRole }) {
         disableActiveInteraction: true,
         // A stray click on the dimmed area shouldn't end the tour; use ×, Esc or Done.
         overlayClickBehavior: () => {},
-        // Finishing the full tour (Done on the last step) ends with the suggestion box; closing early doesn't.
-        onNextClick: () => {
-          if (tour.isLastStep()) {
-            finished = true;
-            tour.destroy();
-          } else {
-            tour.moveNext();
-          }
-        },
         onDestroyed: () => {
           driverRef.current = null;
           if (isMobile && mode === "full") closeDrawer();
           if (unmountingRef.current || !userId) return;
           if (mode === "full") markSeen(seenKey(userId));
           if (page) markSeen(seenKey(userId, page.path));
-          if (finished && mode === "full") setShowSuggestion(true);
         },
       });
 
@@ -257,5 +244,5 @@ function ProductTourRunner({ role }: { role: TourRole }) {
     return () => window.removeEventListener(START_TOUR_EVENT, handler);
   }, [role, pathname, startTour]);
 
-  return showSuggestion ? <SuggestionModal onClose={() => setShowSuggestion(false)} /> : null;
+  return null;
 }

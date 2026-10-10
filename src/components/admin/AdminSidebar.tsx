@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFetch } from "@/hooks/useFetch";
-import { SuggestionBoxButton } from "@/components/ui/SuggestionBoxButton";
 import {
   LayoutDashboard,
   Building2,
@@ -125,7 +124,6 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile, collapsed, onT
               </Link>
             );
           })}
-          <SuggestionBoxButton collapsed={collapsed} onOpen={onCloseMobile} />
         </nav>
 
         {/* Footer label */}
