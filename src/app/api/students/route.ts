@@ -4,7 +4,7 @@ import User from "@/models/User";
 import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
-import { generateRollNumber } from "@/lib/utils/generateRollNumber";
+import { nextRollNoSequence, nextSectionSerial } from "@/lib/utils/generateRollNumber";
 import { formatRollNo, rollNoToEmail } from "@/lib/utils/rollNumber";
 import { toIdString } from "@/lib/utils";
 import { escapeRegex } from "@/lib/utils";
@@ -61,8 +61,8 @@ export async function GET(request: NextRequest) {
       .limit(search ? 10 : 0)
       .lean();
 
-    // rollNo shown to admins is always the human-entered Student.rollNo,
-    // never the auto-generated User.rollNumber.
+    // rollNo shown to admins is always the academic roll number (Student.rollNo),
+    // never User.rollNumber (the serial number within the section).
     const studentDocs = await Student.find({
       userId: { $in: students.map((s) => s._id) },
     })
@@ -124,10 +124,15 @@ export async function POST(request: NextRequest) {
 
     const year = Math.ceil(Number(semester) / 2);
     const sectionLabel = /^\d+$/.test(String(section)) ? `Section ${section}` : section;
-    const rollNumber = await generateRollNumber(branch, year);
+    // Two different numbers: the serial within the section (User.rollNumber, starts at 1 per section)
+    // and the academic roll number (Student.rollNo), which counts across the whole branch+year.
     // rollNo (and the email derived from it) is always generated, never entered manually —
     // students log in with this roll number, so it must match what's stored here exactly.
-    const rollNo = formatRollNo(branch, year, rollNumber);
+    const [rollNumber, rollNoSequence] = await Promise.all([
+      nextSectionSerial(branch, year, sectionLabel),
+      nextRollNoSequence(branch, year),
+    ]);
+    const rollNo = formatRollNo(branch, year, rollNoSequence);
     const email = rollNoToEmail(rollNo);
 
     const existingUser = await User.findOne({ email });
@@ -179,6 +184,13 @@ export async function POST(request: NextRequest) {
       section: student.section,
     });
   } catch (error) {
+    // Another student was added to the same section at the same moment and took this serial number.
+    if ((error as { code?: number }).code === 11000) {
+      return NextResponse.json(
+        { error: "Another student was just added to this class. Please try again." },
+        { status: 409 }
+      );
+    }
     console.error("Students POST error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

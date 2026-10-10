@@ -1,7 +1,8 @@
 /**
  * Bulk student seed:
  * 5 branches × 10 sections × 4 years × 60 students = 12,000 students
- * Roll numbers restart at 1 for every branch+year batch.
+ * Serial numbers (User.rollNumber) restart at 1 in every section; academic roll numbers
+ * (Student.rollNo, e.g. 25CSE00061) count across the whole branch+year.
  *
  * Run: npm run seed:students
  * Requires MONGODB_URI in .env.local
@@ -66,7 +67,7 @@ async function seedStudents() {
     const semester = year * 2 - 1; // year 1→sem 1, year 2→sem 3, etc.
 
     for (const branch of BRANCHES) {
-      let rollCounter = 1; // roll numbers restart at 1 for each branch+year batch
+      let rollNoSequence = 1; // academic roll numbers count across the whole branch+year
 
       for (let sec = 1; sec <= SECTION_COUNT; sec++) {
         const sectionLabel = `Section ${sec}`;
@@ -74,8 +75,8 @@ async function seedStudents() {
         for (let i = 0; i < PER_SECTION; i++) {
           const userId = new mongoose.Types.ObjectId();
           const name = SECTION_NAMES[i]; // unique within section, repeats across sections
-          const rollNumber = rollCounter++;
-          const rollNo = formatRollNo(branch, year, rollNumber);
+          const rollNumber = i + 1; // serial number within the section
+          const rollNo = formatRollNo(branch, year, rollNoSequence++);
           const email = rollNoToEmail(rollNo);
 
           userDocs.push({
@@ -117,7 +118,7 @@ async function seedStudents() {
   }
 
   console.log(`\nDone! Seeded ${studentDocs.length} students.`);
-  console.log(`Roll numbers restart at 1 for every branch+year batch | Password: student123`);
+  console.log(`Serial numbers restart at 1 in every section | Password: student123`);
 
   await mongoose.disconnect();
 }

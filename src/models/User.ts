@@ -19,7 +19,7 @@ export interface IUser {
 const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
-    // sparse: true allows multiple docs with no email/rollNumber
+    // sparse: true allows multiple docs with no email
     // Stored lowercased: login lowercases what's typed before looking it up.
     email: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
     rollNumber: { type: Number },
@@ -34,10 +34,12 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-// rollNumber only needs to be unique within its own branch+year (each batch restarts at 1)
+// rollNumber is the student's serial number within their section (each section starts at 1).
+// The academic roll number students log in with is Student.rollNo. Only students are checked,
+// so staff accounts never clash on this index.
 UserSchema.index(
-  { branch: 1, year: 1, rollNumber: 1 },
-  { unique: true, sparse: true }
+  { branch: 1, year: 1, section: 1, rollNumber: 1 },
+  { unique: true, partialFilterExpression: { role: "student" } }
 );
 
 UserSchema.pre("save", function (next) {

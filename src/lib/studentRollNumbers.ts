@@ -3,7 +3,7 @@ import Student from "@/models/Student";
 import { escapeRegex } from "@/lib/utils";
 
 // The full roll number students log in with (e.g. "25CSE00001") lives on the Student document;
-// User.rollNumber is only the sequence number within a batch. Callers must have run connectDB().
+// User.rollNumber is only the serial number within the section. Callers must have run connectDB().
 
 // userId -> full roll number
 export async function rollNumbersFor(userIds: (string | mongoose.Types.ObjectId)[]): Promise<Map<string, string>> {
