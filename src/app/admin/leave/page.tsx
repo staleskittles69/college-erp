@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CalendarOff } from "lucide-react";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import Modal from "@/components/ui/Modal";
@@ -68,6 +68,7 @@ export default function AdminLeavePage() {
 
   const [detail, setDetail] = useState<LeaveDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const latestDetailIdRef = useRef("");
   const [picks, setPicks] = useState<Record<string, string>>({});
   const [adminNote, setAdminNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -89,18 +90,29 @@ export default function AdminLeavePage() {
   }, [filterIdx]);
 
   async function openDetail(id: string) {
+    // Only the request opened last may fill the pop-up. Clicking another one (or closing it)
+    // before this one loads must not let a slower, older response show the wrong request.
+    latestDetailIdRef.current = id;
     setDetail(null);
     setDetailLoading(true);
     setPicks({});
     setAdminNote("");
     setActionError("");
-    const response = await fetch(`/api/admin/leave/${id}`, { credentials: "include" });
-    if (response.ok) setDetail(await response.json());
-    else setActionError("Could not load this request.");
-    setDetailLoading(false);
+    try {
+      const response = await fetch(`/api/admin/leave/${id}`, { credentials: "include" });
+      const data = response.ok ? await response.json() : null;
+      if (latestDetailIdRef.current !== id) return;
+      if (data) setDetail(data);
+      else setActionError("Could not load this request.");
+    } catch {
+      if (latestDetailIdRef.current === id) setActionError("Network error. Please try again.");
+    } finally {
+      if (latestDetailIdRef.current === id) setDetailLoading(false);
+    }
   }
 
   function closeDetail() {
+    latestDetailIdRef.current = "";
     setDetail(null);
     setDetailLoading(false);
     setActionError("");
@@ -111,28 +123,33 @@ export default function AdminLeavePage() {
     if (action === "reject" && detail.status === "approved" && !confirm("Cancel this approved leave? Any substitutes will be released.")) return;
     setSaving(true);
     setActionError("");
-    const response = await fetch(`/api/admin/leave/${detail._id}`, {
-      method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action,
-        adminNote,
-        assignments:
-          action === "approve"
-            ? detail.classes
-                .filter((cls) => picks[classKey(cls)])
-                .map((cls) => ({ date: cls.date, period: cls.period, substituteTeacherId: picks[classKey(cls)] }))
-            : [],
-      }),
-    });
-    if (!response.ok) {
-      const result = await response.json().catch(() => ({}));
-      setActionError(result.error ?? "Something went wrong.");
-      setSaving(false);
+    try {
+      const response = await fetch(`/api/admin/leave/${detail._id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          adminNote,
+          assignments:
+            action === "approve"
+              ? detail.classes
+                  .filter((cls) => picks[classKey(cls)])
+                  .map((cls) => ({ date: cls.date, period: cls.period, substituteTeacherId: picks[classKey(cls)] }))
+              : [],
+        }),
+      });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        setActionError(result.error ?? "Something went wrong.");
+        return;
+      }
+    } catch {
+      setActionError("Network error. Please try again.");
       return;
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
     closeDetail();
     loadList();
   }

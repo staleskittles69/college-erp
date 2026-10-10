@@ -26,31 +26,49 @@ export default function BranchesPage() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   const STANDARD_SLUGS = ["cse", "ece", "me", "ce", "eee"];
   const missingDefaults = STANDARD_SLUGS.some((slug) => !branches.find((branch) => branch.slug === slug));
 
   async function handleDelete(slug: string, name: string) {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    await fetch(`/api/departments/${slug}`, { method: "DELETE", credentials: "include" });
+    try {
+      await fetch(`/api/departments/${slug}`, { method: "DELETE", credentials: "include" });
+    } catch {
+      // Network error: the refreshed list below still shows the branch.
+    }
     await fetchBranches();
   }
 
   async function seedDefaults() {
     setSeeding(true);
-    await fetch("/api/admin/seed-departments", { method: "POST", credentials: "include" });
+    try {
+      await fetch("/api/admin/seed-departments", { method: "POST", credentials: "include" });
+    } catch {
+      // Network error: fetchBranches below shows whatever is actually saved.
+    }
     await fetchBranches();
     setSeeding(false);
   }
 
+  // Never throws: a failed load shows an error instead of an empty list, so it doesn't look
+  // like there are no branches (and invite "Add Default Branches").
   async function fetchBranches() {
-    const [deptRes, statsRes] = await Promise.all([
-      fetch("/api/departments", { credentials: "include" }),
-      fetch("/api/admin/branch-stats", { credentials: "include" }),
-    ]);
-    if (deptRes.ok) setBranches(await deptRes.json());
-    if (statsRes.ok) setSectionCounts(await statsRes.json());
-    setLoading(false);
+    try {
+      const [deptRes, statsRes] = await Promise.all([
+        fetch("/api/departments", { credentials: "include" }),
+        fetch("/api/admin/branch-stats", { credentials: "include" }),
+      ]);
+      if (!deptRes.ok) throw new Error();
+      setBranches(await deptRes.json());
+      if (statsRes.ok) setSectionCounts(await statsRes.json());
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { fetchBranches(); }, []);
@@ -62,21 +80,26 @@ export default function BranchesPage() {
     setSaving(true);
     setError("");
     const colorStr = COLORS[branches.length % COLORS.length].color;
-    const response = await fetch("/api/departments", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: name.toLowerCase(), name, label, color: colorStr }),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      setError(errorData.error ?? "Failed to add branch.");
-      setSaving(false);
+    try {
+      const response = await fetch("/api/departments", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: name.toLowerCase(), name, label, color: colorStr }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        setError(errorData.error ?? "Failed to add branch.");
+        return;
+      }
+    } catch {
+      setError("Network error. Please try again.");
       return;
+    } finally {
+      setSaving(false);
     }
     setForm({ name: "", label: "" });
     setOpen(false);
-    setSaving(false);
     await fetchBranches();
   }
 
@@ -90,7 +113,7 @@ export default function BranchesPage() {
           <p className="text-sm text-gray-500 mt-1">Select a branch to view years, sections, and students.</p>
         </div>
         <div className="flex items-center gap-2">
-          {!loading && missingDefaults && (
+          {!loading && !loadError && missingDefaults && (
             <button
               onClick={seedDefaults}
               disabled={seeding}
@@ -119,6 +142,11 @@ export default function BranchesPage() {
               <div className="h-3 bg-gray-100 rounded w-full" />
             </div>
           ))}
+        </div>
+      ) : loadError ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-600">
+          Couldn&apos;t load branches.{" "}
+          <button onClick={() => { setLoading(true); fetchBranches(); }} className="underline hover:text-red-800">Try again</button>
         </div>
       ) : branches.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-white p-16 flex flex-col items-center justify-center text-center">

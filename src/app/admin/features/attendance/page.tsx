@@ -54,7 +54,6 @@ export default function AttendancePage() {
   });
 
   const presentCount = students.filter((student) => (byStudent[student._id]?.present ?? 0) > 0).length;
-  const absentCount = students.filter((student) => !byStudent[student._id] || byStudent[student._id].absent > 0).length;
 
   return (
     <div className="max-w-5xl mx-auto">

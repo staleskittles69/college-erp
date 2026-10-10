@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { ClipboardList, Plus, Upload, Paperclip, Pencil, Trash2 } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import { useFetch } from "@/hooks/useFetch";
+import { localDateISO } from "@/lib/utils";
 
 interface Test {
   _id: string;
@@ -25,11 +26,6 @@ interface Test {
 interface Dept { slug: string; name: string; }
 
 const EMPTY_FORM = { title: "", subject: "", branch: "", semester: "", date: "", maxMarks: "", testType: "Assignment" };
-
-function todayString() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 export default function AssignmentsPage() {
   const { data: tests, loading, error, refetch: fetchTests } = useFetch<Test[]>("/api/tests", []);
@@ -97,7 +93,7 @@ export default function AssignmentsPage() {
       setFormError("Title, subject, and due date are required.");
       return;
     }
-    if (!editing && form.date < todayString() && !confirm("This date is in the past — it will be logged as already having happened. Create it anyway?")) {
+    if (!editing && form.date < localDateISO() && !confirm("This date is in the past — it will be logged as already having happened. Create it anyway?")) {
       return;
     }
     setSaving(true);

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { BRANCHES, TEST_TYPES, YEARS, yearLabel } from "@/lib/academics";
 import { getSubjects } from "@/lib/subjects";
-import { isValidTestTime } from "@/lib/utils";
+import { isValidTestTime, localDateISO } from "@/lib/utils";
 import { useFetch } from "@/hooks/useFetch";
 
 interface Test {
@@ -72,11 +72,6 @@ function formatDate(dateString: string) {
   catch { return dateString; }
 }
 
-function todayString() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
 const selectClass = "w-full text-sm border border-gray-200 rounded-lg px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/20";
 const inputClass = "w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20";
 const rowInputClass = "w-full text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-orange-500/20";
@@ -128,7 +123,7 @@ export default function ScheduleTestsPanel() {
       setError("Time / Period must look like '10:00 AM' or 'Period 3'.");
       return;
     }
-    if (form.date < todayString() && !confirm("This date is in the past — the test will be logged as already having happened. Schedule it anyway?")) {
+    if (form.date < localDateISO() && !confirm("This date is in the past — the test will be logged as already having happened. Schedule it anyway?")) {
       return;
     }
     setSaving(true);
@@ -145,28 +140,38 @@ export default function ScheduleTestsPanel() {
       dueTime: form.dueTime || null,
       notes: form.notes.trim() || null,
     };
-    const response = await fetch(editingId ? `/api/tests/${editingId}` : "/api/tests", {
-      method: editingId ? "PUT" : "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      setError(errorData.error ?? "Failed to save test.");
-    } else {
-      resetForm();
-      fetchTests();
+    try {
+      const response = await fetch(editingId ? `/api/tests/${editingId}` : "/api/tests", {
+        method: editingId ? "PUT" : "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        setError(errorData.error ?? "Failed to save test.");
+      } else {
+        resetForm();
+        fetchTests();
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this scheduled test?")) return;
     setDeleting(id);
-    await fetch(`/api/tests/${id}`, { method: "DELETE", credentials: "include" });
-    setDeleting(null);
-    fetchTests();
+    try {
+      await fetch(`/api/tests/${id}`, { method: "DELETE", credentials: "include" });
+    } catch {
+      // Network error: the refreshed list below still shows the test.
+    } finally {
+      setDeleting(null);
+      fetchTests();
+    }
   }
 
   // ---- multiple-tests mode ----
@@ -245,7 +250,7 @@ export default function ScheduleTestsPanel() {
         return;
       }
     }
-    const hasPastDate = rows.some((row) => row.date < todayString());
+    const hasPastDate = rows.some((row) => row.date < localDateISO());
     if (hasPastDate && !confirm("One or more dates are in the past — those tests will be logged as already having happened. Schedule anyway?")) {
       return;
     }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CalendarOff, Trash2 } from "lucide-react";
 import { useFetch } from "@/hooks/useFetch";
 import { formatPeriodTime, PERIOD_TIMES, teacherAttendanceUrl } from "@/lib/academics";
+import { localDateISO } from "@/lib/utils";
 
 interface Substitution {
   date: string;
@@ -43,11 +44,6 @@ const STATUS_STYLE: Record<LeaveItem["status"], string> = {
   approved: "bg-green-100 text-green-700",
   rejected: "bg-red-100 text-red-700",
 };
-
-function todayString() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 function formatDay(iso: string) {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-IN", {
@@ -108,7 +104,7 @@ export default function TeacherLeavePage() {
     refetch();
   }
 
-  const today = todayString();
+  const today = localDateISO();
 
   return (
     <div className="space-y-6 max-w-3xl">

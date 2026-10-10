@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
-import Student from "@/models/Student";
 import { verifyToken } from "@/lib/auth";
-import { getToken, isSuggestionsOwner } from "@/lib/api-auth";
+import { getToken } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -26,37 +25,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const profile: {
-      id: string;
-      email: string;
-      role: string;
-      studentId?: string;
-      name?: string;
-      canViewSuggestions?: boolean;
-      rollNo?: string;
-      branch?: string;
-      semester?: number;
-      section?: string;
-    } = {
+    const profile = {
       id: currentUser._id.toString(),
       email: currentUser.email ?? "",
       role: currentUser.role,
       name: currentUser.name,
     };
-
-    if (currentUser.role === "student" && currentUser.studentId) {
-      const studentRecord = await Student.findById(currentUser.studentId);
-      if (studentRecord) {
-        profile.studentId = studentRecord._id.toString();
-        profile.name = studentRecord.name ?? currentUser.name;
-        profile.rollNo = studentRecord.rollNo;
-        profile.branch = studentRecord.branch;
-        profile.semester = studentRecord.semester;
-        profile.section = studentRecord.section;
-      }
-    }
-
-    if (currentUser.role === "admin") profile.canViewSuggestions = await isSuggestionsOwner(payload);
 
     return NextResponse.json(profile);
   } catch (error) {

@@ -61,35 +61,45 @@ export default function AnnouncementsPanel() {
     if (!title.trim() || !body.trim()) { setError("Title and body are required."); return; }
     setSaving(true);
     setError("");
-    const response = await fetch("/api/notices", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: title.trim(),
-        body: body.trim(),
-        pinned,
-        audience,
-        targetBranch: targetBranch || null,
-        targetYear: targetYear ? Number(targetYear) : null,
-      }),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      setError(errorData.error ?? "Failed to publish.");
-    } else {
-      setTitle(""); setBody(""); setTargetBranch(""); setTargetYear(""); setAudience("students"); setPinned(false);
-      fetchNotices();
+    try {
+      const response = await fetch("/api/notices", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          body: body.trim(),
+          pinned,
+          audience,
+          targetBranch: targetBranch || null,
+          targetYear: targetYear ? Number(targetYear) : null,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        setError(errorData.error ?? "Failed to publish.");
+      } else {
+        setTitle(""); setBody(""); setTargetBranch(""); setTargetYear(""); setAudience("students"); setPinned(false);
+        fetchNotices();
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this announcement?")) return;
     setDeleting(id);
-    await fetch(`/api/notices/${id}`, { method: "DELETE", credentials: "include" });
-    setDeleting(null);
-    fetchNotices();
+    try {
+      await fetch(`/api/notices/${id}`, { method: "DELETE", credentials: "include" });
+    } catch {
+      // Network error: the refreshed list below still shows the announcement.
+    } finally {
+      setDeleting(null);
+      fetchNotices();
+    }
   }
 
   return (

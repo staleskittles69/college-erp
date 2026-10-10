@@ -65,53 +65,61 @@ export default function TeacherResourcesPage() {
     setSaving(true);
     setFormError("");
 
-    const formData = new FormData();
-    formData.append("file", file);
-    const uploadResponse = await fetch("/api/upload", { method: "POST", credentials: "include", body: formData });
-    if (!uploadResponse.ok) {
-      setFormError("File upload failed. Try again.");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadResponse = await fetch("/api/upload", { method: "POST", credentials: "include", body: formData });
+      if (!uploadResponse.ok) {
+        setFormError("File upload failed. Try again.");
+        return;
+      }
+      const uploadResult = await uploadResponse.json();
+
+      const response = await fetch("/api/resources", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title.trim(),
+          subject: form.subject.trim(),
+          branch: form.branch,
+          year: Number(form.year),
+          fileUrl: uploadResult.url,
+          fileName: uploadResult.fileName,
+        }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        setFormError(result.error ?? "Failed to save resource.");
+        return;
+      }
+
+      setForm(EMPTY_FORM);
+      setFile(null);
+      if (fileRef.current) fileRef.current.value = "";
+      setOpen(false);
+      fetchResources();
+    } catch {
+      setFormError("Network error. Please try again.");
+    } finally {
       setSaving(false);
-      return;
     }
-    const uploadResult = await uploadResponse.json();
-
-    const response = await fetch("/api/resources", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: form.title.trim(),
-        subject: form.subject.trim(),
-        branch: form.branch,
-        year: Number(form.year),
-        fileUrl: uploadResult.url,
-        fileName: uploadResult.fileName,
-      }),
-    });
-
-    if (!response.ok) {
-      const result = await response.json();
-      setFormError(result.error ?? "Failed to save resource.");
-      setSaving(false);
-      return;
-    }
-
-    setForm(EMPTY_FORM);
-    setFile(null);
-    if (fileRef.current) fileRef.current.value = "";
-    setOpen(false);
-    setSaving(false);
-    fetchResources();
   }
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this resource? This cannot be undone.")) return;
     setDeleting(id);
-    const response = await fetch(`/api/resources/${id}`, { method: "DELETE", credentials: "include" });
-    if (response.ok) {
-      setResources((prev) => prev.filter((resource) => resource._id !== id));
+    try {
+      const response = await fetch(`/api/resources/${id}`, { method: "DELETE", credentials: "include" });
+      if (response.ok) {
+        setResources((prev) => prev.filter((resource) => resource._id !== id));
+      }
+    } catch {
+      // Network error: the resource stays in the list, so it's clear it wasn't deleted.
+    } finally {
+      setDeleting(null);
     }
-    setDeleting(null);
   }
 
   return (

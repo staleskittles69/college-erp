@@ -18,14 +18,12 @@ function dashboardHome(role: Role): string {
 
 async function verifyTokenEdge(
   token: string
-): Promise<{ userId: string; role: Role; studentId?: string; teacherId?: string } | null> {
+): Promise<{ userId: string; role: Role } | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     return {
       userId: payload.userId as string,
       role: payload.role as Role,
-      studentId: payload.studentId as string | undefined,
-      teacherId: payload.teacherId as string | undefined,
     };
   } catch {
     return null;

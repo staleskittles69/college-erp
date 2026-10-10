@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useFetch } from "@/hooks/useFetch";
 import {
   LayoutDashboard,
   Building2,
@@ -15,7 +14,6 @@ import {
   ClipboardList,
   ListChecks,
   Inbox,
-  Star,
   Hash,
   MessageSquare,
   CalendarOff,
@@ -27,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 
-const navItems: { href: string; label: string; icon: typeof Settings; exact?: boolean; ownerOnly?: boolean }[] = [
+const navItems: { href: string; label: string; icon: typeof Settings; exact?: boolean }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/branches", label: "Branches", icon: Building2 },
   { href: "/admin/features/students", label: "Students", icon: Users },
@@ -44,7 +42,6 @@ const navItems: { href: string; label: string; icon: typeof Settings; exact?: bo
   { href: "/admin/forums", label: "Forums", icon: Hash },
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/audit-logs", label: "Audit Logs", icon: ClipboardList },
-  { href: "/admin/suggestions", label: "Feedback Inbox", icon: Star, ownerOnly: true },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
@@ -57,8 +54,6 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ mobileOpen, onCloseMobile, collapsed, onToggleCollapsed }: AdminSidebarProps) {
   const pathname = usePathname();
-  const { data: me } = useFetch<{ canViewSuggestions?: boolean }>("/api/auth/me", {});
-  const visibleItems = navItems.filter((item) => !item.ownerOnly || me.canViewSuggestions);
 
   return (
     <>
@@ -101,7 +96,7 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile, collapsed, onT
 
         {/* Navigation */}
         <nav className="flex-1 py-5 space-y-0.5 px-2 overflow-y-auto">
-          {visibleItems.map(({ href, label, icon: Icon, exact }) => {
+          {navItems.map(({ href, label, icon: Icon, exact }) => {
             const isActive = exact
               ? pathname === href
               : pathname === href || pathname.startsWith(href + "/");

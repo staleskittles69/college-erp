@@ -94,29 +94,38 @@ export default function TeacherNoticesPage() {
     if (!form.title.trim() || !form.body.trim()) { setFormError("Title and message are required."); return; }
     setSaving(true);
     setFormError("");
-    // Who a notice goes to is fixed once posted; editing only changes its wording.
-    const response = await fetch(editing ? `/api/notices/${editing._id}` : "/api/notices", {
-      method: editing ? "PATCH" : "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        editing
-          ? { title: form.title.trim(), body: form.body.trim() }
-          : {
-              title: form.title.trim(),
-              body: form.body.trim(),
-              audience: form.audience,
-              targetBranch: form.targetBranch || null,
-              targetYear: form.targetYear ? Number(form.targetYear) : null,
-            }
-      ),
-    });
-    if (!response.ok) { const result = await response.json(); setFormError(result.error ?? (editing ? "Failed to save." : "Failed to post.")); setSaving(false); return; }
-    setForm(EMPTY_FORM);
-    setEditing(null);
-    setOpen(false);
-    setSaving(false);
-    fetchNotices();
+    try {
+      // Who a notice goes to is fixed once posted; editing only changes its wording.
+      const response = await fetch(editing ? `/api/notices/${editing._id}` : "/api/notices", {
+        method: editing ? "PATCH" : "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          editing
+            ? { title: form.title.trim(), body: form.body.trim() }
+            : {
+                title: form.title.trim(),
+                body: form.body.trim(),
+                audience: form.audience,
+                targetBranch: form.targetBranch || null,
+                targetYear: form.targetYear ? Number(form.targetYear) : null,
+              }
+        ),
+      });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        setFormError(result.error ?? (editing ? "Failed to save." : "Failed to post."));
+        return;
+      }
+      setForm(EMPTY_FORM);
+      setEditing(null);
+      setOpen(false);
+      fetchNotices();
+    } catch {
+      setFormError("Network error. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (

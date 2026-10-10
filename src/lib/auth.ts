@@ -5,9 +5,6 @@ import crypto from "crypto";
 export type JwtPayload = {
   userId: string;
   role: "student" | "teacher" | "admin";
-  studentId?: string;
-  teacherId?: string;
-  rollNumber?: number;
 };
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
