@@ -5,6 +5,7 @@ import { CGPA } from "@/components/student/CGPA";
 import { TodayClasses } from "@/components/student/TodayClasses";
 import { UpcomingTests } from "@/components/student/UpcomingTests";
 import { NoticeBoard } from "@/components/student/NoticeBoard";
+import { PaymentDue } from "@/components/student/PaymentDue";
 
 function SectionHeader({ title }: { title: string }) {
   return (
@@ -29,9 +30,12 @@ export default function StudentDashboardPage() {
           <div className="animate-slide-up-1" data-tour="cgpa-card">
             <CGPA />
           </div>
-          <div className="md:col-span-2 lg:col-span-1 animate-slide-up-2" data-tour="upcoming-card">
-            <UpcomingTests />
+          <div className="md:col-span-2 lg:col-span-1 animate-slide-up-2" data-tour="payment-due-card">
+            <PaymentDue />
           </div>
+        </div>
+        <div className="mt-6 animate-slide-up-2" data-tour="upcoming-card">
+          <UpcomingTests />
         </div>
       </div>
 
