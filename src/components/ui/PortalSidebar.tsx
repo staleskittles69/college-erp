@@ -64,7 +64,7 @@ export function PortalSidebar({
           )}
           <div className={`items-center w-full flex ${isCollapsed ? "md:hidden" : ""}`}>
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
-              <img src="/logo-nri.png" alt="NRI University" className="h-7 w-auto shrink-0" />
+              <img src="/logo-nri.svg" alt="NRI University" className="h-7 w-auto shrink-0" />
               <span className="text-slate-900 font-bold text-base tracking-tight truncate">NRI University</span>
             </div>
             <button

@@ -82,11 +82,11 @@ export default function AdminSidebar({ mobileOpen, onCloseMobile, collapsed, onT
           }`}
         >
           <div className={`flex items-center gap-2.5 min-w-0 ${collapsed ? "md:hidden" : ""}`}>
-            <img src="/logo-nri.png" alt="NRI University" className="h-8 w-auto shrink-0" />
+            <img src="/logo-nri.svg" alt="NRI University" className="h-8 w-auto shrink-0" />
             <span className="text-base font-bold text-slate-900 tracking-tight truncate">NRI University</span>
           </div>
           <img
-            src="/logo2.png"
+            src="/logo2.svg"
             alt="NRI University"
             className={`hidden w-8 h-8 rounded-lg object-cover ${collapsed ? "md:block" : ""}`}
           />
