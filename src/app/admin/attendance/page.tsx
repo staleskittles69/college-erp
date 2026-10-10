@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Check, X, RefreshCw } from "lucide-react";
+import { localDateISO } from "@/lib/utils";
 
 interface Branch { slug: string; name: string; label: string; }
 interface Student { _id: string; name: string; rollNo: string; }
@@ -16,7 +17,7 @@ export default function AdminAttendancePage() {
   const [loadingSections, setLoadingSections] = useState(false);
   const [subject, setSubject] = useState("");
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => localDateISO());
 
   const [students, setStudents] = useState<Student[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
@@ -92,15 +93,20 @@ export default function AdminAttendancePage() {
     setSubmitting(true);
     setSubmitError("");
     const bulk = students.map((student) => ({ studentId: student._id, status: attendance[student._id] ?? "present" }));
-    const response = await fetch("/api/attendance", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bulk, subject: subject.trim(), date }),
-    });
-    if (response.ok) { setSubmitted(true); }
-    else { setSubmitError("Failed to save. Please try again."); }
-    setSubmitting(false);
+    try {
+      const response = await fetch("/api/attendance", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bulk, subject: subject.trim(), date }),
+      });
+      if (response.ok) setSubmitted(true);
+      else setSubmitError("Failed to save. Please try again.");
+    } catch {
+      setSubmitError("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const presentCount = Object.values(attendance).filter((status) => status === "present").length;

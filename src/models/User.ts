@@ -20,7 +20,8 @@ const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
     // sparse: true allows multiple docs with no email/rollNumber
-    email: { type: String, unique: true, sparse: true },
+    // Stored lowercased: login lowercases what's typed before looking it up.
+    email: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
     rollNumber: { type: Number },
     branch: { type: String },
     year: { type: Number },

@@ -18,6 +18,8 @@ export default function AddTeacherModal({ departmentSlug, subjectId, onClose, on
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // Set once the teacher account exists, so a retry after a failed subject link doesn't create them twice.
+  const [createdTeacherId, setCreatedTeacherId] = useState<string | null>(null);
 
   const department = departments.find((departmentOption) => departmentOption.slug === departmentSlug);
 
@@ -31,14 +33,24 @@ export default function AddTeacherModal({ departmentSlug, subjectId, onClose, on
     setError("");
     setSubmitting(true);
     try {
-      const { id: newTeacherId } = await addTeacher({ name: name.trim(), email: email.trim(), password: password.trim(), department: departmentSlug });
+      let newTeacherId = createdTeacherId;
+      if (!newTeacherId) {
+        ({ id: newTeacherId } = await addTeacher({ name: name.trim(), email: email.trim(), password: password.trim(), department: departmentSlug }));
+        setCreatedTeacherId(newTeacherId);
+      }
       if (subjectId) {
-        await fetch(`/api/admin/subjects/${subjectId}`, {
+        const linkFailed = "The teacher was added, but couldn't be linked to this subject. Click Retry Link to try again.";
+        const response = await fetch(`/api/admin/subjects/${subjectId}`, {
           method: "PATCH",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ addTeacherId: newTeacherId }),
-        });
+        }).catch(() => null);
+        if (!response?.ok) {
+          onDone?.(); // the new teacher should still show up in the list
+          setError(linkFailed);
+          return;
+        }
       }
       onDone?.();
       onClose();
@@ -113,7 +125,7 @@ export default function AddTeacherModal({ departmentSlug, subjectId, onClose, on
             disabled={submitting}
             className="flex-1 px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-60"
           >
-            {submitting ? "Adding..." : "Add Teacher"}
+            {submitting ? "Adding..." : createdTeacherId ? "Retry Link" : "Add Teacher"}
           </button>
         </div>
       </form>

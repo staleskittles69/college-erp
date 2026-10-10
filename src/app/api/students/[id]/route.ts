@@ -22,15 +22,18 @@ export async function GET(
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
 
+    // Full admission record (Aadhaar, bank, caste, income): admins and the student themself only.
+    // Teachers use /api/teachers/students/[id], which leaves those fields out.
+    const isSelf = payload.role === "student" && payload.userId === id;
+    if (!requireAdmin(payload) && !isSelf) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     await connectDB();
 
     const student = await Student.findOne({ userId: id }).populate("userId", "email");
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
-    }
-
-    if (payload.role === "student" && payload.userId !== id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     return NextResponse.json({

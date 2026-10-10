@@ -24,6 +24,9 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<StudentResult[]>([]);
+  // The query `results` belong to. Enter only opens a result when it matches what's typed now.
+  const [resultsQuery, setResultsQuery] = useState("");
+  const latestQueryRef = useRef("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [profile, setProfile] = useState<{ name: string; email: string } | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -37,16 +40,23 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
   }, []);
 
   const fetchResults = useCallback((searchQuery: string) => {
-    if (!searchQuery.trim()) { setResults([]); return; }
+    if (!searchQuery.trim()) { setResults([]); setResultsQuery(searchQuery); return; }
+    // Responses can arrive out of order; only keep the one for the latest query.
+    const keepIfLatest = (data: StudentResult[]) => {
+      if (latestQueryRef.current !== searchQuery) return;
+      setResults(data);
+      setResultsQuery(searchQuery);
+    };
     fetch(`/api/students?search=${encodeURIComponent(searchQuery)}`, { credentials: "include" })
       .then((response) => response.ok ? response.json() : [])
-      .then(setResults)
-      .catch(() => setResults([]));
+      .then(keepIfLatest)
+      .catch(() => keepIfLatest([]));
   }, []);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const searchQuery = e.target.value;
     setQuery(searchQuery);
+    latestQueryRef.current = searchQuery;
     setShowDropdown(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => fetchResults(searchQuery), 300);
@@ -60,7 +70,7 @@ export default function AdminNavbar({ onMenuClick }: AdminNavbarProps) {
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && results.length > 0) handleSelect(results[0]);
+    if (e.key === "Enter" && resultsQuery === query && results.length > 0) handleSelect(results[0]);
   }
 
   useEffect(() => {

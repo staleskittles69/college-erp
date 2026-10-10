@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import Attendance from "@/models/Attendance";
+import User from "@/models/User";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
 import { toIdString } from "@/lib/utils";
@@ -26,6 +27,7 @@ export async function GET(request: NextRequest) {
 
     const branch = searchParams.get("branch");
     const semester = searchParams.get("semester");
+    const year = searchParams.get("year");
     const section = searchParams.get("section");
 
     const filter: Record<string, unknown> = {};
@@ -37,14 +39,15 @@ export async function GET(request: NextRequest) {
       if (to) (filter.date as Record<string, Date>).$lte = new Date(to);
     }
 
-    // branch/semester/section are not stored on Attendance — resolve via Student
-    if ((branch || semester || section) && !filter.studentId) {
-      const StudentModel = (await import("@/models/Student")).default;
-      const sFilter: Record<string, unknown> = {};
-      if (branch) sFilter.branch = branch;
-      if (semester) sFilter.semester = Number(semester);
-      if (section) sFilter.section = section;
-      const matchingStudents = await StudentModel.find(sFilter).select("_id").lean();
+    // branch/year/section are not stored on Attendance — resolve via the student User records
+    // (Attendance.studentId is the student's User id).
+    if ((branch || semester || year || section) && !filter.studentId) {
+      const userFilter: Record<string, unknown> = { role: "student" };
+      if (branch) userFilter.branch = branch;
+      if (year) userFilter.year = Number(year);
+      else if (semester) userFilter.year = Math.ceil(Number(semester) / 2);
+      if (section) userFilter.section = section;
+      const matchingStudents = await User.find(userFilter).select("_id").lean();
       filter.studentId = {
         $in: matchingStudents.map((student) => toIdString(student._id)),
       };
@@ -88,7 +91,13 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    if (bulkEntries && Array.isArray(bulkEntries) && date) {
+    if (Array.isArray(bulkEntries)) {
+      if (!subject || !date || bulkEntries.some((entry) => typeof entry?.studentId !== "string")) {
+        return NextResponse.json(
+          { error: "Bulk attendance needs a subject, a date and a studentId for each entry" },
+          { status: 400 }
+        );
+      }
       const dateObj = new Date(date);
       const bulkOps = bulkEntries.map((entry) => ({
         updateOne: {

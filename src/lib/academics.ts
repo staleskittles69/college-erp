@@ -75,11 +75,21 @@ export function isAssignmentType(testType?: string | null): boolean {
 
 const YEAR_SLUGS: Record<number, string> = { 1: "1st-year", 2: "2nd-year", 3: "3rd-year", 4: "4th-year" };
 
+/** "1st-year" → 1; undefined for anything else. */
+export function yearFromSlug(slug: string): number | undefined {
+  const entry = Object.entries(YEAR_SLUGS).find(([, yearSlug]) => yearSlug === slug);
+  return entry ? Number(entry[0]) : undefined;
+}
+
+/** "Section 1" → "section-1" (the URL form used by the student-list pages). */
+export function sectionSlug(section: string): string {
+  return section.toLowerCase().replace(/\s+/g, "-");
+}
+
 export function studentDetailUrl(student: { _id: string; branch: string; year: number; section: string }): string {
   const branch = student.branch.toLowerCase();
   const year = YEAR_SLUGS[student.year] ?? "1st-year";
-  const section = student.section.toLowerCase().replace(/\s+/g, "-");
-  return `/admin/${branch}/${year}/${section}/${student._id}`;
+  return `/admin/${branch}/${year}/${sectionSlug(student.section)}/${student._id}`;
 }
 
 /** Link to the teacher Attendance page with this class already selected. */

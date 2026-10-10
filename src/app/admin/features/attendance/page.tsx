@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import { localDateISO } from "@/lib/utils";
 
 interface Dept { slug: string; name: string; }
 interface Student { _id: string; name: string; rollNo: string; }
@@ -12,7 +13,7 @@ export default function AttendancePage() {
   const [branch, setBranch] = useState("");
   const [year, setYear] = useState("");
   const [section, setSection] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => localDateISO());
 
   const [students, setStudents] = useState<Student[]>([]);
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
@@ -33,7 +34,7 @@ export default function AttendancePage() {
     try {
       const [studentsRes, attendanceRes] = await Promise.all([
         fetch(`/api/students?branch=${branch}&year=${year}&section=${encodeURIComponent(section)}`, { credentials: "include" }),
-        fetch(`/api/attendance?branch=${branch}&section=${encodeURIComponent(section)}&from=${date}&to=${date}`, { credentials: "include" }),
+        fetch(`/api/attendance?branch=${branch}&year=${year}&section=${encodeURIComponent(section)}&from=${date}&to=${date}`, { credentials: "include" }),
       ]);
       const studentsData: Student[] = studentsRes.ok ? await studentsRes.json() : [];
       const attendanceData: AttendanceRecord[] = attendanceRes.ok ? await attendanceRes.json() : [];

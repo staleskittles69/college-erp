@@ -48,9 +48,9 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Attendance is stored against the Student document, marks against the User.
+    // Attendance and marks are both stored against the student's User id (what the roster uses).
     const [attendanceRecords, markRecords] = await Promise.all([
-      Attendance.find({ studentId: student._id }).select("subject status").lean<IAttendance[]>(),
+      Attendance.find({ studentId: id }).select("subject status").lean<IAttendance[]>(),
       Marks.find({ studentId: id }).select("subject examType obtained max").lean<IMarks[]>(),
     ]);
 

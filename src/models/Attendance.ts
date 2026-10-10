@@ -13,7 +13,8 @@ export interface IAttendance {
 
 const AttendanceSchema = new Schema<IAttendance>(
   {
-    studentId: { type: Schema.Types.ObjectId, ref: "Student", required: true },
+    // The student's User id (not the Student document id) — every attendance screen saves and reads it this way.
+    studentId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     subject: { type: String, required: true },
     date: { type: Date, required: true },
     status: { type: String, enum: ["present", "absent"], required: true },

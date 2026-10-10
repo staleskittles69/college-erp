@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import path from "path";
 import { getAuth } from "@/lib/api-auth";
+import { uploadPathname } from "@/lib/uploads";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_EXTENSIONS = new Set([
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
   const filename = `${Date.now()}-${safeName}`;
 
-  const blob = await put(`uploads/${filename}`, file, {
+  const blob = await put(uploadPathname(payload.userId, filename), file, {
     access: "public",
     contentType: file.type || undefined,
   });

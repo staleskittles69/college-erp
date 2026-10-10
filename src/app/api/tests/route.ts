@@ -6,6 +6,7 @@ import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { JwtPayload } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { isValidTestTime, toIdString } from "@/lib/utils";
+import { isUploadUrl } from "@/lib/uploads";
 
 interface BulkTestRow {
   subject?: string;
@@ -187,6 +188,11 @@ export async function POST(request: NextRequest) {
         { error: "Time / Period must look like '10:00 AM' or 'Period 3'." },
         { status: 400 }
       );
+    }
+
+    // The attachment link is shown to students, so it must be a file uploaded through /api/upload.
+    if (attachmentUrl != null && !isUploadUrl(attachmentUrl)) {
+      return NextResponse.json({ error: "Attachment must be an uploaded file" }, { status: 400 });
     }
 
     await connectDB();

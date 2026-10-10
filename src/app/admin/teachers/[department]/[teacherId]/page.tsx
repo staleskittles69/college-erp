@@ -24,6 +24,7 @@ export default function TeacherDetailsPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState("");
+  const [removeError, setRemoveError] = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
@@ -235,6 +236,8 @@ export default function TeacherDetailsPage() {
           </span>
         </div>
 
+        {removeError && <p className="text-xs text-red-500">{removeError}</p>}
+
         {totalSections === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400">
             No classes assigned yet. Use the form above to add one.
@@ -249,7 +252,12 @@ export default function TeacherDetailsPage() {
                     <span className="text-orange-600">{section}</span>
                   </p>
                   <button
-                    onClick={() => removeSection(teacher.id, assignmentIdx, section)}
+                    onClick={() => {
+                      setRemoveError("");
+                      removeSection(teacher.id, assignmentIdx, section).catch((error) =>
+                        setRemoveError(error instanceof Error ? error.message : "Couldn't remove that section. Please try again.")
+                      );
+                    }}
                     className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-2.5 py-1 rounded-lg transition-colors"
                   >
                     <X size={12} /> Remove

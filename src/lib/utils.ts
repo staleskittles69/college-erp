@@ -18,3 +18,9 @@ const TEST_TIME_FORMAT = /^((0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)|Period\s?\d+)$
 export function isValidTestTime(value: string): boolean {
   return TEST_TIME_FORMAT.test(value.trim());
 }
+
+// Today's date as YYYY-MM-DD in the browser's own time zone. (toISOString() gives the UTC date,
+// which in India is still yesterday until 5:30 AM.)
+export function localDateISO(date: Date = new Date()): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}

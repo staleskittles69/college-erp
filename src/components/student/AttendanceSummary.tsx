@@ -8,12 +8,14 @@ import { useFetch } from "@/hooks/useFetch";
 interface AttendanceRecord { status: string; }
 
 export function AttendanceSummary() {
-  const { data: records, loading } = useFetch<AttendanceRecord[]>("/api/attendance", []);
+  const { data: records, loading, error } = useFetch<AttendanceRecord[]>("/api/attendance", []);
 
+  // null = nothing to show yet (no records, or the load failed) — not the same as 0% attendance.
   const pct = useMemo(() => {
     const total = records.length;
+    if (total === 0) return null;
     const present = records.filter((record) => record.status === "present").length;
-    return total > 0 ? Math.round((present / total) * 100) : 0;
+    return Math.round((present / total) * 100);
   }, [records]);
 
   if (loading) {
@@ -23,6 +25,25 @@ export function AttendanceSummary() {
           <div className="h-12 w-12 rounded-xl bg-gray-100 mb-4" />
           <div className="h-8 w-24 bg-gray-100 rounded mb-2" />
           <div className="h-4 w-32 bg-gray-100 rounded" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (pct === null) {
+    return (
+      <Card className="hover:shadow-md transition-shadow duration-200">
+        <CardContent className="pt-6">
+          <div className="flex items-start justify-between mb-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gray-100">
+              <CheckCircle2 size={22} className="text-gray-400" />
+            </div>
+          </div>
+          <p className="text-4xl font-bold text-gray-400 mb-0.5">—</p>
+          <p className="text-sm font-medium text-gray-500 mb-4">Overall Attendance</p>
+          <p className="text-xs text-gray-400 mt-2">
+            {error ? "Couldn't load attendance. Please refresh." : "No attendance recorded yet"}
+          </p>
         </CardContent>
       </Card>
     );

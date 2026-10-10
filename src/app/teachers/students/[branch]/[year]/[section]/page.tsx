@@ -33,13 +33,18 @@ export default function StudentListPage() {
   const branchLabel = branch.toUpperCase();
   const yearLabel = formatYear(year);
   const sectionLabel = formatSection(section);
-  const yearNumber = YEAR_TO_NUMBER[year] ?? 1;
+  const yearNumber: number | undefined = YEAR_TO_NUMBER[year];
 
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (yearNumber === undefined) {
+      setError(`"${year}" isn't a valid year.`);
+      setLoading(false);
+      return;
+    }
     const url = `/api/students?branch=${branchLabel}&year=${yearNumber}&section=${encodeURIComponent(sectionLabel)}`;
     fetch(url)
       .then((response) => response.json())
@@ -49,7 +54,7 @@ export default function StudentListPage() {
       })
       .catch(() => setError("Network error"))
       .finally(() => setLoading(false));
-  }, [branchLabel, yearNumber, sectionLabel]);
+  }, [branchLabel, year, yearNumber, sectionLabel]);
 
   return (
     <div className="max-w-5xl mx-auto">

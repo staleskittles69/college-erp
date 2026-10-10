@@ -194,13 +194,19 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     // Only classes this teacher really has can be covered — class details come from the
     // timetable, never from what the browser sent.
     const picks: Array<{ cls: (typeof affected)[number]; substituteTeacherId: string }> = [];
+    const pickedKeys = new Set<string>();
     for (const entry of wanted) {
-      const cls = typeof entry.date === "string" && typeof entry.period === "number"
-        ? affectedByKey.get(periodKey(entry.date, entry.period))
+      const key = typeof entry.date === "string" && typeof entry.period === "number"
+        ? periodKey(entry.date, entry.period)
         : undefined;
-      if (!cls || typeof entry.substituteTeacherId !== "string" || !mongoose.Types.ObjectId.isValid(entry.substituteTeacherId)) {
+      const cls = key ? affectedByKey.get(key) : undefined;
+      if (!key || !cls || typeof entry.substituteTeacherId !== "string" || !mongoose.Types.ObjectId.isValid(entry.substituteTeacherId)) {
         return NextResponse.json({ error: "One of the substitute choices doesn't match a class in this leave." }, { status: 400 });
       }
+      if (pickedKeys.has(key)) {
+        return NextResponse.json({ error: "A class can only have one substitute." }, { status: 400 });
+      }
+      pickedKeys.add(key);
       picks.push({ cls, substituteTeacherId: entry.substituteTeacherId });
     }
 

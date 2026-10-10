@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSubjectOptions } from "@/hooks/useSubjectOptions";
+import { localDateISO } from "@/lib/utils";
 
 interface AttendanceRecord {
   _id: string;
@@ -16,17 +17,20 @@ interface AttendancePanelProps {
   branch?: string;
 }
 
-const EMPTY_FORM = {
-  subject: "",
-  date: new Date().toISOString().split("T")[0],
-  status: "present" as "present" | "absent",
-};
+// Built fresh each time so the date is today's local date, even if the tab has been open overnight.
+function emptyForm() {
+  return {
+    subject: "",
+    date: localDateISO(),
+    status: "present" as "present" | "absent",
+  };
+}
 
 export default function AttendancePanel({ studentId = "", context, branch }: AttendancePanelProps) {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const subjectOptions = useSubjectOptions(branch);
@@ -74,11 +78,11 @@ export default function AttendancePanel({ studentId = "", context, branch }: Att
         }),
       });
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         setError(errorData.error ?? "Failed to save");
       } else {
         setShowForm(false);
-        setForm(EMPTY_FORM);
+        setForm(emptyForm());
         loadRecords();
       }
     } catch {
@@ -96,7 +100,7 @@ export default function AttendancePanel({ studentId = "", context, branch }: Att
           {context && <p className="text-xs text-gray-500 mt-0.5">{context}</p>}
         </div>
         <button
-          onClick={() => { setShowForm(true); setError(""); }}
+          onClick={() => { setShowForm(true); setForm(emptyForm()); setError(""); }}
           className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium"
         >
           + Mark Attendance

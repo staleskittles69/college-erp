@@ -57,9 +57,9 @@ export default function TransportPage() {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ routeId: route.id, stopName }),
-    });
-    const result = await response.json().catch(() => ({}));
-    if (response.ok) setMessage(`You're booked on Route ${route.routeNumber}, ${stopName} stop.`);
+    }).catch(() => null);
+    const result = response ? await response.json().catch(() => ({})) : { error: "Network error. Please try again." };
+    if (response?.ok) setMessage(`You're booked on Route ${route.routeNumber}, ${stopName} stop.`);
     else setError(result.error ?? "Could not book. Please try again.");
     setBusy(null);
     refetch();
@@ -70,9 +70,9 @@ export default function TransportPage() {
     setBusy("cancel");
     setError("");
     setMessage("");
-    const response = await fetch("/api/student/transport", { method: "DELETE", credentials: "include" });
-    const result = await response.json().catch(() => ({}));
-    if (response.ok) setMessage("Your bus booking was cancelled.");
+    const response = await fetch("/api/student/transport", { method: "DELETE", credentials: "include" }).catch(() => null);
+    const result = response ? await response.json().catch(() => ({})) : { error: "Network error. Please try again." };
+    if (response?.ok) setMessage("Your bus booking was cancelled.");
     else setError(result.error ?? "Could not cancel. Please try again.");
     setBusy(null);
     refetch();

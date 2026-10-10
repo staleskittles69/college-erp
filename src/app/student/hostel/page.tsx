@@ -61,9 +61,9 @@ export default function HostelPage() {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sharing: option.sharing, ac: option.ac, gender }),
-    });
-    const result = await response.json().catch(() => ({}));
-    if (response.ok) setMessage(`Done! You've been given Block ${result.block}, Room ${result.roomNumber} (${option.label}).`);
+    }).catch(() => null);
+    const result = response ? await response.json().catch(() => ({})) : { error: "Network error. Please try again." };
+    if (response?.ok) setMessage(`Done! You've been given Block ${result.block}, Room ${result.roomNumber} (${option.label}).`);
     else setError(result.error ?? "Could not book. Please try again.");
     setBusy(null);
     refetch();
@@ -74,9 +74,9 @@ export default function HostelPage() {
     setBusy("cancel");
     setError("");
     setMessage("");
-    const response = await fetch("/api/student/hostel", { method: "DELETE", credentials: "include" });
-    const result = await response.json().catch(() => ({}));
-    if (response.ok) setMessage("Your hostel room was cancelled.");
+    const response = await fetch("/api/student/hostel", { method: "DELETE", credentials: "include" }).catch(() => null);
+    const result = response ? await response.json().catch(() => ({})) : { error: "Network error. Please try again." };
+    if (response?.ok) setMessage("Your hostel room was cancelled.");
     else setError(result.error ?? "Could not cancel. Please try again.");
     setBusy(null);
     refetch();

@@ -63,15 +63,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: passwordError }, { status: 400 });
     }
 
+    // Login lowercases what's typed, so store emails lowercased too.
+    const normalizedEmail = String(email).trim().toLowerCase();
+
     await connectDB();
 
-    const existing = await User.findOne({ email });
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
       return NextResponse.json({ error: "Email already registered" }, { status: 400 });
     }
 
     const hashedPassword = await hashPassword(plainPassword);
-    const user = await User.create({ name, email, password: hashedPassword, role: "teacher" });
+    const user = await User.create({ name, email: normalizedEmail, password: hashedPassword, role: "teacher" });
 
     const teacher = await Teacher.create({
       userId: user._id,

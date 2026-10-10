@@ -18,18 +18,27 @@ export async function GET(request: NextRequest) {
 
   await connectDB();
 
-  const sections: string[] = await User.distinct("section", {
+  const match = {
     role: "student",
     branch,
     year: parseInt(year, 10),
-    section: { $ne: null, $exists: true },
-  });
+    section: { $nin: [null, ""], $exists: true },
+  };
 
-  const sortedSections = sections.filter(Boolean).sort((sectionA, sectionB) => {
-    const numA = parseInt(sectionA.replace(/\D/g, ""), 10);
-    const numB = parseInt(sectionB.replace(/\D/g, ""), 10);
+  // ?withCounts=true → [{ section, count }] for the section cards; otherwise a plain list of names.
+  const withCounts = searchParams.get("withCounts") === "true";
+  const rows: { section: string; count: number }[] = withCounts
+    ? (await User.aggregate<{ _id: string; count: number }>([
+        { $match: match },
+        { $group: { _id: "$section", count: { $sum: 1 } } },
+      ])).map((row) => ({ section: row._id, count: row.count }))
+    : ((await User.distinct("section", match)) as string[]).map((section) => ({ section, count: 0 }));
+
+  rows.sort((rowA, rowB) => {
+    const numA = parseInt(rowA.section.replace(/\D/g, ""), 10);
+    const numB = parseInt(rowB.section.replace(/\D/g, ""), 10);
     if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-    return sectionA.localeCompare(sectionB);
+    return rowA.section.localeCompare(rowB.section);
   });
-  return NextResponse.json(sortedSections);
+  return NextResponse.json(withCounts ? rows : rows.map((row) => row.section));
 }

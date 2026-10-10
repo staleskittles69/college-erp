@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BRANCHES, DAYS, PERIODS, PERIOD_TIMES, YEARS, yearLabel } from "@/lib/academics";
 import { getSubjects } from "@/lib/subjects";
 
@@ -33,6 +33,15 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
 
   const [loading, setLoading] = useState(false);
   const [syncStatus, setSyncStatus] = useState<"" | "syncing" | "synced" | "error">("");
+  const [loadError, setLoadError] = useState(false);
+
+  // Every save rewrites the whole week for the selected class, so editing is only allowed once
+  // that exact class has loaded. Otherwise a failed or still-pending load would leave another
+  // class's slots on screen, and the next edit would save them over this class.
+  const classKey = `${branch}|${year}|${section}`;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const latestLoadRef = useRef("");
+  const ready = loadedKey === classKey && !loading;
 
   const subjectOptions = getSubjects(branch, year);
 
@@ -48,7 +57,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branch, year, section]);
 
-  function openAdd() { setEditingId(null); setForm(EMPTY_FORM); setShowModal(true); }
+  function openAdd() { if (!ready) return; setEditingId(null); setForm(EMPTY_FORM); setShowModal(true); }
   function openAddAt(day: string, period: number) { setEditingId(null); setForm({ day, period, subject: "" }); setShowModal(true); }
   function openEdit(slot: Slot) { setEditingId(slot.id); setForm({ day: slot.day, period: slot.period, subject: slot.subject }); setShowModal(true); }
 
@@ -73,14 +82,20 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
   }
 
   async function loadFromDB() {
+    const key = classKey;
+    latestLoadRef.current = key;
     setLoading(true);
     setSyncStatus("");
+    setLoadError(false);
+    setLoadedKey(null);
+    setSlots([]);
     try {
       const response = await fetch(
         `/api/timetable?branch=${branch}&semester=${year}&section=${encodeURIComponent(`Section ${section}`)}`,
         { credentials: "include" }
       );
-      if (!response.ok) return;
+      if (latestLoadRef.current !== key) return; // the admin has already picked another class
+      if (!response.ok) { setLoadError(true); return; }
       const rows: TimetableRow[] = await response.json();
       const loaded: Slot[] = [];
       rows.forEach((row) => {
@@ -95,14 +110,20 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
           });
         });
       });
+      if (latestLoadRef.current !== key) return;
       setSlots(loaded);
-    } catch {}
-    finally { setLoading(false); }
+      setLoadedKey(key);
+    } catch {
+      if (latestLoadRef.current === key) setLoadError(true);
+    } finally {
+      if (latestLoadRef.current === key) setLoading(false);
+    }
   }
 
   // Persists every day of the week (not just days with slots) so a deleted slot
   // actually clears its day's row in the DB instead of leaving it stale.
   async function persistToDB(updatedSlots: Slot[]) {
+    if (!ready) return;
     setSyncStatus("syncing");
     const byDay: Record<number, Array<{ subject: string; period: number; time: string; room: string }>> = {};
     DAYS.forEach((_, dayIdx) => { byDay[dayIdx] = []; });
@@ -144,8 +165,9 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
             </div>
             <button
               onClick={openAdd}
+              disabled={!ready}
               data-tour="timetable-add"
-              className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium"
+              className="px-4 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               + Add/Edit Slot
             </button>
@@ -169,6 +191,12 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
             {!loading && syncStatus === "syncing" && <span className="text-xs text-gray-400">Saving…</span>}
             {!loading && syncStatus === "synced" && <span className="text-xs text-green-600 font-medium">✓ Saved</span>}
             {!loading && syncStatus === "error" && <span className="text-xs text-red-600 font-medium">Error saving — try again</span>}
+            {!loading && loadError && (
+              <span className="text-xs text-red-600 font-medium">
+                Couldn&apos;t load this class&apos;s timetable, so editing is off.{" "}
+                <button onClick={loadFromDB} className="underline hover:text-red-800">Try again</button>
+              </span>
+            )}
           </div>
         </div>
 
@@ -199,7 +227,8 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
                       <td key={period} className="p-1.5 align-top">
                         <button
                           onClick={() => (slot ? openEdit(slot) : openAddAt(day, period))}
-                          className={`w-full min-h-[56px] rounded-lg border text-xs text-left p-2 transition-colors ${
+                          disabled={!ready}
+                          className={`w-full min-h-[56px] rounded-lg border text-xs text-left p-2 transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                             slot
                               ? `${SUBJECT_COLORS[slot.subject] ?? "bg-gray-50 border-gray-200 text-gray-700"} hover:opacity-80`
                               : "border-dashed border-gray-200 text-gray-300 hover:border-orange-300 hover:text-orange-400"
@@ -216,7 +245,7 @@ export default function TimetablePanel({ context }: TimetablePanelProps) {
           </table>
         </div>
 
-        {slots.length === 0 && !loading && (
+        {slots.length === 0 && ready && (
           <div className="px-6 py-8 text-center text-sm text-gray-400 border-t border-gray-100">
             No slots yet for this class — click any empty period to add one.
           </div>

@@ -103,57 +103,59 @@ export default function AssignmentsPage() {
     setSaving(true);
     setFormError("");
 
-    let attachmentUrl: string | null = null;
-    let attachmentName: string | null = null;
+    try {
+      let attachmentUrl: string | null = null;
+      let attachmentName: string | null = null;
 
-    if (file && !editing) {
-      const formData = new FormData();
-      formData.append("file", file);
-      const uploadResponse = await fetch("/api/upload", { method: "POST", credentials: "include", body: formData });
-      if (uploadResponse.ok) {
+      if (file && !editing) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadResponse = await fetch("/api/upload", { method: "POST", credentials: "include", body: formData });
+        if (!uploadResponse.ok) {
+          setFormError("File upload failed. Try again.");
+          return;
+        }
         const uploadResult = await uploadResponse.json();
         attachmentUrl = uploadResult.url;
         attachmentName = uploadResult.fileName;
-      } else {
-        setFormError("File upload failed. Try again.");
-        setSaving(false);
+      }
+
+      const response = await fetch(editing ? `/api/tests/${editing._id}` : "/api/tests", {
+        method: editing ? "PUT" : "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title.trim(),
+          subject: form.subject.trim(),
+          date: form.date,
+          branch: form.branch || null,
+          semester: form.semester ? Number(form.semester) : null,
+          maxMarks: form.maxMarks ? Number(form.maxMarks) : null,
+          testType: form.testType,
+          // Editing replaces every field on the server, so carry over the ones this form doesn't show.
+          ...(editing
+            ? { section: editing.section ?? null, dueTime: editing.dueTime ?? null, notes: editing.notes ?? null }
+            : { attachmentUrl, attachmentName }),
+        }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        setFormError(result.error ?? (editing ? "Failed to save changes." : "Failed to create assignment."));
         return;
       }
-    }
 
-    const response = await fetch(editing ? `/api/tests/${editing._id}` : "/api/tests", {
-      method: editing ? "PUT" : "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: form.title.trim(),
-        subject: form.subject.trim(),
-        date: form.date,
-        branch: form.branch || null,
-        semester: form.semester ? Number(form.semester) : null,
-        maxMarks: form.maxMarks ? Number(form.maxMarks) : null,
-        testType: form.testType,
-        // Editing replaces every field on the server, so carry over the ones this form doesn't show.
-        ...(editing
-          ? { section: editing.section ?? null, dueTime: editing.dueTime ?? null, notes: editing.notes ?? null }
-          : { attachmentUrl, attachmentName }),
-      }),
-    });
-
-    if (!response.ok) {
-      const result = await response.json();
-      setFormError(result.error ?? (editing ? "Failed to save changes." : "Failed to create assignment."));
+      setForm(EMPTY_FORM);
+      setFile(null);
+      setEditing(null);
+      if (fileRef.current) fileRef.current.value = "";
+      setOpen(false);
+      fetchTests();
+    } catch {
+      setFormError("Network error. Please try again.");
+    } finally {
       setSaving(false);
-      return;
     }
-
-    setForm(EMPTY_FORM);
-    setFile(null);
-    setEditing(null);
-    if (fileRef.current) fileRef.current.value = "";
-    setOpen(false);
-    setSaving(false);
-    fetchTests();
   }
 
   return (

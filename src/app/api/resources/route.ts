@@ -3,6 +3,7 @@ import connectDB from "@/lib/db";
 import Resource from "@/models/Resource";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { toIdString } from "@/lib/utils";
+import { isOwnUploadUrl } from "@/lib/uploads";
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,6 +64,12 @@ export async function POST(request: NextRequest) {
         { error: "Missing required fields: title, subject, branch, year, fileUrl, fileName" },
         { status: 400 }
       );
+    }
+
+    // Only accept a file this user uploaded through /api/upload. The link is shown to students
+    // and deleted along with the resource, so an arbitrary URL can't be allowed here.
+    if (!isOwnUploadUrl(fileUrl, payload.userId)) {
+      return NextResponse.json({ error: "Upload the file first, then add the resource" }, { status: 400 });
     }
 
     await connectDB();

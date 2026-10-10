@@ -36,6 +36,7 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
   const [draftSubject, setDraftSubject] = useState("");
   const [draftClassKey, setDraftClassKey] = useState("");
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const loadTimetable = useCallback(() => {
     setLoading(true);
@@ -70,6 +71,7 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
 
   function openCell(day: number, period: number) {
     if (!editing || saving) return;
+    setSaveError("");
     const key = `${day}-${period}`;
     const existing = cellMap[key];
     setDraftSubject(existing?.subject ?? "");
@@ -82,6 +84,7 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
     if (!option) { setActiveCell(null); return; }
 
     setSaving(true);
+    setSaveError("");
     try {
       const response = await fetch(`/api/admin/teachers/${teacherId}/timetable`, {
         method: "POST",
@@ -100,7 +103,12 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
       if (response.ok) {
         setActiveCell(null);
         loadTimetable();
+      } else {
+        const result = await response.json().catch(() => ({}));
+        setSaveError(result.error ?? "Couldn't save. Please try again.");
       }
+    } catch {
+      setSaveError("Network error. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -208,6 +216,7 @@ export default function TeacherTimetableModal({ teacherId, teacherName, onClose 
                                     <X size={12} className="mx-auto" />
                                   </button>
                                 </div>
+                                {saveError && <p className="text-[11px] text-red-500 leading-snug">{saveError}</p>}
                               </div>
                             ) : (
                               <button

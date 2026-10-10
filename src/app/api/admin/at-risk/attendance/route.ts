@@ -40,25 +40,25 @@ export async function GET(request: NextRequest) {
         },
       },
       { $match: { pct: { $lt: LOW_ATTENDANCE_THRESHOLD_PCT } } },
-      {
-        $lookup: {
-          from: "students",
-          localField: "_id",
-          foreignField: "_id",
-          as: "studentDoc",
-        },
-      },
-      { $unwind: "$studentDoc" },
+      // Attendance.studentId is the student's User id.
       {
         $lookup: {
           from: "users",
-          localField: "studentDoc.userId",
+          localField: "_id",
           foreignField: "_id",
           as: "user",
         },
       },
-      { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
-      { $match: { user: { $ne: null } } },
+      { $unwind: "$user" },
+      {
+        $lookup: {
+          from: "students",
+          localField: "_id",
+          foreignField: "userId",
+          as: "studentDoc",
+        },
+      },
+      { $unwind: "$studentDoc" },
       {
         $project: {
           _id: 0,

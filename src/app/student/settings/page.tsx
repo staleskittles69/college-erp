@@ -19,21 +19,29 @@ export default function SettingsPage() {
       return;
     }
     setStatus("loading");
-    const response = await fetch("/api/auth/change-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
-    });
-    const result = await response.json();
+    let response: Response;
+    let result: { message?: string; error?: string };
+    try {
+      response = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
+      });
+      result = await response.json().catch(() => ({}));
+    } catch {
+      setStatus("error");
+      setMessage("Network error. Please try again.");
+      return;
+    }
     if (response.ok) {
       setStatus("success");
-      setMessage(result.message);
+      setMessage(result.message ?? "Password changed.");
       setCurrent("");
       setNewPass("");
       setConfirm("");
     } else {
       setStatus("error");
-      setMessage(result.error);
+      setMessage(result.error ?? "Something went wrong. Please try again.");
     }
   }
 

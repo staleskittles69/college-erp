@@ -118,8 +118,11 @@ export async function PUT(request: NextRequest) {
         saved = true;
       }
     } catch (saveError) {
-      await releaseClaimed();
-      if ((saveError as { code?: number }).code !== 11000) throw saveError; // 11000: booked in another tab
+      // 11000 = a booking was just created in another tab; the !saved branch below gives the claim back.
+      if ((saveError as { code?: number }).code !== 11000) {
+        await releaseClaimed();
+        throw saveError;
+      }
     }
     if (!saved) {
       await releaseClaimed();

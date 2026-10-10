@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
+import { localDateISO } from "@/lib/utils";
 
 interface Teaching { branch: string; year: number; sections: string[]; }
 interface Student { _id: string; name: string; rollNo: string; }
@@ -11,7 +12,7 @@ export default function AttendancePage() {
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(() => localDateISO());
 
   const [teaching, setTeaching] = useState<Teaching[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -102,19 +103,24 @@ export default function AttendancePage() {
   }
 
   async function handleSubmit() {
-    if (subjects.length > 0 && !subject) { setSubmitError("Please select a subject before submitting."); return; }
+    if (!subject) { setSubmitError("Please select a subject before submitting."); return; }
     setSubmitting(true);
     setSubmitError("");
     const bulk = students.map((student) => ({ studentId: student._id, status: attendance[student._id] ?? "present" }));
-    const response = await fetch("/api/attendance", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bulk, subject, date }),
-    });
-    if (response.ok) setSubmitted(true);
-    else setSubmitError("Failed to save attendance. Please try again.");
-    setSubmitting(false);
+    try {
+      const response = await fetch("/api/attendance", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bulk, subject, date }),
+      });
+      if (response.ok) setSubmitted(true);
+      else setSubmitError("Failed to save attendance. Please try again.");
+    } catch {
+      setSubmitError("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const presentCount = Object.values(attendance).filter((status) => status === "present").length;

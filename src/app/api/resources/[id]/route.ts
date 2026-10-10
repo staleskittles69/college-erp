@@ -3,6 +3,7 @@ import { del } from "@vercel/blob";
 import connectDB from "@/lib/db";
 import Resource from "@/models/Resource";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { isOwnUploadUrl } from "@/lib/uploads";
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -23,7 +24,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await del(resource.fileUrl).catch(() => {});
+    // Only delete the stored file if it belongs to whoever added the resource; older resources
+    // saved before uploads were filed per user just lose the database entry.
+    if (isOwnUploadUrl(resource.fileUrl, resource.uploadedBy.toString())) {
+      await del(resource.fileUrl).catch(() => {});
+    }
     await resource.deleteOne();
 
     return NextResponse.json({ success: true });
