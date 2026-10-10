@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cn, escapeRegex } from "./utils";
+import { cn, collegeDateISO, escapeRegex } from "./utils";
 
 describe("cn", () => {
   it("joins truthy class names with spaces", () => {
@@ -29,5 +29,13 @@ describe("escapeRegex", () => {
     const re = new RegExp(escapeRegex(payload));
     expect(re.test("anything")).toBe(false);
     expect(re.test(".*")).toBe(true);
+  });
+});
+
+describe("collegeDateISO", () => {
+  it("uses the India date, which runs 5:30 hours ahead of UTC", () => {
+    expect(collegeDateISO(new Date("2026-10-09T18:29:00Z"))).toBe("2026-10-09"); // 11:59 PM IST
+    expect(collegeDateISO(new Date("2026-10-09T18:30:00Z"))).toBe("2026-10-10"); // midnight IST
+    expect(collegeDateISO(new Date("2026-10-09T23:00:00Z"))).toBe("2026-10-10"); // 4:30 AM IST, still the 9th in UTC
   });
 });

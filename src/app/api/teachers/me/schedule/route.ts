@@ -5,12 +5,8 @@ import LeaveRequest from "@/models/LeaveRequest";
 import Substitution, { ISubstitution } from "@/models/Substitution";
 import { getAuth } from "@/lib/api-auth";
 import { classKey, getAttendanceTakenClassKeys, getTeacherClasses } from "@/lib/teacherSchedule";
-
-// dayOfWeek is stored Monday-first (0=Mon..5=Sat), matching src/lib/academics.ts DAYS.
-function todayIndex(): number {
-  const jsDay = new Date().getDay(); // JS Date: 0=Sun..6=Sat
-  return jsDay === 0 ? 6 : jsDay - 1;
-}
+import { weekdayIndex } from "@/lib/leave";
+import { collegeDateISO } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,12 +19,12 @@ export async function GET(request: NextRequest) {
     const teacher = await Teacher.findOne({ userId: payload.userId }).lean() as ITeacher | null;
     if (!teacher) return NextResponse.json({ classes: [] });
 
-    // Same YYYY-MM-DD the Attendance page defaults to and saves under.
-    const dateISO = new Date().toISOString().slice(0, 10);
+    // Today in India — the same YYYY-MM-DD the Attendance page defaults to and saves under.
+    const dateISO = collegeDateISO();
     const today = new Date(dateISO);
 
     const [ownEntries, onLeave, coverDocs] = await Promise.all([
-      getTeacherClasses(teacher, todayIndex()),
+      getTeacherClasses(teacher, weekdayIndex(dateISO)),
       LeaveRequest.exists({ teacherId: teacher._id, status: "approved", fromDate: { $lte: today }, toDate: { $gte: today } }),
       Substitution.find({ $or: [{ substituteTeacherId: teacher._id }, { originalTeacherId: teacher._id }], date: today })
         .lean<ISubstitution[]>(),

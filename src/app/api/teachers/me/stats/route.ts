@@ -5,6 +5,7 @@ import User from "@/models/User";
 import Test from "@/models/Test";
 import Query from "@/models/Query";
 import { getAuth } from "@/lib/api-auth";
+import { collegeDateISO } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [pendingAssignments, openQueries] = await Promise.all([
-      Test.countDocuments({ createdBy: payload.userId, date: { $gte: new Date() } }),
+      Test.countDocuments({ createdBy: payload.userId, date: { $gte: new Date(collegeDateISO()) } }),
       Query.countDocuments({ toRole: "teacher", toUserId: payload.userId, status: "open" }),
     ]);
 

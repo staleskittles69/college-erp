@@ -5,7 +5,7 @@ import Test, { ITest } from "@/models/Test";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { JwtPayload } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
-import { isValidTestTime, toIdString } from "@/lib/utils";
+import { collegeDateISO, isValidTestTime, toIdString } from "@/lib/utils";
 import { isUploadUrl } from "@/lib/uploads";
 
 interface BulkTestRow {
@@ -126,7 +126,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (upcoming === "true") {
-      filter.date = { $gte: new Date() };
+      // Tests are stored at midnight of their date, so "upcoming" starts at today (in India).
+      filter.date = { $gte: new Date(collegeDateISO()) };
     }
 
     const tests = await Test.find(filter).sort({ date: 1 }).lean();

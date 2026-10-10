@@ -4,6 +4,7 @@ import Teacher, { ITeacher } from "@/models/Teacher";
 import Subject from "@/models/Subject";
 import Substitution, { ISubstitution } from "@/models/Substitution";
 import { getAuth } from "@/lib/api-auth";
+import { collegeDateISO } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
     if (new URL(request.url).searchParams.get("includeCovering") === "true") {
       const covers = await Substitution.find({
         substituteTeacherId: teacher._id,
-        date: new Date(new Date().toISOString().slice(0, 10)),
+        date: new Date(collegeDateISO()),
       }).lean<ISubstitution[]>();
 
       for (const cover of covers) {

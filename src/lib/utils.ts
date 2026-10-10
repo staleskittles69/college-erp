@@ -24,3 +24,18 @@ export function isValidTestTime(value: string): boolean {
 export function localDateISO(date: Date = new Date()): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
+
+export const COLLEGE_TIME_ZONE = "Asia/Kolkata";
+
+// Today's date as YYYY-MM-DD in the college's time zone. For server code: Vercel runs on UTC,
+// where the date doesn't change until 5:30 AM in India.
+export function collegeDateISO(date: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: COLLEGE_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const part = (type: string) => parts.find((entry) => entry.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}

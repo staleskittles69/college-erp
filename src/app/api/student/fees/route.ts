@@ -6,7 +6,7 @@ import HostelBooking from "@/models/HostelBooking";
 import { getAuth } from "@/lib/api-auth";
 import { getFeeSettings } from "@/lib/feeDues";
 import { dueStatus } from "@/lib/hostelTransport";
-import { toIdString } from "@/lib/utils";
+import { collegeDateISO, toIdString } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       HostelBooking.findOne({ userId: payload.userId }).select("fee").lean<{ fee: number }>(),
     ]);
 
-    const today = new Date();
+    const today = new Date(collegeDateISO()); // dueStatus compares UTC calendar days
     const dueDates = { hostel: settings.hostelDueDate ?? null, transport: settings.transportDueDate ?? null };
 
     // Paid more than the current booking costs (moved to something cheaper, or cancelled, after paying)?

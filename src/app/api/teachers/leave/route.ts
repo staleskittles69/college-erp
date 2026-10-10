@@ -7,9 +7,10 @@ import { getAuth } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
 import { validateLeaveInput } from "@/lib/leave";
 import { serializeLeave } from "@/lib/leaveSchedule";
+import { collegeDateISO } from "@/lib/utils";
 
 function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  return collegeDateISO();
 }
 
 // GET /api/teachers/leave — my leave requests (with who is covering each class) and the classes I'm covering
