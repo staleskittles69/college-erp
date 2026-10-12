@@ -23,7 +23,7 @@ interface Test {
   createdBy?: string | null;
 }
 
-interface Dept { slug: string; name: string; }
+interface Teaching { branch: string; year: number; sections: string[]; }
 
 const EMPTY_FORM = { title: "", subject: "", branch: "", semester: "", date: "", maxMarks: "", testType: "Assignment" };
 
@@ -32,7 +32,7 @@ export default function AssignmentsPage() {
   const { data: me } = useFetch<{ userId?: string }>("/api/teachers/me", {});
 
   const [subjects, setSubjects] = useState<string[]>([]);
-  const [depts, setDepts] = useState<Dept[]>([]);
+  const [teaching, setTeaching] = useState<Teaching[]>([]);
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Test | null>(null);
@@ -43,15 +43,24 @@ export default function AssignmentsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch("/api/departments", { credentials: "include" })
-      .then((response) => response.ok ? response.json() : [])
-      .then(setDepts)
-      .catch(() => {});
     fetch("/api/teachers/me/classes", { credentials: "include" })
-      .then((response) => response.ok ? response.json() : { subjects: [] })
-      .then((classesData) => setSubjects(classesData.subjects ?? []))
+      .then((response) => response.ok ? response.json() : { teaching: [], subjects: [] })
+      .then((classesData) => {
+        setTeaching(classesData.teaching ?? []);
+        setSubjects(classesData.subjects ?? []);
+      })
       .catch(() => {});
   }, []);
+
+  // Only the teacher's own branches and years can be picked (the server checks the same). When editing,
+  // the assignment's current class is kept in the list even if it's no longer one of theirs.
+  const branchOptions = [...new Set([...teaching.map((teachingItem) => teachingItem.branch), ...(form.branch ? [form.branch] : [])])];
+  const yearOptions = [
+    ...new Set([
+      ...teaching.filter((teachingItem) => teachingItem.branch === form.branch).map((teachingItem) => teachingItem.year),
+      ...(form.semester ? [Number(form.semester)] : []),
+    ]),
+  ].sort((yearA, yearB) => yearA - yearB);
 
   function handleBranchChange(value: string) { setForm((prev) => ({ ...prev, branch: value, semester: "" })); }
 
@@ -327,7 +336,7 @@ export default function AssignmentsPage() {
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option value="">All branches</option>
-                    {depts.map((dept) => <option key={dept.slug} value={dept.name}>{dept.name}</option>)}
+                    {branchOptions.map((branchOption) => <option key={branchOption} value={branchOption}>{branchOption}</option>)}
                   </select>
                 </div>
                 <div>
@@ -339,7 +348,7 @@ export default function AssignmentsPage() {
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:bg-gray-50"
                   >
                     <option value="">{form.branch ? "All years" : "Select branch first"}</option>
-                    {form.branch && [1, 2, 3, 4].map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
+                    {form.branch && yearOptions.map((yearOption) => <option key={yearOption} value={yearOption}>Year {yearOption}</option>)}
                   </select>
                 </div>
               </div>

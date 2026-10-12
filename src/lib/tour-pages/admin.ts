@@ -316,12 +316,12 @@ export const ADMIN_PAGES: PageTour[] = [
       {
         element: tourTarget("attendance-filters"),
         title: "Choose the class",
-        description: "Pick branch, year and section, click Load Students, then choose the subject and date.",
+        description: "Pick branch, year, section, subject, period and date, then click Load Students.",
       },
       {
         element: tourTarget("attendance-list"),
         title: "Student list",
-        description: "Everyone starts as Present. Click a student's button to switch them to Absent, or use All Present / All Absent at the top.",
+        description: "Everyone starts as Present — or as saved, if this period was already taken. Click a student's button to switch them to Absent, or use All Present / All Absent at the top.",
         optional: true,
       },
       {

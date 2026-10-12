@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, X, RefreshCw } from "lucide-react";
 import { localDateISO } from "@/lib/utils";
+import { PERIODS, PERIOD_TIMES } from "@/lib/academics";
 
 interface Branch { slug: string; name: string; label: string; }
 interface Student { _id: string; name: string; rollNo: string; }
+interface SavedRecord { studentId: string; status: Status; }
 type Status = "present" | "absent";
 
 export default function AdminAttendancePage() {
@@ -17,11 +19,16 @@ export default function AdminAttendancePage() {
   const [loadingSections, setLoadingSections] = useState(false);
   const [subject, setSubject] = useState("");
   const [subjectOptions, setSubjectOptions] = useState<string[]>([]);
+  const [period, setPeriod] = useState<number | "">("");
   const [date, setDate] = useState(() => localDateISO());
 
   const [students, setStudents] = useState<Student[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [attendance, setAttendance] = useState<Record<string, Status>>({});
+  const [alreadySaved, setAlreadySaved] = useState(false);
+  // Bumped on every load and selection change, so a slow response for an old selection is ignored.
+  const loadIdRef = useRef(0);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -57,39 +64,66 @@ export default function AdminAttendancePage() {
       .finally(() => setLoadingSections(false));
   }, [branch, year]);
 
-  function handleBranchChange(value: string) { setBranch(value); setStudents([]); setSubmitted(false); }
-  function handleYearChange(value: number | "") { setYear(value); setStudents([]); setSubmitted(false); }
-  function handleSectionChange(value: string) { setSection(value); setStudents([]); setSubmitted(false); }
+  // The list on screen belongs to one class, subject, period and date — changing any of them clears it.
+  function clearList() {
+    loadIdRef.current += 1;
+    setStudents([]);
+    setAlreadySaved(false);
+    setLoadingStudents(false);
+    setLoadError("");
+    setSubmitted(false);
+  }
+  function handleBranchChange(value: string) { setBranch(value); clearList(); }
+  function handleYearChange(value: number | "") { setYear(value); clearList(); }
+  function handleSectionChange(value: string) { setSection(value); clearList(); }
 
+  // Loads the class together with anything already saved for this subject, period and date, so
+  // re-saving keeps earlier absences instead of resetting everyone to present.
   function loadStudents() {
-    if (!branch || !year || !section) return;
+    if (!branch || !year || !section || !subject || !period) return;
+    const loadId = ++loadIdRef.current;
     setLoadingStudents(true);
+    setLoadError("");
     setSubmitted(false);
     setSubmitError("");
-    fetch(`/api/students?branch=${branch}&year=${year}&section=${section}`, { credentials: "include" })
-      .then((response) => response.ok ? response.json() : [])
-      .then((data: Student[]) => {
-        setStudents(data);
+    const classQuery = `branch=${encodeURIComponent(branch)}&year=${year}&section=${encodeURIComponent(section)}`;
+    const getJson = (url: string) =>
+      fetch(url, { credentials: "include" }).then((response) => response.ok ? response.json() : Promise.reject());
+    Promise.all([
+      getJson(`/api/students?${classQuery}`),
+      getJson(`/api/attendance?${classQuery}&subject=${encodeURIComponent(subject)}&period=${period}&from=${date}&to=${date}`),
+    ])
+      .then(([data, savedRecords]: [Student[], SavedRecord[]]) => {
+        if (loadId !== loadIdRef.current) return;
+        const saved = new Map(savedRecords.map((record) => [record.studentId, record.status]));
         const init: Record<string, Status> = {};
-        data.forEach((student) => { init[student._id] = "present"; });
+        data.forEach((student) => { init[student._id] = saved.get(student._id) ?? "present"; });
+        setStudents(data);
         setAttendance(init);
+        setAlreadySaved(saved.size > 0);
       })
-      .catch(() => setStudents([]))
-      .finally(() => setLoadingStudents(false));
+      .catch(() => {
+        if (loadId !== loadIdRef.current) return;
+        setStudents([]);
+        setLoadError("Couldn't load this class. Please try again.");
+      })
+      .finally(() => { if (loadId === loadIdRef.current) setLoadingStudents(false); });
   }
 
   function toggle(id: string) {
     setAttendance((prev) => ({ ...prev, [id]: prev[id] === "present" ? "absent" : "present" }));
+    setSubmitted(false);
   }
 
   function markAll(status: Status) {
     const next: Record<string, Status> = {};
     students.forEach((student) => { next[student._id] = status; });
     setAttendance(next);
+    setSubmitted(false);
   }
 
   async function handleSubmit() {
-    if (!subject.trim()) { setSubmitError("Select a subject before submitting."); return; }
+    if (!subject.trim() || !period) { setSubmitError("Select a subject and period before submitting."); return; }
     setSubmitting(true);
     setSubmitError("");
     const bulk = students.map((student) => ({ studentId: student._id, status: attendance[student._id] ?? "present" }));
@@ -98,10 +132,15 @@ export default function AdminAttendancePage() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bulk, subject: subject.trim(), date }),
+        body: JSON.stringify({ bulk, subject: subject.trim(), date, period }),
       });
-      if (response.ok) setSubmitted(true);
-      else setSubmitError("Failed to save. Please try again.");
+      if (response.ok) {
+        setSubmitted(true);
+        setAlreadySaved(true);
+      } else {
+        const result = await response.json().catch(() => ({}));
+        setSubmitError(result.error ?? "Failed to save. Please try again.");
+      }
     } catch {
       setSubmitError("Network error. Please try again.");
     } finally {
@@ -116,7 +155,7 @@ export default function AdminAttendancePage() {
     <div className="p-6 space-y-5 max-w-3xl">
       <div>
         <h1 className="text-xl font-bold text-gray-900">Mark Attendance</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Select a class, enter subject and date, then mark students.</p>
+        <p className="text-sm text-gray-500 mt-0.5">Select a class, subject, period and date, then mark students.</p>
       </div>
 
       {/* Filters */}
@@ -165,7 +204,7 @@ export default function AdminAttendancePage() {
           <div className="flex items-end">
             <button
               onClick={loadStudents}
-              disabled={!branch || !year || !section || loadingStudents}
+              disabled={!branch || !year || !section || !subject || !period || loadingStudents}
               className="w-full flex items-center justify-center gap-1.5 text-sm font-medium bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-40"
             >
               {loadingStudents ? <RefreshCw size={14} className="animate-spin" /> : null}
@@ -174,12 +213,12 @@ export default function AdminAttendancePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
             <select
               value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+              onChange={(e) => { setSubject(e.target.value); clearList(); }}
               disabled={subjectOptions.length === 0}
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 disabled:bg-gray-50"
             >
@@ -192,15 +231,34 @@ export default function AdminAttendancePage() {
             </select>
           </div>
           <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Period</label>
+            <select
+              value={period}
+              onChange={(e) => { setPeriod(e.target.value ? Number(e.target.value) : ""); clearList(); }}
+              className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="">Select</option>
+              {PERIODS.map((periodOption) => (
+                <option key={periodOption} value={periodOption}>Period {periodOption} ({PERIOD_TIMES[periodOption]})</option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
             <input
               type="date"
               value={date}
-              onChange={(e) => { setDate(e.target.value); setSubmitted(false); }}
+              onChange={(e) => { setDate(e.target.value); clearList(); }}
               className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
         </div>
+        {loadError && <p className="text-xs text-red-500">{loadError}</p>}
+        {alreadySaved && !submitted && students.length > 0 && (
+          <p className="text-xs text-amber-700">
+            Attendance was already taken for this period. It&apos;s shown below — saving again updates it.
+          </p>
+        )}
       </div>
 
       {/* Student list */}
@@ -260,7 +318,7 @@ export default function AdminAttendancePage() {
                 disabled={submitting}
                 className="ml-auto bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
-                {submitting ? "Saving…" : "Submit Attendance"}
+                {submitting ? "Saving…" : alreadySaved ? "Save Changes" : "Submit Attendance"}
               </button>
             )}
           </div>

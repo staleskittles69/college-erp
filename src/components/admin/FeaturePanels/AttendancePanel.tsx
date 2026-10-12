@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSubjectOptions } from "@/hooks/useSubjectOptions";
 import { localDateISO } from "@/lib/utils";
+import { PERIODS, PERIOD_TIMES } from "@/lib/academics";
 
 interface AttendanceRecord {
   _id: string;
@@ -22,6 +23,7 @@ function emptyForm() {
   return {
     subject: "",
     date: localDateISO(),
+    period: "" as number | "",
     status: "present" as "present" | "absent",
   };
 }
@@ -62,7 +64,7 @@ export default function AttendancePanel({ studentId = "", context, branch }: Att
   });
 
   async function handleAdd() {
-    if (!form.subject.trim()) return;
+    if (!form.subject.trim() || !form.period) { setError("Pick a subject and period"); return; }
     setSaving(true);
     setError("");
     try {
@@ -74,6 +76,7 @@ export default function AttendancePanel({ studentId = "", context, branch }: Att
           studentId,
           subject: form.subject.trim(),
           date: form.date,
+          period: form.period,
           status: form.status,
         }),
       });
@@ -126,7 +129,7 @@ export default function AttendancePanel({ studentId = "", context, branch }: Att
       {/* Add form */}
       {showForm && (
         <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
-          <div className="grid grid-cols-3 gap-3 mb-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
               <select
@@ -149,6 +152,19 @@ export default function AttendancePanel({ studentId = "", context, branch }: Att
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
                 className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-gray-600"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Period</label>
+              <select
+                value={form.period}
+                onChange={(e) => setForm({ ...form, period: e.target.value ? Number(e.target.value) : "" })}
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-gray-600"
+              >
+                <option value="">Select period</option>
+                {PERIODS.map((periodOption) => (
+                  <option key={periodOption} value={periodOption}>Period {periodOption} ({PERIOD_TIMES[periodOption]})</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Status</label>

@@ -7,6 +7,7 @@ import { JwtPayload } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { collegeDateISO, isValidTestTime, toIdString } from "@/lib/utils";
 import { isUploadUrl } from "@/lib/uploads";
+import { NOT_YOUR_CLASS, mayTargetClass } from "@/lib/teacherAccess";
 
 interface BulkTestRow {
   subject?: string;
@@ -48,6 +49,10 @@ async function handleBulkCreate(body: Record<string, unknown>, payload: JwtPaylo
   }
 
   await connectDB();
+
+  if (!(await mayTargetClass(payload, { branch, year: Number(semester) }))) {
+    return NextResponse.json({ error: NOT_YOUR_CLASS }, { status: 403 });
+  }
 
   const seriesId = new mongoose.Types.ObjectId();
   const docs = rows.map((row) => ({
@@ -197,6 +202,11 @@ export async function POST(request: NextRequest) {
     }
 
     await connectDB();
+
+    const target = { branch: branch || null, year: semester != null ? Number(semester) : null, section: section || null };
+    if (!(await mayTargetClass(payload, target))) {
+      return NextResponse.json({ error: NOT_YOUR_CLASS }, { status: 403 });
+    }
 
     const test = await Test.create({
       subject,
