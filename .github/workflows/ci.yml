@@ -30,6 +30,12 @@ jobs:
           node-version: 20
           cache: npm
 
+      # Node 20 ships npm 10, which rejects lockfiles written by npm 11 (it wants entries
+      # for optional peer packages that npm 11 leaves out). npm 11 accepts lockfiles from
+      # either version, so CI no longer breaks depending on which npm last touched it.
+      - name: Use npm 11
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: npm ci
 
