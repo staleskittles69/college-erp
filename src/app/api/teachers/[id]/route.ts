@@ -7,6 +7,8 @@ import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { removeUserFromGroupConversation } from "@/lib/messaging";
+import { endAllSessions } from "@/lib/sessions";
+import { logAuthEvent } from "@/lib/authEvents";
 import mongoose from "mongoose";
 
 export async function PATCH(
@@ -31,7 +33,7 @@ export async function PATCH(
     if (!teacher) return NextResponse.json({ error: "Teacher not found" }, { status: 404 });
 
     if (body.newPassword != null) {
-      const strengthError = validatePasswordStrength(body.newPassword);
+      const strengthError = validatePasswordStrength(body.newPassword, [teacher.name]);
       if (strengthError) return NextResponse.json({ error: strengthError }, { status: 400 });
     }
 
@@ -44,8 +46,17 @@ export async function PATCH(
       const hashedPassword = await hashPassword(body.newPassword);
       await User.findByIdAndUpdate(teacher.userId, {
         password: hashedPassword,
+        mustChangePassword: true,
         failedLoginAttempts: 0,
         lockUntil: null,
+      });
+      // Anyone logged in with the old password is signed out.
+      await endAllSessions(teacher.userId.toString());
+      await logAuthEvent(request, {
+        type: "password_reset_by_admin",
+        userId: teacher.userId.toString(),
+        userName: teacher.name,
+        role: "teacher",
       });
     }
 
@@ -93,6 +104,7 @@ export async function DELETE(
 
     await Subject.updateMany({ teacherIds: id }, { $pull: { teacherIds: id } });
     await User.findByIdAndDelete(teacher.userId);
+    await endAllSessions(teacher.userId.toString());
     await Teacher.findByIdAndDelete(id);
 
     try {

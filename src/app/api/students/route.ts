@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const passwordError = validatePasswordStrength(password);
+    const passwordError = validatePasswordStrength(password, [String(name)]);
     if (passwordError) {
       return NextResponse.json({ error: passwordError }, { status: 400 });
     }
@@ -154,6 +154,8 @@ export async function POST(request: NextRequest) {
       section: sectionLabel,
       password: hashedPassword,
       role: "student",
+      // The admin knows this password, so the student must replace it on first login.
+      mustChangePassword: true,
     });
 
     const student = await Student.create({

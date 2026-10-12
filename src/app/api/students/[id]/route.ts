@@ -3,6 +3,8 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Student from "@/models/Student";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
+import { endAllSessions } from "@/lib/sessions";
+import { logAuthEvent } from "@/lib/authEvents";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import mongoose from "mongoose";
@@ -107,8 +109,17 @@ export async function PATCH(
       const hashedPassword = await hashPassword(newPassword);
       await User.findByIdAndUpdate(id, {
         password: hashedPassword,
+        mustChangePassword: true,
         failedLoginAttempts: 0,
         lockUntil: null,
+      });
+      // Anyone logged in with the old password is signed out.
+      await endAllSessions(id);
+      await logAuthEvent(request, {
+        type: "password_reset_by_admin",
+        userId: id,
+        userName: student.name,
+        role: "student",
       });
     }
 
@@ -167,6 +178,7 @@ export async function DELETE(
     }
 
     await User.findByIdAndDelete(id);
+    await endAllSessions(id);
     await Student.findByIdAndDelete(student._id);
 
     await logAudit(

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Pencil, Eye, EyeOff, Copy, Check } from "lucide-react";
-import { validatePasswordStrength } from "@/lib/passwordRules";
+import { PASSWORD_RULES_HINT, validatePasswordStrength } from "@/lib/passwordRules";
 
 interface PersonalDetails {
   admissionNo?: string;
@@ -381,7 +381,7 @@ export default function StudentDetailsPanel({ studentId, context }: { studentId?
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
-                <p className="text-xs text-gray-400">At least 8 characters, with a letter and a number.</p>
+                <p className="text-xs text-gray-400">{PASSWORD_RULES_HINT} They&apos;ll be asked to change it when they next log in.</p>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSetPassword}

@@ -3,7 +3,7 @@ import connectDB from "@/lib/db";
 import User from "@/models/User";
 import Teacher from "@/models/Teacher";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
-import { hashPassword, validatePasswordStrength } from "@/lib/auth";
+import { generateRandomPassword, hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { toIdString } from "@/lib/utils";
 import { addUserToGroupConversation } from "@/lib/messaging";
@@ -57,8 +57,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const plainPassword = password || "teacher123";
-    const passwordError = validatePasswordStrength(plainPassword);
+    // No password given → generate one. Either way the teacher must replace it on first login.
+    const plainPassword = password || generateRandomPassword();
+    const passwordError = validatePasswordStrength(plainPassword, [String(email), String(name)]);
     if (passwordError) {
       return NextResponse.json({ error: passwordError }, { status: 400 });
     }
@@ -74,7 +75,13 @@ export async function POST(request: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(plainPassword);
-    const user = await User.create({ name, email: normalizedEmail, password: hashedPassword, role: "teacher" });
+    const user = await User.create({
+      name,
+      email: normalizedEmail,
+      password: hashedPassword,
+      role: "teacher",
+      mustChangePassword: true,
+    });
 
     const teacher = await Teacher.create({
       userId: user._id,

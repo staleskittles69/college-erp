@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SignOutEverywhereCard from "@/components/shared/SignOutEverywhereCard";
 import { Lock, CheckCircle, XCircle } from "lucide-react";
 
 function PasswordSection() {
@@ -108,6 +109,7 @@ export default function SettingsPage() {
       </div>
 
       <PasswordSection />
+      <SignOutEverywhereCard className="mt-6" />
     </div>
   );
 }

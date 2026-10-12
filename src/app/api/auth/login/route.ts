@@ -1,18 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
-import { signToken, comparePassword } from "@/lib/auth";
+import { comparePassword, compareAgainstDummy, hashPassword, needsRehash } from "@/lib/auth";
+import { startSession } from "@/lib/sessions";
+import { logAuthEvent } from "@/lib/authEvents";
+import {
+  checkLoginRateLimit,
+  clearLoginFailures,
+  clientIp,
+  loginBuckets,
+  recordLoginFailure,
+} from "@/lib/rateLimit";
 
-const MAX_FAILED_ATTEMPTS = 5;
-const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+const INVALID_CREDENTIALS = "Invalid roll number/email or password";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, password } = body;
+    const body = await request.json().catch(() => ({}));
+    const { email, password } = body as { email?: unknown; password?: unknown };
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    if (typeof email !== "string" || typeof password !== "string" || !email.trim() || !password) {
+      return NextResponse.json({ error: "Roll number/email and password are required" }, { status: 400 });
+    }
+    if (email.length > 254 || password.length > 128) {
+      return NextResponse.json({ error: INVALID_CREDENTIALS }, { status: 401 });
     }
 
     await connectDB();
@@ -22,62 +33,54 @@ export async function POST(request: NextRequest) {
     const identifier = email.trim().toLowerCase();
     const lookupEmail = identifier.includes("@") ? identifier : `${identifier}@college.edu`;
 
-    const user = await User.findOne({ email: lookupEmail });
-
-    if (!user || !user.password) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
-    }
-
-    if (user.lockUntil && user.lockUntil.getTime() > Date.now()) {
-      const minutesLeft = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000);
+    const buckets = loginBuckets(clientIp(request), lookupEmail);
+    const waitMs = await checkLoginRateLimit(buckets);
+    if (waitMs > 0) {
+      const minutes = Math.ceil(waitMs / 60000);
+      await logAuthEvent(request, { type: "login_blocked", identifier: lookupEmail });
       return NextResponse.json(
-        { error: `Too many failed attempts. Try again in ${minutesLeft} minute${minutesLeft === 1 ? "" : "s"}.` },
-        { status: 429 }
+        { error: `Too many attempts. Try again in ${minutes} minute${minutes === 1 ? "" : "s"}.` },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(waitMs / 1000)) } }
       );
     }
 
-    const passwordMatch = await comparePassword(password, user.password);
+    const user = await User.findOne({ email: lookupEmail });
 
-    if (!passwordMatch) {
-      const attempts = (user.failedLoginAttempts ?? 0) + 1;
-      if (attempts >= MAX_FAILED_ATTEMPTS) {
-        user.failedLoginAttempts = 0;
-        user.lockUntil = new Date(Date.now() + LOCK_DURATION_MS);
-      } else {
-        user.failedLoginAttempts = attempts;
-      }
-      await user.save();
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    // Unknown accounts still pay for a bcrypt compare, so timing doesn't reveal which exist.
+    const passwordMatch = user?.password
+      ? await comparePassword(password, user.password)
+      : await compareAgainstDummy(password);
+
+    if (!user || !passwordMatch) {
+      await recordLoginFailure(buckets);
+      await logAuthEvent(request, {
+        type: "login_failed",
+        identifier: lookupEmail,
+        userId: user?._id.toString(),
+        userName: user?.name,
+        role: user?.role,
+      });
+      return NextResponse.json({ error: INVALID_CREDENTIALS }, { status: 401 });
     }
 
-    if (user.failedLoginAttempts || user.lockUntil) {
-      user.failedLoginAttempts = 0;
-      user.lockUntil = null;
+    await clearLoginFailures(buckets);
+
+    if (needsRehash(user.password)) {
+      user.password = await hashPassword(password);
       await user.save();
     }
-
-    const token = signToken({
-      userId: user._id.toString(),
-      role: user.role as "admin" | "student" | "teacher",
-    });
 
     const response = NextResponse.json({
-      token,
       user: {
         id: user._id.toString(),
         name: user.name,
         role: user.role,
       },
+      mustChangePassword: Boolean(user.mustChangePassword),
     });
 
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 86400,
-      path: "/",
-    });
-
+    await startSession(user, request, response);
+    await logAuthEvent(request, { type: "login", userId: user._id.toString(), userName: user.name, role: user.role });
     return response;
   } catch (error) {
     console.error("LOGIN ERROR:", error);

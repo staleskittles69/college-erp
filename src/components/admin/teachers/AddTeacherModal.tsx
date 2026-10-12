@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Modal from "@/components/ui/Modal";
 import { useTeachers } from "@/contexts/TeachersContext";
+import { PASSWORD_RULES_HINT } from "@/lib/passwordRules";
 
 interface Props {
   departmentSlug: string;
@@ -98,6 +99,7 @@ export default function AddTeacherModal({ departmentSlug, subjectId, onClose, on
             required
             className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400"
           />
+          <p className="mt-1 text-xs text-gray-400">{PASSWORD_RULES_HINT} They&apos;ll be asked to change it when they first log in.</p>
         </div>
 
         <div>

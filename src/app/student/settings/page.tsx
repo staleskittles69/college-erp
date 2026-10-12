@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Lock, CheckCircle, XCircle } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
+import SignOutEverywhereCard from "@/components/shared/SignOutEverywhereCard";
 
 export default function SettingsPage() {
   const [current, setCurrent] = useState("");
@@ -119,6 +120,7 @@ export default function SettingsPage() {
           </div>
         </form>
       </div>
+      <SignOutEverywhereCard className="max-w-lg" />
     </div>
   );
 }

@@ -12,6 +12,9 @@ export interface IUser {
   role: "admin" | "student" | "teacher";
   failedLoginAttempts: number;
   lockUntil?: Date | null;
+  // When true the user must pick a new password before they can use the portal.
+  mustChangePassword: boolean;
+  passwordChangedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +33,8 @@ const UserSchema = new Schema<IUser>(
     role: { type: String, enum: ["admin", "student", "teacher"], required: true },
     failedLoginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date, default: null },
+    mustChangePassword: { type: Boolean, default: false },
+    passwordChangedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

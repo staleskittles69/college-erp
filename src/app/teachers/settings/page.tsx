@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Lock, CheckCircle, XCircle } from "lucide-react";
+import SignOutEverywhereCard from "@/components/shared/SignOutEverywhereCard";
 
 export default function TeacherSettingsPage() {
   const [current, setCurrent] = useState("");
@@ -119,6 +120,7 @@ export default function TeacherSettingsPage() {
           </div>
         </form>
       </div>
+      <SignOutEverywhereCard />
     </div>
   );
 }

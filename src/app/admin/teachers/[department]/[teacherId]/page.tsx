@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { X, Calendar, Eye, EyeOff, Copy, Check, Trash2 } from "lucide-react";
 import { useTeachers } from "@/contexts/TeachersContext";
-import { validatePasswordStrength } from "@/lib/passwordRules";
+import { PASSWORD_RULES_HINT, validatePasswordStrength } from "@/lib/passwordRules";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import AssignClassModal from "@/components/admin/teachers/AssignClassModal";
 import TeacherTimetableModal from "@/components/admin/teachers/TeacherTimetableModal";
@@ -203,7 +203,7 @@ export default function TeacherDetailsPage() {
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
-                <p className="text-xs text-gray-400">At least 8 characters, with a letter and a number.</p>
+                <p className="text-xs text-gray-400">{PASSWORD_RULES_HINT} They&apos;ll be asked to change it when they next log in.</p>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSetPassword}
