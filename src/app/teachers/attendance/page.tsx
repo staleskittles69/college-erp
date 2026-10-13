@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { localDateISO } from "@/lib/utils";
+import { PERIODS, PERIOD_TIMES } from "@/lib/academics";
 
 interface Teaching { branch: string; year: number; sections: string[]; }
 interface Student { _id: string; name: string; rollNo: string; }
+interface SavedRecord { studentId: string; status: Status; }
 type Status = "present" | "absent";
 
 export default function AttendancePage() {
@@ -21,10 +23,14 @@ export default function AttendancePage() {
   const [year, setYear] = useState<number | "">("");
   const [section, setSection] = useState("");
   const [subject, setSubject] = useState("");
+  const [period, setPeriod] = useState<number | "">("");
 
   const [students, setStudents] = useState<Student[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [attendance, setAttendance] = useState<Record<string, Status>>({});
+  // True when this class/subject/period/date already had attendance saved, so the list shows it.
+  const [alreadySaved, setAlreadySaved] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -49,6 +55,7 @@ export default function AttendancePage() {
         const params = new URLSearchParams(window.location.search);
         const linkedSection = params.get("section");
         const linkedSubject = params.get("subject");
+        const linkedPeriod = Number(params.get("period"));
         const linkedClass = teachingList.find(
           (teachingItem) =>
             teachingItem.branch === params.get("branch") &&
@@ -61,6 +68,7 @@ export default function AttendancePage() {
           setYear(linkedClass.year);
           setSection(linkedSection);
           if (linkedSubject && subjectList.includes(linkedSubject)) setSubject(linkedSubject);
+          if (PERIODS.includes(linkedPeriod)) setPeriod(linkedPeriod);
         }
       })
       .catch(() => {});
@@ -69,41 +77,65 @@ export default function AttendancePage() {
   const branches = [...new Set(teaching.map((teachingItem) => teachingItem.branch))];
   const yearsForBranch = teaching.filter((teachingItem) => teachingItem.branch === branch).map((teachingItem) => teachingItem.year);
   const sectionsForClass = teaching.find((teachingItem) => teachingItem.branch === branch && teachingItem.year === year)?.sections ?? [];
+  const classChosen = Boolean(branch && year && section);
+  const ready = classChosen && Boolean(subject && period);
 
   function markAll(status: Status) {
     const next: Record<string, Status> = {};
     students.forEach((student) => { next[student._id] = status; });
     setAttendance(next);
+    setSubmitted(false);
   }
 
+  // Load the class together with anything already saved for this subject, period and date, so
+  // reopening a class shows (and keeps) the earlier absences instead of resetting everyone to present.
   useEffect(() => {
-    if (!branch || !year || !section) { setStudents([]); setAttendance({}); return; }
-    setLoadingStudents(true);
     setSubmitted(false);
     setSubmitError("");
-    fetch(`/api/students?branch=${encodeURIComponent(branch)}&year=${year}&section=${encodeURIComponent(section)}`, { credentials: "include" })
-      .then((response) => response.ok ? response.json() : [])
-      .then((data: Student[]) => {
-        const sorted = [...data].sort((studentA, studentB) => studentA.name.localeCompare(studentB.name));
-        setStudents(sorted);
-        const init: Record<string, Status> = {};
-        sorted.forEach((student) => { init[student._id] = "present"; });
-        setAttendance(init);
-      })
-      .catch(() => setStudents([]))
-      .finally(() => setLoadingStudents(false));
-  }, [branch, year, section]);
+    setLoadError("");
+    if (!ready) { setStudents([]); setAttendance({}); setAlreadySaved(false); return; }
 
-  function handleBranchChange(value: string) { setBranch(value); setYear(""); setSection(""); setSubmitted(false); }
-  function handleYearChange(value: number) { setYear(value); setSection(""); setSubmitted(false); }
-  function handleSectionChange(value: string) { setSection(value); setSubmitted(false); }
+    let cancelled = false;
+    setLoadingStudents(true);
+    const classQuery = `branch=${encodeURIComponent(branch)}&year=${year}&section=${encodeURIComponent(section)}`;
+    const getJson = (url: string) =>
+      fetch(url, { credentials: "include" }).then((response) => response.ok ? response.json() : Promise.reject());
+    Promise.all([
+      getJson(`/api/students?${classQuery}`),
+      getJson(`/api/attendance?${classQuery}&subject=${encodeURIComponent(subject)}&period=${period}&from=${date}&to=${date}`),
+    ])
+      .then(([studentData, savedRecords]: [Student[], SavedRecord[]]) => {
+        if (cancelled) return;
+        const sorted = [...studentData].sort((studentA, studentB) => studentA.name.localeCompare(studentB.name));
+        const saved = new Map(savedRecords.map((record) => [record.studentId, record.status]));
+        const init: Record<string, Status> = {};
+        sorted.forEach((student) => { init[student._id] = saved.get(student._id) ?? "present"; });
+        setStudents(sorted);
+        setAttendance(init);
+        setAlreadySaved(saved.size > 0);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Don't show a list we couldn't check against saved attendance — submitting it could overwrite absences.
+        setStudents([]);
+        setAttendance({});
+        setAlreadySaved(false);
+        setLoadError("Couldn't load this class. Please try again.");
+      })
+      .finally(() => { if (!cancelled) setLoadingStudents(false); });
+    return () => { cancelled = true; };
+  }, [ready, branch, year, section, subject, period, date]);
+
+  function handleBranchChange(value: string) { setBranch(value); setYear(""); setSection(""); }
+  function handleYearChange(value: number) { setYear(value); setSection(""); }
 
   function toggle(id: string) {
     setAttendance((prev) => ({ ...prev, [id]: prev[id] === "present" ? "absent" : "present" }));
+    setSubmitted(false);
   }
 
   async function handleSubmit() {
-    if (!subject) { setSubmitError("Please select a subject before submitting."); return; }
+    if (!subject || !period) { setSubmitError("Please select a subject and period before submitting."); return; }
     setSubmitting(true);
     setSubmitError("");
     const bulk = students.map((student) => ({ studentId: student._id, status: attendance[student._id] ?? "present" }));
@@ -112,10 +144,15 @@ export default function AttendancePage() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bulk, subject, date }),
+        body: JSON.stringify({ bulk, subject, date, period }),
       });
-      if (response.ok) setSubmitted(true);
-      else setSubmitError("Failed to save attendance. Please try again.");
+      if (response.ok) {
+        setSubmitted(true);
+        setAlreadySaved(true);
+      } else {
+        const result = await response.json().catch(() => ({}));
+        setSubmitError(result.error ?? "Failed to save attendance. Please try again.");
+      }
     } catch {
       setSubmitError("Network error. Please try again.");
     } finally {
@@ -135,7 +172,7 @@ export default function AttendancePage() {
       {/* Class + subject selector */}
       <div className="rounded-xl border border-gray-200 bg-white p-5" data-tour="class-picker">
         <p className="text-sm font-semibold text-gray-700 mb-4">Select Class</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
           <div>
             <label className="text-xs text-gray-500 mb-1 block">Branch</label>
             <select
@@ -163,7 +200,7 @@ export default function AttendancePage() {
             <label className="text-xs text-gray-500 mb-1 block">Section</label>
             <select
               value={section}
-              onChange={(e) => handleSectionChange(e.target.value)}
+              onChange={(e) => setSection(e.target.value)}
               disabled={!year}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
             >
@@ -172,17 +209,51 @@ export default function AttendancePage() {
             </select>
           </div>
           <div>
+            <label className="text-xs text-gray-500 mb-1 block">Subject</label>
+            <select
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              disabled={subjects.length === 0}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
+            >
+              <option value="">Select</option>
+              {subjects.map((subjectOption) => <option key={subjectOption} value={subjectOption}>{subjectOption}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Period</label>
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value ? Number(e.target.value) : "")}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="">Select</option>
+              {PERIODS.map((periodOption) => (
+                <option key={periodOption} value={periodOption}>Period {periodOption} ({PERIOD_TIMES[periodOption]})</option>
+              ))}
+            </select>
+          </div>
+          <div>
             <label className="text-xs text-gray-500 mb-1 block">Date</label>
             <input
               type="date"
               value={date}
-              onChange={(e) => { setDate(e.target.value); setSubmitted(false); }}
+              onChange={(e) => setDate(e.target.value)}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
         </div>
         {loadingStudents && (
           <p className="mt-3 text-xs text-gray-400">Loading students…</p>
+        )}
+        {!loadingStudents && classChosen && !ready && (
+          <p className="mt-3 text-xs text-gray-400">Pick the subject and period to load the class.</p>
+        )}
+        {loadError && <p className="mt-3 text-xs text-red-500">{loadError}</p>}
+        {!loadingStudents && alreadySaved && !submitted && students.length > 0 && (
+          <p className="mt-3 text-xs text-amber-700">
+            Attendance was already taken for this period. It&apos;s shown below — saving again updates it.
+          </p>
         )}
       </div>
 
@@ -246,19 +317,9 @@ export default function AttendancePage() {
             })}
           </div>
           <div className="px-5 py-4 border-t border-gray-100 flex items-center gap-3" data-tour="attendance-submit">
-            {subjects.length > 1 && (
-              <select
-                value={subject}
-                onChange={(e) => { setSubject(e.target.value); setSubmitError(""); }}
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                <option value="">Select subject</option>
-                {subjects.map((subjectOption) => <option key={subjectOption} value={subjectOption}>{subjectOption}</option>)}
-              </select>
-            )}
-            {subjects.length === 1 && (
-              <span className="flex-1 text-sm text-gray-700 font-medium px-1">{subject}</span>
-            )}
+            <span className="flex-1 text-sm text-gray-700 font-medium px-1">
+              {subject} · Period {period}
+            </span>
             {submitError && <p className="text-xs text-red-500 shrink-0">{submitError}</p>}
             {submitted ? (
               <p className="text-xs text-green-600 font-semibold shrink-0">✓ Saved</p>
@@ -268,7 +329,7 @@ export default function AttendancePage() {
                 disabled={submitting}
                 className="shrink-0 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-60"
               >
-                {submitting ? "Saving…" : "Submit"}
+                {submitting ? "Saving…" : alreadySaved ? "Save changes" : "Submit"}
               </button>
             )}
           </div>

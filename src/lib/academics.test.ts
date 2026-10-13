@@ -139,6 +139,7 @@ describe("teacherAttendanceUrl", () => {
       year: 2,
       section: "Section 1",
       subject: "Data Structures & Algorithms",
+      period: 3,
     });
     expect(url.startsWith("/teachers/attendance?")).toBe(true);
     const params = new URLSearchParams(url.split("?")[1]);
@@ -146,5 +147,6 @@ describe("teacherAttendanceUrl", () => {
     expect(params.get("year")).toBe("2");
     expect(params.get("section")).toBe("Section 1");
     expect(params.get("subject")).toBe("Data Structures & Algorithms");
+    expect(params.get("period")).toBe("3");
   });
 });

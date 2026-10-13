@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { cn, collegeDateISO, escapeRegex } from "./utils";
+import { cn, collegeDateISO, collegeDayStart, escapeRegex } from "./utils";
 
 describe("cn", () => {
   it("joins truthy class names with spaces", () => {
@@ -37,5 +37,14 @@ describe("collegeDateISO", () => {
     expect(collegeDateISO(new Date("2026-10-09T18:29:00Z"))).toBe("2026-10-09"); // 11:59 PM IST
     expect(collegeDateISO(new Date("2026-10-09T18:30:00Z"))).toBe("2026-10-10"); // midnight IST
     expect(collegeDateISO(new Date("2026-10-09T23:00:00Z"))).toBe("2026-10-10"); // 4:30 AM IST, still the 9th in UTC
+  });
+});
+
+describe("collegeDayStart", () => {
+  it("returns the moment the India day began, as a UTC instant", () => {
+    // 11:59 PM IST on the 9th → midnight IST on the 9th (18:30 UTC on the 8th)
+    expect(collegeDayStart(new Date("2026-10-09T18:29:00Z")).toISOString()).toBe("2026-10-08T18:30:00.000Z");
+    // 12:30 AM IST on the 10th, still the 9th in UTC → midnight IST on the 10th
+    expect(collegeDayStart(new Date("2026-10-09T19:00:00Z")).toISOString()).toBe("2026-10-09T18:30:00.000Z");
   });
 });

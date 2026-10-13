@@ -92,13 +92,14 @@ export function studentDetailUrl(student: { _id: string; branch: string; year: n
   return `/admin/${branch}/${year}/${sectionSlug(student.section)}/${student._id}`;
 }
 
-/** Link to the teacher Attendance page with this class already selected. */
-export function teacherAttendanceUrl(cls: { branch: string; year: number; section: string; subject: string }): string {
+/** Link to the teacher Attendance page with this class and period already selected. */
+export function teacherAttendanceUrl(cls: { branch: string; year: number; section: string; subject: string; period: number }): string {
   const params = new URLSearchParams({
     branch: cls.branch,
     year: String(cls.year),
     section: cls.section,
     subject: cls.subject,
+    period: String(cls.period),
   });
   return `/teachers/attendance?${params.toString()}`;
 }

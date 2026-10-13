@@ -4,6 +4,7 @@ import Notice from "@/models/Notice";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
 import { notifyUsers } from "@/lib/notifications";
+import { NOT_YOUR_CLASS, mayTargetClass } from "@/lib/teacherAccess";
 import User from "@/models/User";
 
 export async function GET(request: NextRequest) {
@@ -87,6 +88,13 @@ export async function POST(request: NextRequest) {
     const isTeachersOnly = noticeAudience === "teachers";
 
     await connectDB();
+
+    if (
+      !isTeachersOnly &&
+      !(await mayTargetClass(payload, { branch: targetBranch || null, year: targetYear ? Number(targetYear) : null }))
+    ) {
+      return NextResponse.json({ error: NOT_YOUR_CLASS }, { status: 403 });
+    }
 
     const notice = await Notice.create({
       title,

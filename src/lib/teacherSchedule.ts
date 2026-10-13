@@ -70,21 +70,20 @@ export async function getTeacherClasses(
   });
 }
 
-type ClassRef = Pick<TeacherClassEntry, "branch" | "semester" | "section" | "subject">;
+type ClassRef = Pick<TeacherClassEntry, "branch" | "semester" | "section" | "subject" | "period">;
 
-export const classKey = ({ branch, semester, section, subject }: ClassRef) =>
-  `${branch}|${semester}|${section}|${subject}`;
+export const classKey = ({ branch, semester, section, subject, period }: ClassRef) =>
+  `${branch}|${semester}|${section}|${subject}|${period}`;
 
-// Which of these classes already have attendance saved for `dateISO` (the same YYYY-MM-DD the
-// Attendance page saves under)? Attendance is one record per student/subject/day, so a subject
-// with several periods in a day shares one answer — hence one lookup per distinct class, not per
-// period. Assumes connectDB() has already been called by the caller.
+// Which of these class periods already have attendance saved for `dateISO` (the same YYYY-MM-DD the
+// Attendance page saves under)? Attendance is one record per student/subject/day/period, so each
+// period is checked on its own. Assumes connectDB() has already been called by the caller.
 export async function getAttendanceTakenClassKeys(entries: ClassRef[], dateISO: string): Promise<Set<string>> {
   const distinct = new Map(entries.map((entry) => [classKey(entry), entry]));
   const date = new Date(dateISO);
 
   const results = await Promise.all(
-    [...distinct.entries()].map(async ([key, { branch, semester, section, subject }]) => {
+    [...distinct.entries()].map(async ([key, { branch, semester, section, subject, period }]) => {
       // Timetable.semester holds the class year (see getTeacherClasses), matching User.year.
       const students = await User.find({ role: "student", branch, year: semester, section }).select("_id").lean();
       if (students.length === 0) return null;
@@ -92,6 +91,7 @@ export async function getAttendanceTakenClassKeys(entries: ClassRef[], dateISO: 
         studentId: { $in: students.map((student) => student._id) },
         subject,
         date,
+        period,
       });
       return taken ? key : null;
     })

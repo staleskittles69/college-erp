@@ -7,6 +7,7 @@ import { endAllSessions } from "@/lib/sessions";
 import { logAuthEvent } from "@/lib/authEvents";
 import { hashPassword, validatePasswordStrength } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
+import { deleteStudentRecords } from "@/lib/studentRecords";
 import mongoose from "mongoose";
 
 export async function GET(
@@ -177,15 +178,18 @@ export async function DELETE(
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
 
-    await User.findByIdAndDelete(id);
+    // Sign them out first so they can't book anything mid-delete, and clear their records before the
+    // account itself: if a step fails, the student is still there and the delete can just be retried.
     await endAllSessions(id);
+    await deleteStudentRecords(id);
+    await User.findByIdAndDelete(id);
     await Student.findByIdAndDelete(student._id);
 
     await logAudit(
       payload,
       "delete",
       "Student",
-      `Deleted student ${student.name} (${student.branch} sem ${student.semester}, roll ${student.rollNo})`,
+      `Deleted student ${student.name} (${student.branch} sem ${student.semester}, roll ${student.rollNo}) with their attendance, marks, fees and bookings`,
       student._id.toString()
     );
 

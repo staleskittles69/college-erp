@@ -9,6 +9,7 @@ interface AttendanceRecord {
   _id: string;
   subject: string;
   date: string;
+  period: number | null;
   status: "present" | "absent";
 }
 
@@ -154,7 +155,9 @@ export default function AttendancePage() {
                 {records.slice(0, 20).map((record) => (
                   <tr key={record._id} className="hover:bg-gray-50">
                     <td className="px-6 py-3 font-medium text-gray-800">{record.subject || "General"}</td>
-                    <td className="px-6 py-3 text-gray-500 text-xs">{formatDate(record.date)}</td>
+                    <td className="px-6 py-3 text-gray-500 text-xs">
+                      {formatDate(record.date)}{record.period ? ` · Period ${record.period}` : ""}
+                    </td>
                     <td className="px-6 py-3">
                       <span className={`px-2.5 py-0.5 rounded text-xs font-semibold ${record.status === "present" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                         {record.status.charAt(0).toUpperCase() + record.status.slice(1)}

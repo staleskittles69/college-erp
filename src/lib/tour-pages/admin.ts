@@ -137,7 +137,7 @@ export const ADMIN_PAGES: PageTour[] = [
       {
         element: tourTarget("student-tabs"),
         title: "Tabs",
-        description: "Marks = add or remove exam marks. Attendance = subject-wise attendance, and add a record by hand. Details = their login, personal, education, parent and guardian details, which you can edit.",
+        description: "Marks = add or remove exam marks. Attendance = subject-wise attendance, and add a record by hand. Details = their login, personal, education, parent and guardian details, which you can edit. Permissions = every time they were let out of campus during the day.",
       },
       ...MARKS_STEPS,
     ],
@@ -316,12 +316,12 @@ export const ADMIN_PAGES: PageTour[] = [
       {
         element: tourTarget("attendance-filters"),
         title: "Choose the class",
-        description: "Pick branch, year and section, click Load Students, then choose the subject and date.",
+        description: "Pick branch, year, section, subject, period and date, then click Load Students.",
       },
       {
         element: tourTarget("attendance-list"),
         title: "Student list",
-        description: "Everyone starts as Present. Click a student's button to switch them to Absent, or use All Present / All Absent at the top.",
+        description: "Everyone starts as Present — or as saved, if this period was already taken. Click a student's button to switch them to Absent, or use All Present / All Absent at the top.",
         optional: true,
       },
       {
@@ -376,6 +376,22 @@ export const ADMIN_PAGES: PageTour[] = [
         element: tourTarget("query-list"),
         title: "Queries",
         description: "Each query shows who sent it (student or teacher), who it's to, and when. Type a reply and click Resolve to answer it, or Close it without replying. Reopen brings it back.",
+      },
+    ],
+  },
+  {
+    path: "/admin/permissions",
+    intro: { title: "Student Permissions", description: "Log a student leaving campus during the day. The time is saved automatically." },
+    steps: [
+      {
+        element: tourTarget("permission-search"),
+        title: "Find the student",
+        description: "Type their roll number. Add a reason if you like, then click Grant Permission — the current time is logged and added to their record. Their total number of exits appears once it's saved.",
+      },
+      {
+        element: tourTarget("permissions-today"),
+        title: "Granted today",
+        description: "Everyone let out today, newest first. Delete removes an entry logged by mistake (it's noted in the Audit Logs).",
       },
     ],
   },

@@ -39,3 +39,9 @@ export function collegeDateISO(date: Date = new Date()): string {
   const part = (type: string) => parts.find((entry) => entry.type === type)?.value ?? "";
   return `${part("year")}-${part("month")}-${part("day")}`;
 }
+
+// The moment today began (midnight) in the college's time zone, for "since today" database queries.
+// India is always UTC+5:30 (no daylight saving), so the offset can be written out.
+export function collegeDayStart(date: Date = new Date()): Date {
+  return new Date(`${collegeDateISO(date)}T00:00:00+05:30`);
+}

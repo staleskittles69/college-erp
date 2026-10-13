@@ -5,6 +5,7 @@ import { getAuth } from "@/lib/api-auth";
 import { canModifyOwned } from "@/lib/ownership";
 import { logAudit } from "@/lib/audit";
 import { isValidTestTime } from "@/lib/utils";
+import { NOT_YOUR_CLASS, mayTargetClass } from "@/lib/teacherAccess";
 import { deleteUploadIfUnused } from "@/lib/uploadCleanup";
 import mongoose from "mongoose";
 
@@ -94,11 +95,26 @@ export async function PUT(
 
     await connectDB();
 
-    const existing = await Test.findById(id).select("createdBy").lean<{ createdBy?: mongoose.Types.ObjectId }>();
+    const existing = await Test.findById(id).select("createdBy branch semester section").lean<{
+      createdBy?: mongoose.Types.ObjectId;
+      branch?: string | null;
+      semester?: number | null;
+      section?: string | null;
+    }>();
     if (!existing)
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     if (!canModifyOwned(payload, existing.createdBy))
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    // Moving a test to another class is checked like creating one. Leaving the class as it is
+    // is always allowed, so a teacher can still fix a typo after being moved off that class.
+    const target = { branch: branch || null, year: semester != null ? Number(semester) : null, section: section || null };
+    const classChanged =
+      target.branch !== (existing.branch || null) ||
+      target.year !== (existing.semester ?? null) ||
+      target.section !== (existing.section || null);
+    if (classChanged && !(await mayTargetClass(payload, target)))
+      return NextResponse.json({ error: NOT_YOUR_CLASS }, { status: 403 });
 
     const updated = await Test.findByIdAndUpdate(
       id,

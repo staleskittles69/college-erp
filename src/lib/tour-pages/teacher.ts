@@ -105,12 +105,12 @@ export const TEACHER_PAGES: PageTour[] = [
       {
         element: tourTarget("class-picker"),
         title: "Select Class",
-        description: "Pick the Branch, then Year, then Section — only the classes assigned to you are listed. Date is today by default; change it to mark an earlier day.",
+        description: "Pick the Branch, Year and Section, then the Subject and Period — only your own classes are listed. Date is today by default; change it to mark an earlier day.",
       },
       {
         element: tourTarget("attendance-list"),
         title: "Student list",
-        description: "Everyone starts as Present. Flip a student's switch to mark them Absent (red). The count at the top updates as you go.",
+        description: "Everyone starts as Present — or, if you already took this period, as you saved it. Flip a student's switch to mark them Absent (red). The count at the top updates as you go.",
         optional: true,
       },
       {
@@ -122,7 +122,7 @@ export const TEACHER_PAGES: PageTour[] = [
       {
         element: tourTarget("attendance-submit"),
         title: "Save it",
-        description: "Pick the subject if you teach more than one, then click Submit. “✓ Saved” means it's recorded and students can see it.",
+        description: "Click Submit. “✓ Saved” means it's recorded and students can see it. Coming back to the same period later lets you correct it.",
         optional: true,
       },
     ],
