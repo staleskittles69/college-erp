@@ -6,6 +6,7 @@ import { Plus, Send, MessageCircle, Users, User, X } from "lucide-react";
 import { useFetch } from "@/hooks/useFetch";
 import { EmptyState } from "@/components/ui/EmptyState";
 import Modal from "@/components/ui/Modal";
+import { startVisiblePolling } from "@/lib/visiblePolling";
 
 interface ConversationSummary {
   _id: string;
@@ -42,7 +43,7 @@ interface CurrentUser {
   name?: string;
 }
 
-const POLL_MS = 3000;
+const POLL_MS = 15_000;
 
 function relativeTime(value: string) {
   const diffMs = Date.now() - new Date(value).getTime();
@@ -121,10 +122,10 @@ function MessageBoardInner({ className }: { className: string }) {
 
     setMessagesLoading(true);
     loadMessages().finally(() => !cancelled && setMessagesLoading(false));
-    const interval = setInterval(loadMessages, POLL_MS);
+    const stopPolling = startVisiblePolling(loadMessages, POLL_MS);
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      stopPolling();
     };
   }, [activeConversationId]);
 

@@ -22,12 +22,12 @@ jobs:
       JWT_SECRET: ci-only-placeholder-secret-never-used-in-production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 24  # match local dev (npm 11) so package-lock.json stays in sync
           cache: npm
 
       # Node 20 ships npm 10, which rejects lockfiles written by npm 11 (it wants entries

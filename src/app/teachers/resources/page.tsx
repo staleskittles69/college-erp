@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { Library, Plus, Upload, FileText, Trash2 } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import { useFetch } from "@/hooks/useFetch";
+import { discardUpload } from "@/lib/uploads";
 
 interface Resource {
   _id: string;
@@ -64,6 +65,8 @@ export default function TeacherResourcesPage() {
     }
     setSaving(true);
     setFormError("");
+    let uploadedUrl: string | null = null;
+    let saved = false;
 
     try {
       const formData = new FormData();
@@ -74,6 +77,7 @@ export default function TeacherResourcesPage() {
         return;
       }
       const uploadResult = await uploadResponse.json();
+      uploadedUrl = uploadResult.url;
 
       const response = await fetch("/api/resources", {
         method: "POST",
@@ -94,6 +98,7 @@ export default function TeacherResourcesPage() {
         setFormError(result.error ?? "Failed to save resource.");
         return;
       }
+      saved = true;
 
       setForm(EMPTY_FORM);
       setFile(null);
@@ -103,6 +108,8 @@ export default function TeacherResourcesPage() {
     } catch {
       setFormError("Network error. Please try again.");
     } finally {
+      // Upload worked but the save didn't — the next attempt re-uploads, so drop this copy.
+      if (uploadedUrl && !saved) discardUpload(uploadedUrl);
       setSaving(false);
     }
   }

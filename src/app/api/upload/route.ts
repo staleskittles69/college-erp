@@ -4,6 +4,8 @@ import path from "path";
 import { mkdir, writeFile } from "fs/promises";
 import { getAuth } from "@/lib/api-auth";
 import { uploadPathname } from "@/lib/uploads";
+import connectDB from "@/lib/db";
+import { deleteUploadIfUnused } from "@/lib/uploadCleanup";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_EXTENSIONS = new Set([
@@ -46,4 +48,18 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({ url: blob.url, fileName: file.name });
+}
+
+// Discards a file the caller just uploaded when the save that should have used it failed.
+// Only the uploader's own files, and only while nothing references them.
+export async function DELETE(request: NextRequest) {
+  const payload = await getAuth(request);
+  if (!payload) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { url } = await request.json().catch(() => ({ url: null }));
+  if (typeof url !== "string") return NextResponse.json({ error: "Missing url" }, { status: 400 });
+
+  await connectDB();
+  await deleteUploadIfUnused(url, payload.userId);
+  return NextResponse.json({ success: true });
 }

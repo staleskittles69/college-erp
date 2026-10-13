@@ -5,6 +5,7 @@ import { ClipboardList, Plus, Upload, Paperclip, Pencil, Trash2 } from "lucide-r
 import Modal from "@/components/ui/Modal";
 import { useFetch } from "@/hooks/useFetch";
 import { localDateISO } from "@/lib/utils";
+import { discardUpload } from "@/lib/uploads";
 
 interface Test {
   _id: string;
@@ -107,9 +108,10 @@ export default function AssignmentsPage() {
     }
     setSaving(true);
     setFormError("");
+    let attachmentUrl: string | null = null;
+    let saved = false;
 
     try {
-      let attachmentUrl: string | null = null;
       let attachmentName: string | null = null;
 
       if (file && !editing) {
@@ -149,6 +151,7 @@ export default function AssignmentsPage() {
         setFormError(result.error ?? (editing ? "Failed to save changes." : "Failed to create assignment."));
         return;
       }
+      saved = true;
 
       setForm(EMPTY_FORM);
       setFile(null);
@@ -159,6 +162,8 @@ export default function AssignmentsPage() {
     } catch {
       setFormError("Network error. Please try again.");
     } finally {
+      // Upload worked but the save didn't — the next attempt re-uploads, so drop this copy.
+      if (attachmentUrl && !saved) discardUpload(attachmentUrl);
       setSaving(false);
     }
   }

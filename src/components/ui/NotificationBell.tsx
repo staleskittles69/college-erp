@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFetch } from "@/hooks/useFetch";
+import { startVisiblePolling } from "@/lib/visiblePolling";
 
 interface NotificationItem {
   _id: string;
@@ -20,7 +21,7 @@ interface NotificationItem {
   createdAt: string;
 }
 
-const NOTIFICATION_POLL_MS = 12000;
+const NOTIFICATION_POLL_MS = 120_000;
 
 function relativeTime(value: string) {
   const diffMs = Date.now() - new Date(value).getTime();
@@ -46,10 +47,7 @@ export function NotificationBell({ portalBasePath }: { portalBasePath: string })
     { notifications: [], unreadCount: 0 }
   );
 
-  useEffect(() => {
-    const interval = setInterval(refetch, NOTIFICATION_POLL_MS);
-    return () => clearInterval(interval);
-  }, [refetch]);
+  useEffect(() => startVisiblePolling(refetch, NOTIFICATION_POLL_MS), [refetch]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

@@ -6,6 +6,7 @@ import { canModifyOwned } from "@/lib/ownership";
 import { logAudit } from "@/lib/audit";
 import { isValidTestTime } from "@/lib/utils";
 import { NOT_YOUR_CLASS, mayTargetClass } from "@/lib/teacherAccess";
+import { deleteUploadIfUnused } from "@/lib/uploadCleanup";
 import mongoose from "mongoose";
 
 /* ---------- GET TEST BY ID ---------- */
@@ -196,6 +197,8 @@ export async function DELETE(
 
     if (!deleted)
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
+
+    if (deleted.createdBy) await deleteUploadIfUnused(deleted.attachmentUrl, deleted.createdBy.toString());
 
     await logAudit(
       payload,
