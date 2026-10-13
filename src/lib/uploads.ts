@@ -33,3 +33,13 @@ export function isOwnUploadUrl(url: unknown, userId: string): url is string {
   if (process.env.DEMO_OFFLINE === "1" && url.startsWith("/uploads/")) return true;
   return blobPathname(url)!.startsWith(`/${uploadPathname(userId, "")}`);
 }
+
+/** Client-side: throws away a just-uploaded file whose save failed, so it doesn't sit in storage unused. */
+export function discardUpload(url: string): void {
+  fetch("/api/upload", {
+    method: "DELETE",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  }).catch(() => {});
+}

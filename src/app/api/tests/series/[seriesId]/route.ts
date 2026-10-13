@@ -4,6 +4,7 @@ import connectDB from "@/lib/db";
 import Test from "@/models/Test";
 import { getAuth, requireAdmin } from "@/lib/api-auth";
 import { logAudit } from "@/lib/audit";
+import { deleteUploadIfUnused } from "@/lib/uploadCleanup";
 
 export async function DELETE(request: NextRequest, context: { params: Promise<{ seriesId: string }> }) {
   try {
@@ -18,9 +19,15 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
 
     await connectDB();
 
+    const attachments = await Test.find({ seriesId, attachmentUrl: { $ne: null } })
+      .select("attachmentUrl createdBy")
+      .lean<{ attachmentUrl: string; createdBy?: mongoose.Types.ObjectId }[]>();
     const result = await Test.deleteMany({ seriesId });
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Series not found" }, { status: 404 });
+    }
+    for (const { attachmentUrl, createdBy } of attachments) {
+      if (createdBy) await deleteUploadIfUnused(attachmentUrl, createdBy.toString());
     }
 
     await logAudit(payload, "delete", "Test", `Deleted test series (${result.deletedCount} tests)`, seriesId);

@@ -30,6 +30,12 @@ export async function GET(request: NextRequest) {
     const year = searchParams.get("year");
     const section = searchParams.get("section");
 
+    // Staff must narrow the request (a student, a class, or a date range) — an unfiltered
+    // call would return every attendance record in the college.
+    if (!studentId && !branch && !semester && !year && !section && !from && !to) {
+      return NextResponse.json({ error: "Pick a student, class, or date range." }, { status: 400 });
+    }
+
     const filter: Record<string, unknown> = {};
     if (studentId) filter.studentId = studentId;
     if (subject) filter.subject = subject;
