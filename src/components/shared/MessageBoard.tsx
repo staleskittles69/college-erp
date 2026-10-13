@@ -43,7 +43,7 @@ interface CurrentUser {
   name?: string;
 }
 
-const POLL_MS = 120_000;
+const POLL_MS = 15_000;
 
 function relativeTime(value: string) {
   const diffMs = Date.now() - new Date(value).getTime();
