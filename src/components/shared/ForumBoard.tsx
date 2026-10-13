@@ -11,6 +11,7 @@ import {
   reconcilePendingMentions,
   splitMessageForMentions,
 } from "@/lib/forumMentions";
+import { startVisiblePolling } from "@/lib/visiblePolling";
 
 interface ForumSummary {
   _id: string;
@@ -47,7 +48,7 @@ interface CurrentUser {
   name?: string;
 }
 
-const POLL_MS = 3000;
+const POLL_MS = 120_000;
 
 function relativeTime(value: string) {
   const diffMs = Date.now() - new Date(value).getTime();
@@ -135,10 +136,10 @@ function ForumBoardInner({ className }: { className: string }) {
 
     setMessagesLoading(true);
     loadMessages().finally(() => !cancelled && setMessagesLoading(false));
-    const interval = setInterval(loadMessages, POLL_MS);
+    const stopPolling = startVisiblePolling(loadMessages, POLL_MS);
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      stopPolling();
     };
   }, [activeForumId]);
 
