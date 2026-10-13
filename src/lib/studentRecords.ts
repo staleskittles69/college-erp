@@ -5,6 +5,7 @@ import HostelBooking, { IHostelBooking } from "@/models/HostelBooking";
 import HostelRoom from "@/models/HostelRoom";
 import Marks from "@/models/Marks";
 import Notification from "@/models/Notification";
+import StudentPermission from "@/models/StudentPermission";
 import TransportBooking, { ITransportBooking } from "@/models/TransportBooking";
 
 // Callers must have already run connectDB() before using anything in this file.
@@ -12,8 +13,8 @@ import TransportBooking, { ITransportBooking } from "@/models/TransportBooking";
 /**
  * Removes everything that belongs only to this student (`userId` is their User id), for when an
  * admin deletes them: their hostel bed and bus seat are given back, and their fee dues, attendance,
- * marks and notifications are deleted. Shared records — queries, messages, forum posts — and the
- * audit and login history are kept.
+ * marks, campus exit log and notifications are deleted. Shared records — queries, messages, forum
+ * posts — and the audit and login history are kept.
  */
 export async function deleteStudentRecords(userId: string): Promise<void> {
   const [hostelBooking, transportBooking] = await Promise.all([
@@ -29,6 +30,7 @@ export async function deleteStudentRecords(userId: string): Promise<void> {
     FeeDue.deleteMany({ userId }),
     Attendance.deleteMany({ studentId: userId }),
     Marks.deleteMany({ studentId: userId }),
+    StudentPermission.deleteMany({ userId }),
     Notification.deleteMany({ recipientUserId: userId }),
   ]);
 }

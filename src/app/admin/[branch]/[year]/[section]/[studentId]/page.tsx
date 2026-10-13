@@ -7,12 +7,14 @@ import Breadcrumb from "@/components/shared/Breadcrumb";
 import MarksPanel from "@/components/admin/FeaturePanels/MarksPanel";
 import AttendancePanel from "@/components/admin/FeaturePanels/AttendancePanel";
 import StudentDetailsPanel from "@/components/admin/FeaturePanels/StudentDetailsPanel";
+import PermissionsPanel from "@/components/admin/FeaturePanels/PermissionsPanel";
 import { User } from "lucide-react";
 
 const TABS = [
   { id: "marks", label: "Marks" },
   { id: "attendance", label: "Attendance" },
   { id: "details", label: "Details" },
+  { id: "permissions", label: "Permissions" },
 ];
 
 interface StudentData {
@@ -41,6 +43,12 @@ export default function StudentDetailPage() {
   const [student, setStudent] = useState<StudentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("marks");
+
+  // Links can open a specific tab with ?tab=…, e.g. "View history" on the Student Permissions page.
+  useEffect(() => {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (TABS.some((t) => t.id === tab)) setActiveTab(tab as string);
+  }, []);
 
   useEffect(() => {
     fetch(`/api/students/${studentId}`, { credentials: "include" })
@@ -112,6 +120,7 @@ export default function StudentDetailPage() {
         {activeTab === "marks" && <MarksPanel studentId={studentId} context={context} branch={student?.branch} />}
         {activeTab === "attendance" && <AttendancePanel studentId={studentId} context={context} branch={student?.branch} />}
         {activeTab === "details" && <StudentDetailsPanel studentId={studentId} context={context} />}
+        {activeTab === "permissions" && <PermissionsPanel studentId={studentId} context={context} />}
       </div>
 
       <div className="mt-6">

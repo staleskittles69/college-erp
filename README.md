@@ -83,6 +83,7 @@ middleware.ts  ── verifies the JWT cookie (jose, runs at the Edge)
 - Schedule tests and oversee marks entry
 - Post announcements that surface on the student feed
 - Resolve escalated student/teacher queries
+- Log student permissions to leave campus mid-day (time recorded automatically), with each student's exit history and count on their record
 - Audit log of admin actions
 
 ### Teacher — runs the classroom
@@ -120,6 +121,7 @@ middleware.ts  ── verifies the JWT cookie (jose, runs at the Edge)
 | `Marks` / `Test` | Scored assessments and the tests they belong to |
 | `Notice` | Announcements, scoped by author role |
 | `Query` | Student-raised questions and their responses |
+| `StudentPermission` | A mid-day campus exit an admin granted a student, with the time and optional reason |
 | `Resource` | Uploaded files (notes, materials) stored via Vercel Blob |
 | `AuditLog` | Recorded trail of admin actions |
 
